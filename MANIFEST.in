@@ -1,0 +1,6 @@
+include Makefile
+recursive-include lib *.f90
+recursive-include lib/kLittleGroups *
+recursive-include src_pw *.f90
+recursive-include src_wann *.f90
+recursive-include src_mom2ssg *
