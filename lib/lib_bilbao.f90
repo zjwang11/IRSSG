@@ -175,7 +175,7 @@ subroutine bilbao_read(sgn)
             call Kreal2string(samplek(:,ikt),ckpoint) 
             ttmp(1,1:3)=samplek(1:3,ikt)
 
-    IF(ikt/=Numk) STOP"ERROR in little groups of k-points"
+    IF(ikt/=Numk) STOP "ERROR in little groups of k-points"
     num_ktype=ikt
 
 

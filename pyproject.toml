@@ -9,33 +9,77 @@ skip = ["pp*", "*musllinux*"]
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
-environment = { FC = "gfortran", F90 = "gfortran", FFLAGS = "-fallow-invalid-boz -fbackslash -ffree-line-length-none -fallow-argument-mismatch -std=legacy" }
+environment = { FC = "gfortran", F90 = "gfortran", FFLAGS = "-cpp -fallow-invalid-boz -fbackslash -ffree-line-length-none -std=legacy" }
 before-build = '''
-  yum -y install make gcc-gfortran lapack-devel blas-devel
+  set -e
+  yum -y install gcc-gfortran lapack-devel blas-devel
 
-  # Prepare gfortran-specific Makefile without touching the repo file
-  cp Makefile Makefile.gfortran
-  sed -i 's/^F90 *=.*/F90 = gfortran/' Makefile.gfortran
-  sed -i 's/^FLAGS *=.*/FLAGS = $(FFLAGS)/' Makefile.gfortran
-  sed -i 's/^MODFLAGS *=.*/MODFLAGS = -J $(MODDIR) -I$(MODDIR)/' Makefile.gfortran
-  sed -i 's/-qmkl//g' Makefile.gfortran
-  sed -i 's/-assume byterecl//g' Makefile.gfortran
-  sed -i 's/ -traceback//g' Makefile.gfortran
-  sed -i 's/\<ifort\> /$(F90) /g' Makefile.gfortran
-  sed -i 's/^LDFLAGS *=.*/LDFLAGS = $(FLAGS)/' Makefile.gfortran
-  sed -i 's/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG -llapack -lblas -static-libgfortran -static-libgcc/' Makefile.gfortran
+  export FFLAGS="$FFLAGS -J build/mod -I build/mod"
+  mkdir -p build/mod build/obj
 
-  # No source patching here; fwann literals have been fixed in source
-  sed -i 's/(\-sqr/(-1.d0*sqr/g' lib/lib_comms.f90 || true
+  echo "Compiling IRSSG (direct gfortran, no Makefile)..."
 
-  # Build the Fortran binary with the gfortran Makefile
-  make -f Makefile.gfortran clean || true
-  make -f Makefile.gfortran USE_ABS_DATA_PATH=0 -j$(nproc)
+  # --- Build library objects (order matters for modules) ---
+  $FC $FFLAGS -c -o build/obj/lib_params.o      lib/lib_params.f90
+  $FC $FFLAGS -c -o build/obj/lib_comms.o       lib/lib_comms.f90
+  $FC $FFLAGS -c -o build/obj/mathlib.o         lib/mathlib.f90
+  $FC $FFLAGS -DIRVSPDATA -c -o build/obj/lib_bilbao.o   lib/lib_bilbao.f90
+  $FC $FFLAGS -c -o build/obj/lib_chrct.o       lib/lib_chrct.f90
+  $FC $FFLAGS -c -o build/obj/invreal33.o       lib/invreal33.f90
+  $FC $FFLAGS -c -o build/obj/invmati.o         lib/invmati.f90
+  $FC $FFLAGS -c -o build/obj/kgroup.o          lib/kgroup.f90
+  $FC $FFLAGS -c -o build/obj/irrep_ssg.o       lib/irrep_ssg.f90
+  $FC $FFLAGS -c -o build/obj/get_ssg.o         lib/get_ssg.f90
+  $FC $FFLAGS -c -o build/obj/comprel.o         lib/comprel.f90
+  $FC $FFLAGS -c -o build/obj/linear_rep.o      lib/linear_rep.f90
 
-  # Stage artifacts into the package so wheels include them
+  # --- Build PW objects ---
+  $FC $FFLAGS -c -o build/obj/pw_comms.o        src_pw/comms.f90
+  $FC $FFLAGS -c -o build/obj/pw_init.o         src_pw/init.f90
+  $FC $FFLAGS -c -o build/obj/pw_wave_data.o    src_pw/wave_data_pw.f90
+  $FC $FFLAGS -c -o build/obj/pw_main.o         src_pw/main.f90
+
+  # --- Build Wannier objects ---
+  $FC $FFLAGS -c -o build/obj/wann_file_util.o  src_wann/file_util.f90
+  $FC $FFLAGS -c -o build/obj/wann_comms.o      src_wann/comms.f90
+  $FC $FFLAGS -c -o build/obj/wann_init.o       src_wann/init.f90
+  $FC $FFLAGS -c -o build/obj/wann_wave_data.o  src_wann/wave_data.f90
+  $FC $FFLAGS -c -o build/obj/wann_main.o       src_wann/main.f90
+
+  # --- Unified main ---
+  $FC $FFLAGS -c -o build/obj/unified_main.o    src_pw/unified_main.f90
+
+  # --- Link ---
+  $FC $FFLAGS -o irssg \
+    build/obj/lib_params.o \
+    build/obj/lib_comms.o \
+    build/obj/mathlib.o \
+    build/obj/lib_bilbao.o \
+    build/obj/lib_chrct.o \
+    build/obj/invreal33.o \
+    build/obj/invmati.o \
+    build/obj/kgroup.o \
+    build/obj/irrep_ssg.o \
+    build/obj/get_ssg.o \
+    build/obj/comprel.o \
+    build/obj/linear_rep.o \
+    build/obj/pw_comms.o \
+    build/obj/pw_init.o \
+    build/obj/pw_wave_data.o \
+    build/obj/pw_main.o \
+    build/obj/wann_file_util.o \
+    build/obj/wann_comms.o \
+    build/obj/wann_init.o \
+    build/obj/wann_wave_data.o \
+    build/obj/wann_main.o \
+    build/obj/unified_main.o \
+    -llapack -lblas
+
+  # --- Stage into package ---
   mkdir -p irssg_pkg/bin
   mkdir -p irssg_pkg/data
   cp -f ./irssg irssg_pkg/bin/irssg
   cp -a lib/kLittleGroups irssg_pkg/data/
 '''
 test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""
+
