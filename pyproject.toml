@@ -1,85 +1,37 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = [
+  "meson>=0.64.0",
+  "ninja",
+  "meson-python>=0.13.0"
+]
+build-backend = "mesonpy"
+
+[project]
+name = "irssg-pkg"
+version = "0.1.1"
+description = "IRSSG unified Fortran binary packaged for pip install"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "importlib_resources; python_version < '3.9'",
+  "numpy>=1.20.1",
+  "scipy>=1.5.4",
+  "spglib>=1.15.0",
+  "pymatgen>=2021.2.8",
+  "phonopy>=2.7.0",
+]
+
+[project.scripts]
+irssg = "irssg_pkg.cli:main"
 
 [tool.cibuildwheel]
-# 仅构建 CPython 3.9（Linux）
 build = ["cp39-*"]
 skip = ["pp*", "*musllinux*"]
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
-environment = { FC = "gfortran", F90 = "gfortran", FFLAGS = "-cpp -fallow-invalid-boz -fbackslash -ffree-line-length-none -std=legacy" }
-before-build = '''
-  set -e
-  yum -y install gcc-gfortran lapack-devel blas-devel
-
-  export FFLAGS="$FFLAGS -J build/mod -I build/mod"
-  mkdir -p build/mod build/obj
-
-  echo "Compiling IRSSG (direct gfortran, no Makefile)..."
-
-  # --- Build library objects (order matters for modules) ---
-  $FC $FFLAGS -c -o build/obj/lib_params.o      lib/lib_params.f90
-  $FC $FFLAGS -c -o build/obj/lib_comms.o       lib/lib_comms.f90
-  $FC $FFLAGS -c -o build/obj/mathlib.o         lib/mathlib.f90
-  $FC $FFLAGS -DIRVSPDATA -c -o build/obj/lib_bilbao.o   lib/lib_bilbao.f90
-  $FC $FFLAGS -c -o build/obj/lib_chrct.o       lib/lib_chrct.f90
-  $FC $FFLAGS -c -o build/obj/invreal33.o       lib/invreal33.f90
-  $FC $FFLAGS -c -o build/obj/invmati.o         lib/invmati.f90
-  $FC $FFLAGS -c -o build/obj/kgroup.o          lib/kgroup.f90
-  $FC $FFLAGS -c -o build/obj/irrep_ssg.o       lib/irrep_ssg.f90
-  $FC $FFLAGS -c -o build/obj/get_ssg.o         lib/get_ssg.f90
-  $FC $FFLAGS -c -o build/obj/comprel.o         lib/comprel.f90
-  $FC $FFLAGS -c -o build/obj/linear_rep.o      lib/linear_rep.f90
-
-  # --- Build PW objects ---
-  $FC $FFLAGS -c -o build/obj/pw_comms.o        src_pw/comms.f90
-  $FC $FFLAGS -c -o build/obj/pw_init.o         src_pw/init.f90
-  $FC $FFLAGS -c -o build/obj/pw_wave_data.o    src_pw/wave_data_pw.f90
-  $FC $FFLAGS -c -o build/obj/pw_main.o         src_pw/main.f90
-
-  # --- Build Wannier objects ---
-  $FC $FFLAGS -c -o build/obj/wann_file_util.o  src_wann/file_util.f90
-  $FC $FFLAGS -c -o build/obj/wann_comms.o      src_wann/comms.f90
-  $FC $FFLAGS -c -o build/obj/wann_init.o       src_wann/init.f90
-  $FC $FFLAGS -c -o build/obj/wann_wave_data.o  src_wann/wave_data.f90
-  $FC $FFLAGS -c -o build/obj/wann_main.o       src_wann/main.f90
-
-  # --- Unified main ---
-  $FC $FFLAGS -c -o build/obj/unified_main.o    src_pw/unified_main.f90
-
-  # --- Link ---
-  $FC $FFLAGS -o irssg \
-    build/obj/lib_params.o \
-    build/obj/lib_comms.o \
-    build/obj/mathlib.o \
-    build/obj/lib_bilbao.o \
-    build/obj/lib_chrct.o \
-    build/obj/invreal33.o \
-    build/obj/invmati.o \
-    build/obj/kgroup.o \
-    build/obj/irrep_ssg.o \
-    build/obj/get_ssg.o \
-    build/obj/comprel.o \
-    build/obj/linear_rep.o \
-    build/obj/pw_comms.o \
-    build/obj/pw_init.o \
-    build/obj/pw_wave_data.o \
-    build/obj/pw_main.o \
-    build/obj/wann_file_util.o \
-    build/obj/wann_comms.o \
-    build/obj/wann_init.o \
-    build/obj/wann_wave_data.o \
-    build/obj/wann_main.o \
-    build/obj/unified_main.o \
-    -llapack -lblas
-
-  # --- Stage into package ---
-  mkdir -p irssg_pkg/bin
-  mkdir -p irssg_pkg/data
-  cp -f ./irssg irssg_pkg/bin/irssg
-  cp -a lib/kLittleGroups irssg_pkg/data/
-'''
+before-build = [
+  "yum -y install gcc-gfortran lapack-devel blas-devel"
+]
+environment = { FFLAGS = "-cpp -ffree-line-length-none -fallow-invalid-boz -std=legacy" }
 test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""
-
