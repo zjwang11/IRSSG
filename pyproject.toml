@@ -25,9 +25,7 @@ before-build = '''
   sed -i 's/^LDFLAGS *=.*/LDFLAGS = $(FLAGS)/' Makefile.gfortran
   sed -i 's/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG -llapack -lblas -static-libgfortran -static-libgcc/' Makefile.gfortran
 
-  # Fix minor literal issues for gfortran parsing
-  sed -i 's/(0d0,/(0.d0,/g' lib/lib_comms.f90 || true
-  sed -i 's/0d0)/0.d0)/g' lib/lib_comms.f90 || true
+  # No source patching here; fwann literals have been fixed in source
   sed -i 's/(\-sqr/(-1.d0*sqr/g' lib/lib_comms.f90 || true
 
   # Build the Fortran binary with the gfortran Makefile

@@ -207,13 +207,13 @@ module lib_comms
     complex(dp),  parameter :: fwann(7,7)=RESHAPE(     &
     !inputform just transpose matrix
     !basis: 3z2-r2, xz, yz, x2-y2, xy
-    (/ ( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 1.d0,0.d0) ,( 0.d0,0.d0), ( 0.d0,0.d0 ), ( 0.d0,0.d0 )  &
-      ,( 0.d0,0.d0) ,(-sqr38,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,(-sqr58,0.d0), (0.d0,0d0),(0.d0,0.d0) &
-      ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,(-sqr38,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0), ( sqr58,0.d0), (0.d0,0.d0)  &
-      ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0), ( 0.d0,0.d0), ( 1.d0,0.d0)  &
-      ,( 1.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0), ( 0.d0,0.d0 ), (0.d0,0.d0)  &
-      ,( 0.d0,0.d0) ,( sqr58,0.d0) ,(0.d0,0.d0) ,( 0.d0,0.d0) ,(-sqr38,0.d0), ( 0.d0,0.d0), (0.d0,0.d0)  &
-      ,( 0.d0,0.d0) ,( 0.d0,0.d0) ,(-sqr58,0.d0) ,( 0.d0,0.d0) ,( 0.d0,0.d0), (-sqr38,0.d0), ( 0.d0,0.d0)/)&
+    (/ CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(1.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp)  &
+      , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(-sqr38,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(-sqr58,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp) &
+      , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(-sqr38,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp), CMPLX(sqr58,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp)  &
+      , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp), CMPLX(1.d0,0.d0,kind=dp)  &
+      , CMPLX(1.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp)  &
+      , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(sqr58,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(-sqr38,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp)  &
+      , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(-sqr58,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp) , CMPLX(0.d0,0.d0,kind=dp), CMPLX(-sqr38,0.d0,kind=dp), CMPLX(0.d0,0.d0,kind=dp)/)&
       ,(/7,7/) )
 
 
