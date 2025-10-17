@@ -74,6 +74,8 @@ irssg_exe = executable('irssg',
 # Install Python package sources
 install_subdir('irssg_pkg', install_dir: py3.get_install_dir())
 
+# Install SSG Python module under irssg_pkg/ssg
+install_subdir('src_mom2ssg', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg', strip_directory: false)
+
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'data', strip_directory: false)
-
