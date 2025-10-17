@@ -16,7 +16,7 @@ before-build = '''
   # Prepare gfortran-specific Makefile without touching the repo file
   cp Makefile Makefile.gfortran
   sed -i 's/^F90 *=.*/F90 = gfortran/' Makefile.gfortran
-  sed -i 's/^FLAGS *=.*/FLAGS = -cpp $(FFLAGS)/' Makefile.gfortran
+  sed -i 's/^FLAGS *=.*/FLAGS = $(FFLAGS)/' Makefile.gfortran
   sed -i 's/^MODFLAGS *=.*/MODFLAGS = -J $(MODDIR) -I$(MODDIR)/' Makefile.gfortran
   sed -i 's/-qmkl//g' Makefile.gfortran
   sed -i 's/-assume byterecl//g' Makefile.gfortran
@@ -28,6 +28,7 @@ before-build = '''
   # Fix minor literal issues for gfortran parsing
   sed -i 's/(0d0,/(0.d0,/g' lib/lib_comms.f90 || true
   sed -i 's/0d0)/0.d0)/g' lib/lib_comms.f90 || true
+  sed -i 's/(\-sqr/(-1.d0*sqr/g' lib/lib_comms.f90 || true
 
   # Build the Fortran binary with the gfortran Makefile
   make -f Makefile.gfortran clean || true
