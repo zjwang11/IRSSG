@@ -10,7 +10,7 @@ skip = ["pp*", "*musllinux*"]
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
 environment = { FC = "gfortran", F90 = "gfortran" }
-before-build = """
+before-build = '''
   yum -y install make gcc-gfortran lapack-devel blas-devel
 
   # Prepare gfortran-specific Makefile without touching the repo file
@@ -33,5 +33,5 @@ before-build = """
   mkdir -p irssg_pkg/data
   cp -f ./irssg irssg_pkg/bin/irssg
   cp -a lib/kLittleGroups irssg_pkg/data/
-"""
+'''
 test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""
