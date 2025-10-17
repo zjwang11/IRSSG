@@ -466,7 +466,7 @@ subroutine tb_setup_ssg(WK, &
                 stop
             endif 
             phk = -dot_product(WK(:),rot_phivec(:,iatom,irot))
-            rot_mat_tb((/1:norb_j/)+startorb_j, (/1:norb_i/)+startorb_i,irot) = &
+            rot_mat_tb((/(startorb_j + i, i=1, norb_j)/), (/(startorb_i + j, j=1, norb_i)/), irot) = &
                 rot_orb(1:norb_j, 1:norb_i, iatom, irot)*exp(2.d0*PI*cmplx_i*phk)
         enddo 
     enddo 
