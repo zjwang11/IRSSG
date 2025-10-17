@@ -52,6 +52,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install dist/*.whl
           python -c "import irssg_pkg, irssg_pkg.cli; print('import-ok')"
+          python -c "import irssg_pkg.ssg.MOM2SSG as m; print('mom2ssg-ok', m.__name__)"
 
       - name: Run irssg in test directory (if present)
         run: |
