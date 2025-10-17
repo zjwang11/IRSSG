@@ -2,3 +2,36 @@
 requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.cibuildwheel]
+# 仅构建 CPython 3.9（Linux）
+build = ["cp39-*"]
+skip = ["pp*", "*musllinux*"]
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+environment = { FC = "gfortran", F90 = "gfortran" }
+before-build = """
+  yum -y install make gcc-gfortran lapack-devel blas-devel
+
+  # Prepare gfortran-specific Makefile without touching the repo file
+  cp Makefile Makefile.gfortran
+  sed -i 's/^F90 *=.*/F90 = gfortran/' Makefile.gfortran
+  sed -i 's/^FLAGS *=.*/FLAGS = -cpp/' Makefile.gfortran
+  sed -i 's/^MODFLAGS *=.*/MODFLAGS = -J $(MODDIR) -I$(MODDIR)/' Makefile.gfortran
+  sed -i 's/-qmkl//g' Makefile.gfortran
+  sed -i 's/-assume byterecl//g' Makefile.gfortran
+  sed -i 's/\<ifort\> /$(F90) /g' Makefile.gfortran
+  sed -i 's/^LDFLAGS *=.*/LDFLAGS = $(FLAGS)/' Makefile.gfortran
+  sed -i 's/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG/\$(F90) \$(LDFLAGS) -o irssg \$(SRC_OBJS) -L\$(LIBDIR) -lIRSSG -llapack -lblas -static-libgfortran -static-libgcc/' Makefile.gfortran
+
+  # Build the Fortran binary with the gfortran Makefile
+  make -f Makefile.gfortran clean || true
+  make -f Makefile.gfortran USE_ABS_DATA_PATH=0 -j$(nproc)
+
+  # Stage artifacts into the package so wheels include them
+  mkdir -p irssg_pkg/bin
+  mkdir -p irssg_pkg/data
+  cp -f ./irssg irssg_pkg/bin/irssg
+  cp -a lib/kLittleGroups irssg_pkg/data/
+"""
+test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""

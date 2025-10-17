@@ -1,0 +1,30 @@
+name: Build Linux Wheels (cibuildwheel + gfortran)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  linux-wheels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Build wheels with cibuildwheel (Linux only)
+        uses: pypa/cibuildwheel@v2.21.3
+        with:
+          output-dir: wheelhouse
+
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux
+          path: wheelhouse/*.whl
