@@ -108,15 +108,29 @@ jobs:
               import traceback; traceback.print_exc(); raise
           PY
 
-      - name: Run irssg in test directory (if present)
+      - name: Run irssg PW/WANN tests (if present)
         run: |
           set -euxo pipefail
-          if [ -d test ]; then
-            echo "Found ./test directory; running irssg..."
-            cd test
-            timeout 90s irssg | tee run.log || true
-            echo "Last line:"; tail -1 run.log || true
-            tail -1 run.log | grep -q "TOTAL END"
+          if [ -d test/pw ]; then
+            echo "Found ./test/pw; running PW test..."
+            pushd test/pw
+            echo "Command: irssg -nk 1 3 -nb 101 112"
+            timeout 120s irssg -nk 1 3 -nb 101 112 | tee run.log || true
+            echo "Checking for TOTAL END in PW log..."
+            grep -q "TOTAL END" run.log
+            popd
           else
-            echo "No ./test directory. Skipping runtime test."
+            echo "No ./test/pw directory. Skipping PW test."
+          fi
+
+          if [ -d test/wann ]; then
+            echo "Found ./test/wann; running WANN test..."
+            pushd test/wann
+            echo "Command: irssg -wann -nk 1 3 -nb 11 72"
+            timeout 120s irssg -wann -nk 1 3 -nb 11 72 | tee run.log || true
+            echo "Checking for TOTAL END in WANN log..."
+            grep -q "TOTAL END" run.log
+            popd
+          else
+            echo "No ./test/wann directory. Skipping WANN test."
           fi
