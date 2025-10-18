@@ -59,14 +59,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-          target=$(python - << 'PY'
-import sys,glob
-tag=f"cp{sys.version_info.major}{sys.version_info.minor}"
-wheels=sorted(glob.glob('dist/*.whl'))
-matches=[w for w in wheels if tag in w]
-print(matches[0] if matches else '')
-PY
-          )
+          target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
           if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
           echo "Installing wheel: $target"
           python -m pip install "$target"
