@@ -70,8 +70,27 @@ irssg_exe = executable('irssg',
 # Install Python package sources under site-packages
 install_subdir('irssg_pkg', install_dir: py3.get_install_dir())
 
-# Install SSG module: copy entire tree into irssg_pkg/ssg
-install_subdir('src_mom2ssg', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg', strip_directory: true)
+# Install SSG Python modules into irssg_pkg/ssg
+py3.install_sources(files(
+  'src_mom2ssg/__init__.py',
+  'src_mom2ssg/MOM2SSG.py',
+  'src_mom2ssg/small_func.py',
+  'src_mom2ssg/SG_utils.py',
+  'src_mom2ssg/SSGLabel.py',
+  'src_mom2ssg/lirssg.py',
+  'src_mom2ssg/poscar_io.py',
+  'src_mom2ssg/load_ssgdata.py',
+  'src_mom2ssg/wyckoff.py',
+  'src_mom2ssg/find_ssg_operation.py',
+  'src_mom2ssg/get_ssg_number.py',
+  'src_mom2ssg/std2ssg.py',
+  'src_mom2ssg/spintrans.py',
+  'src_mom2ssg/eqvpg2label.py',
+), subdir: 'irssg_pkg/ssg')
+
+# Install SSG data directories
+install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'ssg_data', strip_directory: true)
+install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'smith_form', strip_directory: true)
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'data', strip_directory: false)
