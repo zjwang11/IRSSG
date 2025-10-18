@@ -25,15 +25,20 @@ dependencies = [
 irssg = "irssg_pkg.cli:main"
 
 [tool.cibuildwheel]
-# Build CPython 3.8–3.9 on Linux (temporarily test only these)
+# Build CPython 3.12 → 3.8 on Linux (descending order)
 build = [
-  "cp38-*",
+  "cp312-*",
+  "cp311-*",
+  "cp310-*",
   "cp39-*",
+  "cp38-*",
 ]
 skip = ["pp*", "*musllinux*"]
 
+
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
+environment = { PIP_CONSTRAINT = "/project/constraints.txt" }
 before-build = [
   "yum -y install gcc-gfortran lapack-devel blas-devel"
 ]
