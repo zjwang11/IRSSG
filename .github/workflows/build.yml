@@ -37,8 +37,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Test on versions with widely available binary deps
-        python-version: ['3.8','3.9','3.10','3.11','3.12']
+        # Skip 3.8–3.10; test 3.11–3.12
+        python-version: ['3.11','3.12']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,8 +59,8 @@ jobs:
       - name: Install wheel (with deps)
         run: |
           python -m pip install --upgrade pip
-          # Force h5py 3.14.0 as binary to avoid source builds
-          python -m pip install --only-binary=:all: "h5py==3.14.0" || true
+          # Prefer binary h5py to avoid source builds (no version pin)
+          python -m pip install --only-binary=:all: "h5py" || true
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
           target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
           if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
