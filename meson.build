@@ -12,7 +12,7 @@ py_mod = import('python')
 py3 = py_mod.find_installation('python3', pure: false)
 py3_dep = py3.dependency()
 
-# Add tolerant Fortran flags and preprocessor macro
+# Build flags and macros for gfortran compatibility
 add_project_arguments([
   '-cpp',
   '-ffree-line-length-none',
@@ -20,10 +20,7 @@ add_project_arguments([
   '-DIRVSPDATA',
 ], language: 'fortran')
 
-# Detect if building under cibuildwheel
-is_cibw = run_command('python', '-c', 'import os; print(os.environ.get("CIBUILDWHEEL", "0"))', check: false).stdout().strip() == '1'
-
-# Collect Fortran sources
+# Fortran sources
 lib_sources = files(
   'lib/lib_params.f90',
   'lib/lib_comms.f90',
@@ -56,28 +53,29 @@ wann_sources = files(
 
 main_prog = files('src_pw/unified_main.f90')
 
-# Link arguments: under manylinux, link to system LAPACK/BLAS
+# Link LAPACK/BLAS on Linux
 link_args = []
 if host_machine.system() == 'linux'
-  # Prefer manual linking in CIBW environment
-  link_args += ['-L/usr/lib64', '-llapack', '-lblas', '-Wl,-rpath,/usr/lib64']
+  link_args += ['-L/usr/lib64', '-llapack', '-lblas']
+  # Use install_rpath instead of linker arg for rpath
+  install_rpath = ['/usr/lib64']
 endif
 
-# Build executable
+# Build and install executable into the Python package bin dir
 irssg_exe = executable('irssg',
   lib_sources + pw_sources + wann_sources + main_prog,
   link_args: link_args,
   install: true,
   install_dir: py3.get_install_dir() / 'irssg_pkg' / 'bin',
+  install_rpath: install_rpath,
 )
 
-# Install Python package sources
+# Install Python package sources under site-packages
 install_subdir('irssg_pkg', install_dir: py3.get_install_dir())
 
-# Install SSG Python modules and data under irssg_pkg/ssg
-py3.install_sources(files('src_mom2ssg/*.py'), subdir: 'irssg_pkg/ssg')
-install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'ssg_data', strip_directory: true)
-install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'smith_form', strip_directory: true)
+# Install SSG module: copy entire tree into irssg_pkg/ssg
+install_subdir('src_mom2ssg', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg', strip_directory: true)
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'data', strip_directory: false)
+
