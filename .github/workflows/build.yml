@@ -34,16 +34,20 @@ jobs:
   test-installed:
     needs: linux-wheels
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8','3.9','3.10','3.11','3.12','3.13','3.14']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Set up Python 3.9
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python-version }}
 
       - name: Download built wheel
         uses: actions/download-artifact@v4
@@ -54,7 +58,18 @@ jobs:
       - name: Install wheel (with deps)
         run: |
           python -m pip install --upgrade pip
-          python -m pip install dist/*.whl
+          pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
+          target=$(python - << 'PY'
+import sys,glob
+tag=f"cp{sys.version_info.major}{sys.version_info.minor}"
+wheels=sorted(glob.glob('dist/*.whl'))
+matches=[w for w in wheels if tag in w]
+print(matches[0] if matches else '')
+PY
+          )
+          if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
+          echo "Installing wheel: $target"
+          python -m pip install "$target"
           tmpdir=$(mktemp -d)
           cd "$tmpdir"
           python -c "import irssg_pkg, irssg_pkg.cli; print('import-ok')"
