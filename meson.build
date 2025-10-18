@@ -57,8 +57,6 @@ main_prog = files('src_pw/unified_main.f90')
 link_args = []
 if host_machine.system() == 'linux'
   link_args += ['-L/usr/lib64', '-llapack', '-lblas']
-  # Use install_rpath instead of linker arg for rpath
-  install_rpath = ['/usr/lib64']
 endif
 
 # Build and install executable into the Python package bin dir
@@ -67,7 +65,6 @@ irssg_exe = executable('irssg',
   link_args: link_args,
   install: true,
   install_dir: py3.get_install_dir() / 'irssg_pkg' / 'bin',
-  install_rpath: install_rpath,
 )
 
 # Install Python package sources under site-packages
@@ -78,4 +75,3 @@ install_subdir('src_mom2ssg', install_dir: py3.get_install_dir() / 'irssg_pkg' /
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'data', strip_directory: false)
-
