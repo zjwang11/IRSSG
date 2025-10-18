@@ -13,7 +13,7 @@ description = "IRSSG unified Fortran binary packaged for pip install"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-  "importlib_resources; python_version >= '3.8'",
+  "importlib_resources; python_version < '3.9'",
   "numpy>=1.20.1",
   "scipy>=1.5.4",
   "spglib>=1.15.0",
@@ -25,7 +25,7 @@ dependencies = [
 irssg = "irssg_pkg.cli:main"
 
 [tool.cibuildwheel]
-# Build CPython 3.12 → 3.8 on Linux (descending order)
+# Build CPython 3.12 -> 3.8 on Linux (descending order)
 build = [
   "cp312-*",
   "cp311-*",
@@ -35,12 +35,10 @@ build = [
 ]
 skip = ["pp*", "*musllinux*"]
 
-
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
-environment = { PIP_CONSTRAINT = "/project/constraints.txt" }
 before-build = [
   "yum -y install gcc-gfortran lapack-devel blas-devel"
 ]
-environment = { FFLAGS = "-cpp -ffree-line-length-none -fallow-invalid-boz -std=legacy" }
+environment = { FFLAGS = "-cpp -ffree-line-length-none -fallow-invalid-boz -std=legacy", PIP_CONSTRAINT = "constraints.txt" }
 test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""
