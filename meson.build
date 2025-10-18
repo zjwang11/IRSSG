@@ -89,6 +89,14 @@ py3.install_sources(files(
   'src_mom2ssg/eqvpg2label.py',
 ), subdir: 'irssg_pkg/ssg')
 
+# Additional SSG Python modules required by std2ssg and others
+py3.install_sources(files(
+  'src_mom2ssg/pos2abr.py',
+  'src_mom2ssg/find_magprim_unit.py',
+  'src_mom2ssg/getcell.py',
+  'src_mom2ssg/label_utils.py',
+), subdir: 'irssg_pkg/ssg')
+
 # Install SSG data directories
 install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'ssg_data', strip_directory: true)
 install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'smith_form', strip_directory: true)
