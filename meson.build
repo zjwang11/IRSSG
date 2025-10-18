@@ -94,7 +94,6 @@ py3.install_sources(files(
   'src_mom2ssg/pos2abr.py',
   'src_mom2ssg/find_magprim_unit.py',
   'src_mom2ssg/getcell.py',
-  'src_mom2ssg/label_utils.py',
 ), subdir: 'irssg_pkg/ssg')
 
 # Install SSG data directories
