@@ -56,22 +56,17 @@ jobs:
           name: wheels-linux
           path: dist
 
-      - name: Install system dependencies (HDF5 for h5py)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libhdf5-dev
-
       - name: Install wheel (with deps)
         run: |
           python -m pip install --upgrade pip
-          export PIP_ONLY_BINARY=:all:
-          # Preinstall h5py as binary to avoid source builds pulling HDF5
-          python -m pip install "h5py<4" --only-binary=:all: || true
+          # Force h5py 3.14.0 as binary to avoid source builds
+          python -m pip install --only-binary=:all: "h5py==3.14.0" || true
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
           target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
           if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
           echo "Installing wheel: $target"
-          python -m pip install "$target"
+          # Install our wheel without pulling deps (h5py predetermined above)
+          python -m pip install --no-deps "$target"
           tmpdir=$(mktemp -d)
           cd "$tmpdir"
           python -c "import irssg_pkg, irssg_pkg.cli; print('import-ok')"

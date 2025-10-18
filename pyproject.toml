@@ -13,7 +13,7 @@ description = "IRSSG unified Fortran binary packaged for pip install"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-  "importlib_resources; python_version < '3.9'",
+  "importlib_resources; python_version >= '3.8'",
   "numpy>=1.20.1",
   "scipy>=1.5.4",
   "spglib>=1.15.0",
