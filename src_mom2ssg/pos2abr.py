@@ -177,12 +177,12 @@ def crys_conv(space_group      : int,
     TOL = 1e-5
     match_found = False
     
-    for sh in possible_shift:                # 8 个候选 shift
-        Rs  = (rot_conv @ sh)                # (N,3)  每行 R·s
+    for sh in possible_shift:                # 8 candidate shifts
+        Rs  = (rot_conv @ sh)                # (N,3) each row is R·s
         T_p = ((trans_conv + sh - Rs + 1e-8) % 1.0 )  # (N,3)
 
-        for ir in range(num_sym):            # 每个对称操作
-            tgt = trans_table[spg2tab[ir]]   # 目标 (3,)
+        for ir in range(num_sym):            # For each symmetry operation
+            tgt = trans_table[spg2tab[ir]]   # Target (3,)
 
             ok = False
             for iv in range(4):

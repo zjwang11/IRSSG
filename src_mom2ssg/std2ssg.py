@@ -250,7 +250,7 @@ def transform_super_cell_(cell,  M, C, tol=1e-4):
     
     lattice_new = M.T @ lattice
 
-    P = np.asarray(positions, float)   # 分数坐标（行向量）
+    P = np.asarray(positions, float)   # Fractional coordinates (row vectors)
     P_new = wrap01(P @ C.T)
 
     return [lattice_new, P_new, numbers, elements, mag]

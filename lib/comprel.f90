@@ -381,7 +381,7 @@ endsubroutine judge_little_group_relation
         integer,           intent(in) :: dim
         integer, intent(in) :: arr(dim)
         integer :: i
-        pos = 0                              ! 未找到默认 0
+        pos = 0                              ! Not found; default 0
         do i = 1, dim
             if (arr(i) == val) then
                 pos = i

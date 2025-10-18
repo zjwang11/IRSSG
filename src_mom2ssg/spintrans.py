@@ -225,7 +225,7 @@ def _find_similarity_matrix(sym, inp_R, std_R, ordered=False):
     def R_axis(angle):
         return rot_about_axis(axis_std, angle)
 
-    # 先做“镜面法向预对齐”（你原先能通过的关键步骤）
+    # Pre-align using the mirror normal (key step that previously worked)
     if any(det(R) < 0 for R in std_R):
         Rin_m  = next((R for R in inp_R if det(R) < 0), None)
         Rstd_m = next((R for R in std_R if det(R) < 0), None)
@@ -336,7 +336,7 @@ def self_test(sym, rounds=10,order=False):
         
         s_out,P = identify_pointgroup(rots, ordered=order)
         if s_out != sym or P is None:
-            print(f"**测试失败：** 点群 {sym} 未正确识别, 成为 {s_out}")
+            print(f"**Test failed:** point group {sym} not identified, got {s_out}")
             return
         if order:
             err = max(
@@ -346,9 +346,9 @@ def self_test(sym, rounds=10,order=False):
         else:
             err = max(min(norm(P@R@P.T - S) for S in std_R) for R in rots)
         if err > 1e-5:
-            print(f"**测试失败：** {sym} 残差 {err}")
+            print(f"**Test failed:** {sym} residual {err}")
             return
-    print(f"点群 {sym} 测试通过，共 {rounds} 轮。")
+    print(f"Point group {sym} passed the test in {rounds} rounds.")
 
 def pg_ops_cartesian(sym: str, *, a=1.0, b=None, c=None, bravais=None):
     # b = random.random()

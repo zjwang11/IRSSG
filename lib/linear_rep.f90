@@ -183,7 +183,7 @@ subroutine get_trans_factor(num_litt_group, time_reversal, space_rot, space_tau,
     real(dp)                         :: r(g,g), s(g,g)
 
     if (g == 2) then
-      ! 固定的 2×2 矩阵
+      ! Fixed 2x2 matrix
       mat(1,1) = cmplx(1.23456_dp, 2.14793_dp, kind=dp)
       mat(1,2) = cmplx(1.57993_dp, 4.22339_dp, kind=dp)
       mat(2,1) = cmplx(3.4563277_dp, 1.778431_dp, kind=dp)
@@ -201,13 +201,13 @@ subroutine get_trans_factor(num_litt_group, time_reversal, space_rot, space_tau,
 subroutine diag_hermitian(A_in, n, w, Z)
    implicit none
 
-   !==== 接口 ====
-   integer,                  intent(in)  :: n              ! 矩阵阶数
-   complex(dp),              intent(in)  :: A_in(n,n)      ! 输入 Hermitian 矩阵
-   real(dp),                 intent(out) :: w(n)           ! 实特征值 (升序)
-   complex(dp),              intent(out) :: Z(n,n)         ! 列向量 = 归一化本征矢
+   !==== Interface ====
+   integer,                  intent(in)  :: n              ! Matrix order
+   complex(dp),              intent(in)  :: A_in(n,n)      ! Input Hermitian matrix
+   real(dp),                 intent(out) :: w(n)           ! Real eigenvalues (ascending)
+   complex(dp),              intent(out) :: Z(n,n)         ! Columns = normalized eigenvectors
 
-   !==== 局部 ====
+   !==== Locals ====
    complex(dp), allocatable :: work(:)
    real(dp),    allocatable :: rwork(:)
    complex(dp)              :: work_query
