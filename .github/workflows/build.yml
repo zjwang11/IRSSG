@@ -52,7 +52,23 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install dist/*.whl
           python -c "import irssg_pkg, irssg_pkg.cli; print('import-ok')"
-          python -c "import irssg_pkg.ssg.MOM2SSG as m; print('mom2ssg-ok', m.__name__)"
+          python - << 'PY'
+import sys, os, pkgutil
+print('sys.path[0:3]:', sys.path[0:3])
+try:
+    import irssg_pkg
+    print('irssg_pkg file:', irssg_pkg.__file__)
+    base = os.path.dirname(irssg_pkg.__file__)
+    print('irssg_pkg contents:', os.listdir(base))
+    ssg_dir = os.path.join(base, 'ssg')
+    print('irssg_pkg/ssg exists:', os.path.isdir(ssg_dir))
+    if os.path.isdir(ssg_dir):
+        print('irssg_pkg/ssg contents:', os.listdir(ssg_dir))
+    import irssg_pkg.ssg.MOM2SSG as m
+    print('mom2ssg-ok', m.__name__)
+except Exception as e:
+    import traceback; traceback.print_exc(); raise
+PY
 
       - name: Run irssg in test directory (if present)
         run: |

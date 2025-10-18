@@ -1,2 +1,2 @@
-__all__ = []
+"""IRSSG Python package namespace."""
 
