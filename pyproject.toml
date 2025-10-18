@@ -17,9 +17,8 @@ dependencies = [
   "numpy>=1.20.1",
   "scipy>=1.5.4",
   "spglib>=1.15.0",
-  "pandas<=2.2",
+  "pandas<2.2",
   "pymatgen>=2021.2.8",
-  "phonopy>=2.7.0",
 ]
 
 [project.scripts]
