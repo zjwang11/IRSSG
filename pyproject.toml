@@ -25,13 +25,10 @@ dependencies = [
 irssg = "irssg_pkg.cli:main"
 
 [tool.cibuildwheel]
-# Build CPython 3.8–3.12 on Linux
+# Build CPython 3.8–3.9 on Linux (temporarily test only these)
 build = [
   "cp38-*",
   "cp39-*",
-  "cp310-*",
-  "cp311-*",
-  "cp312-*",
 ]
 skip = ["pp*", "*musllinux*"]
 

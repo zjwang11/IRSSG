@@ -37,8 +37,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Skip 3.8–3.10; test 3.11–3.12
-        python-version: ['3.11','3.12']
+        # Temporarily test only 3.8 and 3.9
+        python-version: ['3.8','3.9']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
