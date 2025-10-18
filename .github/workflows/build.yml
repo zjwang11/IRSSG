@@ -64,6 +64,9 @@ jobs:
       - name: Install wheel (with deps)
         run: |
           python -m pip install --upgrade pip
+          export PIP_ONLY_BINARY=:all:
+          # Preinstall h5py as binary to avoid source builds pulling HDF5
+          python -m pip install "h5py<4" --only-binary=:all: || true
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
           target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
           if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
