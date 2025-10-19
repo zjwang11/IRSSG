@@ -37,8 +37,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Test 3.14 → 3.8 in descending order
-        python-version: ['3.14','3.13','3.12','3.11','3.10','3.9','3.8']
+        # Test 3.13 → 3.8 in descending order
+        python-version: ['3.13','3.12','3.11','3.10','3.9','3.8']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
