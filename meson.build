@@ -70,6 +70,9 @@ irssg_exe = executable('irssg',
 # Install Python package sources under site-packages (CLI and __init__)
 py3.install_sources(files('irssg_pkg/__init__.py', 'irssg_pkg/cli.py'), subdir: 'irssg_pkg')
 
+# Install a thin shim package to allow `import irssg`
+py3.install_sources(files('irssg/__init__.py'), subdir: 'irssg')
+
 # Install SSG Python modules into irssg_pkg/ssg
 py3.install_sources(files(
   'src_mom2ssg/__init__.py',

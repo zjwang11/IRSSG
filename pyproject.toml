@@ -41,4 +41,4 @@ before-build = [
   "yum -y install gcc-gfortran lapack-devel blas-devel"
 ]
 environment = { FFLAGS = "-cpp -ffree-line-length-none -fallow-invalid-boz -std=legacy", PIP_CONSTRAINT = "constraints.txt" }
-test-command = "python -c \"import irssg_pkg, irssg_pkg.cli; print('ok')\""
+test-command = "python -c \"import irssg, irssg_pkg, irssg_pkg.cli; from irssg import findAllOp, load_ssg_list; print('ok')\""

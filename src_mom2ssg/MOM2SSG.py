@@ -239,8 +239,8 @@ def main():
         sys.exit()
     else:
         
-        operations = findAllOp(cell, tol=tolerance,tolm=magtolerance)
-        np.save('ssgop.npy',operations,allow_pickle=True)
+        ssg_ops = findAllOp(cell, tol=tolerance,tolm=magtolerance)
+        np.save('ssgop.npy',ssg_ops,allow_pickle=True)
         dim_mag = findDimension(cell,tolm=magtolerance)
         
         if dim_mag == 1:
@@ -248,32 +248,32 @@ def main():
             if abs(axis_vector[0][-1]) > 0.7:
                 axis_vector[0] = axis_vector[0] / axis_vector[0][-1]* abs(axis_vector[0][-1])
             axis_vector.append(orthonormal_basis_from_vector(axis_vector[0])[0])
-            spin_rot_list = [1 if det(i) > 0 else -1 for i in operations['spin']]
+            spin_rot_list = [1 if det(i) > 0 else -1 for i in ssg_ops['spin']]
             
         elif dim_mag == 2:
             axis_vector = [generate_normal_vector(mag,tolm=magtolerance)]
             if abs(axis_vector[0][-1]) > 0.7:
                 axis_vector[0] = axis_vector[0] / axis_vector[0][-1]* abs(axis_vector[0][-1])
                 
-            if operations['QLabel'] == '1' or operations['QLabel'] == 'm':
+            if ssg_ops['QLabel'] == '1' or ssg_ops['QLabel'] == 'm':
                 axis_vector.append(orthonormal_basis_from_vector(axis_vector[0])[0])
             else:
-                axis_vector1 = spin_axis(operations['spin'],operations['QLabel'])
+                axis_vector1 = spin_axis(ssg_ops['spin'],ssg_ops['QLabel'])
                 axis_vector.append(axis_vector1[1])
                 
             
-            spin_rot_list = [change_basis_O3(i,axis_vector[1],axis_vector[0],tol=magtolerance)[0:2,0:2] for i in operations['spin']]
+            spin_rot_list = [change_basis_O3(i,axis_vector[1],axis_vector[0],tol=magtolerance)[0:2,0:2] for i in ssg_ops['spin']]
             
             
             
         else:
-            spin_rot_list = copy.deepcopy(operations['spin'])
-            axis_vector = spin_axis(spin_rot_list,operations['QLabel'])
+            spin_rot_list = copy.deepcopy(ssg_ops['spin'])
+            axis_vector = spin_axis(spin_rot_list,ssg_ops['QLabel'])
             
         
         
         cell_addelements = (lattice,position,numbers,elements,np.array(mag))
-        cell_sc_output_acc,wyckoff = get_swyckoff(cell_addelements, operations, tol=tolerance)
+        cell_sc_output_acc,wyckoff = get_swyckoff(cell_addelements, ssg_ops, tol=tolerance)
         output_wyckoff(cell_sc_output_acc,wyckoff)
         
         
@@ -284,7 +284,7 @@ def main():
         loaded_list = np.load(pg_path, allow_pickle=True)
         loaded_list = loaded_list.tolist()
         for pg in loaded_list:
-            if pg['HM_label'] == operations['QLabel']:
+            if pg['HM_label'] == ssg_ops['QLabel']:
                 pg_op_num = len(pg['ops'])
             
 
@@ -304,16 +304,16 @@ def main():
         else:
             format_ssg = 'Cannot find SSG number and international symbol!!!'
         
-        generate_irssg_in(operations['Gnum'], format_ssg, cell, mag, operations, tolm=magtolerance)
+        generate_irssg_in(ssg_ops['Gnum'], format_ssg, cell, mag, ssg_ops, tolm=magtolerance)
         
-        format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg)
+        format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg)
         
         if ssgnum != 'need more loop':
             print('More information about this SSG can be found at')
             print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
         
             if standardize_flag and vasp_input:
-                standardize_ssg_cell(input_file,ssgnum,cell,operations,ssg_list_,tol=tolerance,tolm=magtolerance,symm_flag=True,check_flag=True)
+                standardize_ssg_cell(input_file,ssgnum,cell,ssg_ops,ssg_list_,tol=tolerance,tolm=magtolerance,symm_flag=True,check_flag=True)
 
 if __name__ == '__main__':
     main()
