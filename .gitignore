@@ -4,7 +4,9 @@
 *.mod0
 *.smod
 *.a
-irssg
+# Ignore root-level compiled binary named "irssg", but allow package dir
+/irssg
+!/irssg/
 
 # Python build artifacts
 build/
