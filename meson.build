@@ -12,14 +12,6 @@ py_mod = import('python')
 py3 = py_mod.find_installation('python3', pure: false)
 py3_dep = py3.dependency()
 
-# Filesystem helper and package layout switch (support both irssg and legacy irssg_pkg)
-fs = import('fs')
-new_pkg = fs.exists('irssg/__init__.py')
-pkg_name = 'irssg'
-if not new_pkg
-  pkg_name = 'irssg_pkg'
-endif
-
 # Build flags and macros for gfortran compatibility
 add_project_arguments([
   '-cpp',
@@ -72,20 +64,13 @@ irssg_exe = executable('irssg',
   lib_sources + pw_sources + wann_sources + main_prog,
   link_args: link_args,
   install: true,
-  install_dir: py3.get_install_dir() / pkg_name / 'bin',
+  install_dir: py3.get_install_dir() / 'irssg' / 'bin',
 )
 
 # Install Python package sources under site-packages (CLI and __init__)
-if new_pkg
-  py3.install_sources(files('irssg/__init__.py', 'irssg/cli.py'), subdir: 'irssg')
-else
-  # Install legacy package
-  py3.install_sources(files('irssg_pkg/__init__.py', 'irssg_pkg/cli.py'), subdir: 'irssg_pkg')
-  # Also install an irssg shim that forwards to irssg_pkg
-  py3.install_sources(files('irssg_shim/__init__.py', 'irssg_shim/cli.py'), subdir: 'irssg')
-endif
+py3.install_sources(files('irssg/__init__.py', 'irssg/cli.py'), subdir: 'irssg')
 
-# Install SSG Python modules into <pkg_name>/ssg
+# Install SSG Python modules into irssg/ssg
 py3.install_sources(files(
   'src_mom2ssg/__init__.py',
   'src_mom2ssg/MOM2SSG.py',
@@ -102,18 +87,18 @@ py3.install_sources(files(
   'src_mom2ssg/std2ssg.py',
   'src_mom2ssg/spintrans.py',
   'src_mom2ssg/eqvpg2label.py',
-), subdir: pkg_name + '/ssg')
+), subdir: 'irssg/ssg')
 
 # Additional SSG Python modules required by std2ssg and others
 py3.install_sources(files(
   'src_mom2ssg/pos2abr.py',
   'src_mom2ssg/find_magprim_unit.py',
   'src_mom2ssg/getcell.py',
-), subdir: pkg_name + '/ssg')
+), subdir: 'irssg/ssg')
 
 # Install SSG data directories
-install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / pkg_name / 'ssg' / 'ssg_data', strip_directory: true)
-install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / pkg_name / 'ssg' / 'smith_form', strip_directory: true)
+install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'ssg_data', strip_directory: true)
+install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form', strip_directory: true)
 
 # Install data directory
-install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / pkg_name / 'data', strip_directory: false)
+install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg' / 'data', strip_directory: false)

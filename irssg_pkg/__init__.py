@@ -1,2 +1,0 @@
-"""IRSSG Python package namespace."""
-
