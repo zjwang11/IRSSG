@@ -32,8 +32,21 @@ jobs:
             tar -xzf test/wann/symm_hr.dat.tar.gz -C test/wann
           fi
 
-      - name: Build wheels with cibuildwheel (Linux only)
+      - name: Build wheels (manylinux_2_27, x86_64 + aarch64)
         uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_27"
+          CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux_2_27"
+        with:
+          output-dir: wheelhouse
+
+      - name: Build wheels (manylinux_2_28, x86_64 + aarch64)
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
+          CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux_2_28"
         with:
           output-dir: wheelhouse
 

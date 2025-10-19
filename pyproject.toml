@@ -37,7 +37,7 @@ build = [
 skip = ["pp*", "*musllinux*"]
 
 [tool.cibuildwheel.linux]
-archs = ["x86_64"]
+archs = ["x86_64", "aarch64"]
 before-build = [
   "yum -y install gcc-gfortran lapack-devel blas-devel"
 ]
