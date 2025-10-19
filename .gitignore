@@ -31,3 +31,5 @@ mom2ssg/*.egg-info/
 # Large data stored compressed in repo; ignore uncompressed originals
 src_mom2ssg/ssg_data/identify.pkl
 test/wann/symm_hr.dat
+src_mom2ssg/ssg_data/*.pkl
+test/wann/*.dat
