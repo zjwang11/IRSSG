@@ -15,7 +15,7 @@ if [[ -f Makefile ]]; then
 fi
 
 # Remove Python packaging artifacts and wheels
-rm -rf build dist dist_* *.egg-info irssg_pkg.egg-info || true
+rm -rf build dist dist_* *.egg-info irssg.egg-info irssg_pkg.egg-info || true
 
 # Remove leftover binaries and archives at root
 rm -f irssg libIRSSG.a *.o *.mod || true
@@ -31,4 +31,3 @@ rm -f src_wann/*.o src_wann/*.mod || true
 rm -rf build/mod || true
 
 echo "Cleanup complete." >&2
-

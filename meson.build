@@ -64,16 +64,13 @@ irssg_exe = executable('irssg',
   lib_sources + pw_sources + wann_sources + main_prog,
   link_args: link_args,
   install: true,
-  install_dir: py3.get_install_dir() / 'irssg_pkg' / 'bin',
+  install_dir: py3.get_install_dir() / 'irssg' / 'bin',
 )
 
 # Install Python package sources under site-packages (CLI and __init__)
-py3.install_sources(files('irssg_pkg/__init__.py', 'irssg_pkg/cli.py'), subdir: 'irssg_pkg')
+py3.install_sources(files('irssg/__init__.py', 'irssg/cli.py'), subdir: 'irssg')
 
-# Install a thin shim package to allow `import irssg`
-py3.install_sources(files('irssg/__init__.py'), subdir: 'irssg')
-
-# Install SSG Python modules into irssg_pkg/ssg
+# Install SSG Python modules into irssg/ssg
 py3.install_sources(files(
   'src_mom2ssg/__init__.py',
   'src_mom2ssg/MOM2SSG.py',
@@ -90,18 +87,18 @@ py3.install_sources(files(
   'src_mom2ssg/std2ssg.py',
   'src_mom2ssg/spintrans.py',
   'src_mom2ssg/eqvpg2label.py',
-), subdir: 'irssg_pkg/ssg')
+), subdir: 'irssg/ssg')
 
 # Additional SSG Python modules required by std2ssg and others
 py3.install_sources(files(
   'src_mom2ssg/pos2abr.py',
   'src_mom2ssg/find_magprim_unit.py',
   'src_mom2ssg/getcell.py',
-), subdir: 'irssg_pkg/ssg')
+), subdir: 'irssg/ssg')
 
 # Install SSG data directories
-install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'ssg_data', strip_directory: true)
-install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'ssg' / 'smith_form', strip_directory: true)
+install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'ssg_data', strip_directory: true)
+install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form', strip_directory: true)
 
 # Install data directory
-install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg_pkg' / 'data', strip_directory: false)
+install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg' / 'data', strip_directory: false)

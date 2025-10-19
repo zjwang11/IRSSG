@@ -1,4 +1,4 @@
-"""SSG analysis module vendored under irssg_pkg.ssg.
+"""SSG analysis module vendored under irssg.ssg.
 
 Convenience re-exports for common entry points:
     - findAllOp: compute all symmetry operations for a magnetic cell
