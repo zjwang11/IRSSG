@@ -97,9 +97,13 @@ py3.install_sources(files(
 ), subdir: 'irssg/ssg')
 
 # Install SSG data directories
-install_subdir('src_mom2ssg/ssg_data', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'ssg_data', strip_directory: true)
+install_subdir(
+  'src_mom2ssg/ssg_data',
+  install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'ssg_data',
+  strip_directory: true,
+  exclude_files: ['identify.pkl.tar.gz']
+)
 install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form', strip_directory: true)
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg' / 'data', strip_directory: false)
-
