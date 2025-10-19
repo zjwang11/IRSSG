@@ -11,14 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
+      - name: Decompress repo data (identify.pkl, symm_hr.dat)
+        run: |
+          set -euxo pipefail
+          if [ -f src_mom2ssg/ssg_data/identify.pkl.tar.gz ]; then
+            tar -xzf src_mom2ssg/ssg_data/identify.pkl.tar.gz -C src_mom2ssg/ssg_data
+          fi
+          if [ -f test/wann/symm_hr.dat.tar.gz ]; then
+            tar -xzf test/wann/symm_hr.dat.tar.gz -C test/wann
+          fi
 
       - name: Build wheels with cibuildwheel (Linux only)
         uses: pypa/cibuildwheel@v2.21.3
@@ -41,9 +53,18 @@ jobs:
         python-version: ['3.13','3.12','3.11','3.10','3.9','3.8']
     steps:
       - name: Checkout
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
+
+      - name: Decompress repo test data (symm_hr.dat)
+        run: |
+          set -euxo pipefail
+          if [ -f test/wann/symm_hr.dat.tar.gz ]; then
+            tar -xzf test/wann/symm_hr.dat.tar.gz -C test/wann
+          fi
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4

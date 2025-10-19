@@ -27,3 +27,7 @@ mom2ssg/*.egg-info/
 .vscode/
 *~
 *.log
+
+# Large data stored compressed in repo; ignore uncompressed originals
+src_mom2ssg/ssg_data/identify.pkl
+test/wann/symm_hr.dat
