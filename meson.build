@@ -102,3 +102,4 @@ install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'i
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg' / 'data', strip_directory: false)
+
