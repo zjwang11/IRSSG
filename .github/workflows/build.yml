@@ -56,22 +56,27 @@ jobs:
           name: wheels-linux
           path: dist
 
-      - name: Preinstall runtime deps (binary wheels only)
+      - name: Preinstall runtime deps (prefer wheels; fallback to source)
         run: |
+          set -euxo pipefail
           python -m pip install --upgrade pip
-          # Prefer and require binary wheels to avoid any source builds
+          # Prefer binary wheels; try a wheels-only resolution first
           export PIP_PREFER_BINARY=1
-          export PIP_ONLY_BINARY=:all:
-          # Deterministic resolution if constraints provided
           export PIP_CONSTRAINT=constraints.txt
-          # Core scientific stack (binary wheels only); let pip resolve versions with wheels
-          python -m pip install -c constraints.txt --only-binary=:all: \
-            numpy scipy spglib pymatgen phonopy h5py
-          # Ensure importlib_resources for Python < 3.9
+          if ! python -m pip install -c constraints.txt --only-binary=:all: \
+              numpy scipy spglib pymatgen phonopy h5py; then
+            echo "No full wheel solution found; allowing sdist fallback..."
+            python -m pip install -c constraints.txt \
+              numpy scipy spglib pymatgen phonopy h5py
+          fi
+          # Ensure importlib_resources for Python < 3.9 with the same two-pass logic
           python - << 'PY'
           import sys, subprocess
           if sys.version_info < (3,9):
-              subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "--only-binary", ":all:", "importlib_resources"])
+              try:
+                  subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "--only-binary", ":all:", "importlib_resources"])
+              except Exception:
+                  subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "importlib_resources"])
           PY
 
       - name: Install wheel (with deps)
