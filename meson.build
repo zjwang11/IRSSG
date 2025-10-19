@@ -79,7 +79,10 @@ irssg_exe = executable('irssg',
 if new_pkg
   py3.install_sources(files('irssg/__init__.py', 'irssg/cli.py'), subdir: 'irssg')
 else
+  # Install legacy package
   py3.install_sources(files('irssg_pkg/__init__.py', 'irssg_pkg/cli.py'), subdir: 'irssg_pkg')
+  # Also install an irssg shim that forwards to irssg_pkg
+  py3.install_sources(files('irssg_shim/__init__.py', 'irssg_shim/cli.py'), subdir: 'irssg')
 endif
 
 # Install SSG Python modules into <pkg_name>/ssg

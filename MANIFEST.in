@@ -5,3 +5,4 @@ recursive-include src_pw *.f90
 recursive-include src_wann *.f90
 recursive-include src_mom2ssg *
 recursive-include irssg *
+recursive-include irssg_shim *
