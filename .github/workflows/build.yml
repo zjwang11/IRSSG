@@ -56,32 +56,32 @@ jobs:
           name: wheels-linux
           path: dist
 
-      - name: Preinstall runtime deps
+      - name: Preinstall runtime deps (binary wheels only)
         run: |
           python -m pip install --upgrade pip
-          # Use constraints for deterministic dependency resolution
+          # Prefer and require binary wheels to avoid any source builds
+          export PIP_PREFER_BINARY=1
+          export PIP_ONLY_BINARY=:all:
+          # Deterministic resolution if constraints provided
           export PIP_CONSTRAINT=constraints.txt
-          # Prefer binary h5py to avoid source builds
-          python -m pip install -c constraints.txt --only-binary=:all: "h5py" || true
-          # Required deps for MOM2SSG
-          python -m pip install -c constraints.txt "numpy>=1.20.1" "scipy>=1.5.4" "spglib>=1.15.0" "pymatgen>=2021.2.8" "phonopy>=2.7.0"
+          # Core scientific stack (binary wheels only); let pip resolve versions with wheels
+          python -m pip install -c constraints.txt --only-binary=:all: \
+            numpy scipy spglib pymatgen phonopy h5py
           # Ensure importlib_resources for Python < 3.9
           python - << 'PY'
           import sys, subprocess
           if sys.version_info < (3,9):
-              subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "importlib_resources"])
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "--only-binary", ":all:", "importlib_resources"])
           PY
 
       - name: Install wheel (with deps)
         run: |
           python -m pip install --upgrade pip
-          # Prefer binary h5py to avoid source builds (no version pin)
-          python -m pip install --only-binary=:all: "h5py" || true
           # Ensure importlib_resources for Python < 3.9 (fallback used by CLI)
           python - << 'PY'
           import sys, subprocess
           if sys.version_info < (3,9):
-              subprocess.check_call([sys.executable, "-m", "pip", "install", "importlib_resources"])
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "--only-binary", ":all:", "importlib_resources"])
           PY
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
           target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
