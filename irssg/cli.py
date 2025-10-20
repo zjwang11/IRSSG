@@ -38,6 +38,11 @@ def _run_wann(bin_path, wann_args):
     cmd = [str(bin_path), "--wann"] + wann_args
     return subprocess.call(cmd)
 
+def _run_deplicate(extra_args=None):
+    # Run post-processing script after successful Fortran run
+    args = [] if extra_args is None else list(extra_args)
+    cmd = [sys.executable, "-m", "irssg.deplicate_rep"] + args
+    return subprocess.call(cmd)
 
 def main() -> int:
     # Resolve packaged data path and binary
@@ -132,7 +137,10 @@ def main() -> int:
         if _run_ssg([]) != 0:
             return 1
         if _has_pw_inputs():
-            return _run_pw(bin_path, modes["pw"])
+            rc = _run_pw(bin_path, modes["pw"])
+            if rc != 0:
+                return rc
+            return _run_deplicate([])
         return 0
 
     # Only SSG
@@ -145,7 +153,10 @@ def main() -> int:
             rc = _run_ssg(modes["ssg"])  # may be empty
             if rc != 0:
                 return rc
-        return _run_pw(bin_path, modes["pw"])
+        rc = _run_pw(bin_path, modes["pw"])
+        if rc != 0:
+            return rc
+        return _run_deplicate([])
 
     # WANN flow
     if present["wann"] and not present["pw"]:
@@ -153,7 +164,10 @@ def main() -> int:
             rc = _run_ssg(modes["ssg"])  # may be empty
             if rc != 0:
                 return rc
-        return _run_wann(bin_path, modes["wann"])
+        rc = _run_wann(bin_path, modes["wann"])
+        if rc != 0:
+            return rc
+        return _run_deplicate([])
 
     # If both -pw and -wann are specified, this is ambiguous.
     sys.stderr.write("Cannot specify both -pw and -wann in one run.\n")
@@ -162,4 +176,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
