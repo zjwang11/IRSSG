@@ -817,10 +817,15 @@ end subroutine get_irreducible_rep
             
         enddo
 
-        write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+        if (num_litt_group/=num_litt_group_unitary) then 
+            write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+            write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+            
+        else
+            write(*,'(A)')'Irreps for complete group: '//irrep_name(2:)
+            write(154,'(A)')'There are no antiunitary operations in the little group.'//irrep_name(2:)
+        endif
 
-        write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
-         
         ! write(154,*)
         ! write(154,'(A)')'Character table for complete group'
         !  write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
