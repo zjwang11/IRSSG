@@ -101,26 +101,25 @@ jobs:
             python -m pip install -c constraints.txt \
               numpy scipy spglib pymatgen phonopy h5py
           fi
-          # Ensure importlib_resources for Python < 3.9 with the same two-pass logic
-          python - << 'PY'
-          import sys, subprocess
-          if sys.version_info < (3,9):
-              try:
-                  subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "--only-binary", ":all:", "importlib_resources"])
-              except Exception:
-                  subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "importlib_resources"])
-          PY
+          # Ensure importlib_resources for Python < 3.9 using shell logic to avoid heredoc
+          if python -c "import sys; import importlib.util; sys.exit(0 if sys.version_info >= (3,9) or importlib.util.find_spec('importlib_resources') else 1)"; then
+            echo "importlib_resources not needed or already installed"
+          else
+            python -m pip install -c constraints.txt --only-binary=:all: importlib_resources \
+            || python -m pip install -c constraints.txt importlib_resources
+          fi
 
       - name: Install and test both manylinux wheels
         run: |
           set -euxo pipefail
           python -m pip install --upgrade pip
           # Ensure importlib_resources for Python < 3.9 (fallback used by CLI)
-          python - << 'PY'
-          import sys, subprocess
-          if sys.version_info < (3,9):
-              subprocess.check_call([sys.executable, "-m", "pip", "install", "--only-binary", ":all:", "importlib_resources"])
-          PY
+          if python -c "import sys; import importlib.util; sys.exit(0 if sys.version_info >= (3,9) or importlib.util.find_spec('importlib_resources') else 1)"; then
+            echo "importlib_resources not needed or already installed"
+          else
+            python -m pip install --only-binary=:all: importlib_resources \
+            || python -m pip install importlib_resources
+          fi
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
           # Iterate over wheel tags we expect to produce and test each if present
           for tag in manylinux_2_28 manylinux_2_17 manylinux2014; do
@@ -130,21 +129,7 @@ jobs:
               python -m pip install --no-deps --force-reinstall "$w"
               tmpdir=$(mktemp -d)
               cd "$tmpdir"
-              python -c "import irssg, irssg.cli; print('import-ok', '${tag}')"
-              python - << 'PY'
-              import sys, os
-              import irssg
-              print('sys.path[0:3]:', sys.path[0:3])
-              print('irssg file:', irssg.__file__)
-              base = os.path.dirname(irssg.__file__)
-              print('irssg contents:', os.listdir(base))
-              ssg_dir = os.path.join(base, 'ssg')
-              print('irssg/ssg exists:', os.path.isdir(ssg_dir))
-              if os.path.isdir(ssg_dir):
-                  print('irssg/ssg contents:', os.listdir(ssg_dir))
-              import irssg.ssg.MOM2SSG as m
-              print('mom2ssg-ok', m.__name__)
-              PY
+              python -c "import os, irssg, irssg.cli; import irssg.ssg.MOM2SSG as m; base=os.path.dirname(irssg.__file__); print('import-ok', '${tag}', 'base=', base, 'has_ssg=', os.path.isdir(os.path.join(base,'ssg')), 'mom2ssg=', m.__name__)"
               cd -
             fi
           done
