@@ -843,7 +843,7 @@ end subroutine get_irreducible_rep
         !                                 ' + ',trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(2,i))))
         !     endif
 
-        enddo
+        ! enddo
 
 
     endsubroutine
