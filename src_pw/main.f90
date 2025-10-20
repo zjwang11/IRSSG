@@ -229,8 +229,6 @@ end interface
         write(*,*)
 
         write(154,'(A)')'********************************************************************************'
-        write(154,*)
-        write(154,*)
 
         write(180,'(A)')'********************************************************************************'
         write(180,*)
@@ -243,28 +241,22 @@ end interface
         if (nspin==2) then
             if (spin_no_reversal) then
                 write(*,'(A,1I3,A)')'knum = ',kkk,' spin = up'
-                write(154,'(A,1I3,A)')'knum = ',kkk,' spin = up'
                 write(180,'(A,1I3,A)')'knum = ',kkk,' spin = up'
             else
                 write(*,'(A)')'There is a SSG operator flipping spin in the k-little group.'
                 write(*,'(A,1I3,A)')'knum = ',kkk,' spin = up & down'
-
-                write(154,'(A)')'There is a SSG operator flipping spin in the k-little group.'
-                write(154,'(A,1I3,A)')'knum = ',kkk,' spin = up & down'
 
                 write(180,'(A)')'There is a SSG operator flipping spin in the k-little group.'
                 write(180,'(A,1I3,A)')'knum = ',kkk,' spin = up & down'
             endif
         else
             write(*,'(A,1I3)')'knum = ',kkk
-            write(154,'(A,1I3)')'knum = ',kkk
             write(180,'(A,1I3)')'knum = ',kkk
         endif
 
         write(*,'(A,3F9.6)')'K = ',WK
         write(*,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
-       
-        write(154,'(A,3F9.6)')'K = ',WK
+
         write(154,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
        
         write(180,'(A,3F9.6)')'K = ',WK
@@ -392,9 +384,7 @@ end interface
         write(*,*)
         write(*,*)
 
-        write(154,'(A)')'********************************************************************************'
-        write(154,*)
-        write(154,*)
+        ! write(154,'(A)')'********************************************************************************'
 
         write(180,'(A)')'********************************************************************************'
         write(180,*)
@@ -404,24 +394,30 @@ end interface
         
         if (spin_no_reversal) then
             write(*,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = down'
-            write(154,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = down'
             write(180,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = down'
         else
             write(*,'(A)')'There is a SSG operator flipping spin in the k-little group.'
             write(*,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = up & down'
 
-            write(154,'(A)')'There is a SSG operator flipping spin in the k-little group.'
-            write(154,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = up & down'
-
             write(180,'(A)')'There is a SSG operator flipping spin in the k-little group.'
             write(180,'(A,1I3,A)')'knum = ',kkk-num_k,' spin = up & down'
         endif
 
-        write(*,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
 
-        write(154,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
+        write(*,'(A,3F9.6)')'K = ',WK
+        write(*,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
+       
+        ! write(154,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
+       
+        write(180,'(A,3F9.6)')'K = ',WK
+        write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
+       
 
-        write(180,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
+        ! write(*,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
+
+        ! write(154,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
+        
+        ! write(180,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
  
         call pw_setup_ssg(WK, num_litt_group_unitary, &
             max_plane, ncnt, igall, &
@@ -462,7 +458,7 @@ end interface
         call output_character_table(k_name,num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,ch_table_less,phase,&
                                 irrep_unitary_num,ch_unitary_table_less,irrep_coirrep_relation,irrep_name_list,discriminant_value)
 
-        call get_comprel(num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,irrep_name_list,ch_table_less)
+        ! call get_comprel(num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,irrep_name_list,ch_table_less)
 
         do i=1,irrep_num
             do j=1,num_litt_group_unitary
@@ -504,7 +500,7 @@ end interface
     endif
 
     call downarray()
-    call end_get_comprel()
+    ! call end_get_comprel()
     deallocate(rot)
     deallocate(SO3)
     deallocate(SU2)

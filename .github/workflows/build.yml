@@ -111,8 +111,9 @@ jobs:
                   subprocess.check_call([sys.executable, "-m", "pip", "install", "-c", "constraints.txt", "importlib_resources"])
           PY
 
-      - name: Install wheel (with deps)
+      - name: Install and test both manylinux wheels
         run: |
+          set -euxo pipefail
           python -m pip install --upgrade pip
           # Ensure importlib_resources for Python < 3.9 (fallback used by CLI)
           python - << 'PY'
@@ -121,19 +122,19 @@ jobs:
               subprocess.check_call([sys.executable, "-m", "pip", "install", "--only-binary", ":all:", "importlib_resources"])
           PY
           pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-          target=$(ls dist/*${pyver}*.whl 2>/dev/null | head -n1 || true)
-          if [ -z "$target" ]; then echo "No matching wheel for $pyver"; ls -la dist; exit 1; fi
-          echo "Installing wheel: $target"
-          # Install our wheel without pulling deps (h5py predetermined above)
-          python -m pip install --no-deps "$target"
-          tmpdir=$(mktemp -d)
-          cd "$tmpdir"
-          python -c "import irssg, irssg.cli; print('import-ok')"
-          python - << 'PY'
-          import sys, os
-          print('sys.path[0:3]:', sys.path[0:3])
-          try:
+          # Iterate over wheel tags we expect to produce and test each if present
+          for tag in manylinux_2_28 manylinux_2_17 manylinux2014; do
+            w=$(ls dist/*${pyver}*${tag}*x86_64.whl 2>/dev/null | head -n1 || true)
+            if [ -n "${w:-}" ]; then
+              echo "Installing wheel: $w"
+              python -m pip install --no-deps --force-reinstall "$w"
+              tmpdir=$(mktemp -d)
+              cd "$tmpdir"
+              python -c "import irssg, irssg.cli; print('import-ok', '${tag}')"
+              python - << 'PY'
+              import sys, os
               import irssg
+              print('sys.path[0:3]:', sys.path[0:3])
               print('irssg file:', irssg.__file__)
               base = os.path.dirname(irssg.__file__)
               print('irssg contents:', os.listdir(base))
@@ -143,9 +144,10 @@ jobs:
                   print('irssg/ssg contents:', os.listdir(ssg_dir))
               import irssg.ssg.MOM2SSG as m
               print('mom2ssg-ok', m.__name__)
-          except Exception as e:
-              import traceback; traceback.print_exc(); raise
-          PY
+              PY
+              cd -
+            fi
+          done
 
       - name: Run irssg PW/WANN tests (if present)
         run: |
