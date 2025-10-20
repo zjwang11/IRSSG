@@ -800,24 +800,26 @@ end subroutine get_irreducible_rep
         enddo
 
         write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
-        write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
 
-        ! write(154,'(A)')'Character table for unitary group'
-        ! write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
-        ! do i=1,irrep_unitary_num
-        !     irrep_name = ''
-        !     write(irrep_name,*)i
-        !     write(154,'(A4,A)',advance='no')trim(adjustl(kname))//trim(adjustl(irrep_name)),'   '
-        !     do j=1,num_litt_group_unitary
-        !         if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
-        !             write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'+',aimag(character_unitary_table(i,j)),'i'
-        !         else
-        !             write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'-',-aimag(character_unitary_table(i,j)),'i'
-        !         endif
-        !         write(154,'(A)',advance='no')'  '
-        !     enddo
-        !     write(154,*)
-        ! enddo
+        write(154,'(A)')'Character table for unitary group'
+        write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
+        do i=1,irrep_unitary_num
+            irrep_name = ''
+            write(irrep_name,*)i
+            write(154,'(A4,A)',advance='no')trim(adjustl(kname))//trim(adjustl(irrep_name)),'   '
+            do j=1,num_litt_group_unitary
+                if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'+',aimag(character_unitary_table(i,j)),'i'
+                else
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'-',-aimag(character_unitary_table(i,j)),'i'
+                endif
+                write(154,'(A)',advance='no')'  '
+            enddo
+            write(154,*)
+        enddo
+
+         write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+         
         ! write(154,*)
         ! write(154,'(A)')'Character table for complete group'
         !  write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
