@@ -361,20 +361,20 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
             continue  # 第一块无上一个 k 点
         k1 = norm_name_for_chart(kept_names[i])
         k2 = norm_name_for_chart(kept_names[i - 1])
-        if belongs_prev[i] is True:
-            # 收集与无序对 {k2,k1} 匹配的 comprel 块（按 comprel 的方向分组）
-            for m in cblocks_meta:
-                if {m['left'], m['right']} == {k1, k2}:
-                    key_dir = (m['left'], m['right'])
-                    if key_dir not in compat_groups:
-                        compat_groups[key_dir] = []
-                        groups_order.append(key_dir)
-                    b = m['lines']
-                    sig = (key_dir[0], key_dir[1], ''.join(b))
-                    if sig in seen_blocks:
-                        continue
-                    seen_blocks.add(sig)
-                    compat_groups[key_dir].append(b)
+        # 收集与无序对 {k2,k1} 匹配的 comprel 块（按 comprel 的方向分组）
+        for m in cblocks_meta:
+            if {m['left'], m['right']} == {k1, k2}:
+                key_dir = (m['left'], m['right'])
+                if key_dir not in compat_groups:
+                    compat_groups[key_dir] = []
+                    groups_order.append(key_dir)
+                b = m['lines']
+                # 去重仅按整个块内容，避免误删重复行
+                sig = (key_dir[0], key_dir[1], ''.join(b))
+                if sig in seen_blocks:
+                    continue
+                seen_blocks.add(sig)
+                compat_groups[key_dir].append(b)
 
     # 写出结果
     with open(out_path, 'w', encoding='utf-8') as out:
@@ -389,21 +389,14 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
             if kept:
                 out.write('\n\n')
             for src, dst in groups_order:
-                # 对该组内容逐行去重（忽略空行、忽略多余空白，保留首次出现）
-                seen = set()
-                unique_lines = []
-                for b in compat_groups[(src, dst)]:
+                blocks = compat_groups[(src, dst)]
+                if not blocks:
+                    continue
+                out.write(f"{src}->{dst} Compatibility relations:\n")
+                for b in blocks:
                     for ln in b:
-                        key = re.sub(r'\s+', ' ', ln).strip()
-                        if not key:
-                            continue
-                        if key in seen:
-                            continue
-                        seen.add(key)
-                        unique_lines.append(ln if ln.endswith('\n') else ln + '\n')
-                if unique_lines:
-                    out.write(f"{src}->{dst} Compatibility relations:\n")
-                    out.writelines(unique_lines)
+                        out.write(ln if ln.endswith('\n') else ln + '\n')
+                    # separate blocks by a blank line
                     out.write('\n')
 
 
@@ -412,4 +405,3 @@ if __name__ == '__main__':
     out_path = sys.argv[2] if len(sys.argv) > 2 else 'chart.dat'
     comprel_path = sys.argv[3] if len(sys.argv) > 3 else 'comprel.log'
     dedup_fort154(in_path, out_path, comprel_path)
-
