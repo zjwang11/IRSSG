@@ -784,22 +784,6 @@ end subroutine get_irreducible_rep
             write(*,'(A)',advance='no')'  '
         enddo
         write(*,*)
-        irrep_name = ''
-        do i=1,irrep_num
-            irrep_name=trim(adjustl(irrep_name))//','
-            if (irrep_coirrep_relation(2,i) == 0) then
-                irrep_name_list_reduce(i) = trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))
-                irrep_name=trim(adjustl(irrep_name))//trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))
-            else
-                irrep_name_list_reduce(i) = trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))//&
-                                        trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(2,i))))
-                irrep_name=trim(adjustl(irrep_name))//trim(adjustl(irrep_name_list_reduce(i)))
-            endif
-            
-            
-        enddo
-
-        write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
 
         write(154,'(A)')'Character table for unitary group'
         write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
@@ -818,7 +802,24 @@ end subroutine get_irreducible_rep
             write(154,*)
         enddo
 
-         write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+        irrep_name = ''
+        do i=1,irrep_num
+            irrep_name=trim(adjustl(irrep_name))//','
+            if (irrep_coirrep_relation(2,i) == 0) then
+                irrep_name_list_reduce(i) = trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))
+                irrep_name=trim(adjustl(irrep_name))//trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))
+            else
+                irrep_name_list_reduce(i) = trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(1,i))))//&
+                                        trim(adjustl(irrep_unitary_name_list(irrep_coirrep_relation(2,i))))
+                irrep_name=trim(adjustl(irrep_name))//trim(adjustl(irrep_name_list_reduce(i)))
+            endif
+            
+            
+        enddo
+
+        write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
+
+        write(154,'(A)')'Coirreps for complete group: '//irrep_name(2:)
          
         ! write(154,*)
         ! write(154,'(A)')'Character table for complete group'
