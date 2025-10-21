@@ -1,4 +1,4 @@
-module get_ssg
+module get_ssg_mod
   use lib_params, only:dp, lattice
   implicit none
   integer, parameter :: ssg_file_unit = 1245
@@ -280,4 +280,4 @@ contains
 
 
   endsubroutine get_ssgrep_through_SSGREP
-end module get_ssg
+end module get_ssg_mod

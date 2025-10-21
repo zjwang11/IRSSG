@@ -1,7 +1,7 @@
 module driver_wann
 contains
 subroutine run_wann()
-    use get_ssg
+    use get_ssg_mod
     use comms_wann 
     use init_wann
     use wave_data_wann

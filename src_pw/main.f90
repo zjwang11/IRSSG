@@ -1,7 +1,7 @@
 module driver_pw
 contains
 subroutine run_pw()
-    use get_ssg
+    use get_ssg_mod
     use comms 
     use init
     use wave_data_pw
