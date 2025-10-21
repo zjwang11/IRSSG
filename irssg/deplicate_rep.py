@@ -392,12 +392,23 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         if groups_order:
             if kept:
                 out.write('\n\n')
+            printed_pairs = set()
+            emitted_headers = set()
             for pair_key in groups_order:
+                if pair_key in printed_pairs:
+                    continue
+                printed_pairs.add(pair_key)
                 blocks = compat_groups[pair_key]
                 if not blocks:
                     continue
                 src, dst = display_order[pair_key]
-                out.write(f"{src}->{dst} Compatibility relations:\n")
+                header = f"{src}->{dst} Compatibility relations:\n"
+                if header in emitted_headers:
+                    # Already emitted an equivalent header; merge content only
+                    pass
+                else:
+                    out.write(header)
+                    emitted_headers.add(header)
                 for b in blocks:
                     for ln in b:
                         out.write(ln if ln.endswith('\n') else ln + '\n')
