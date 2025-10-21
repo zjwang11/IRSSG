@@ -340,9 +340,10 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         verdict = next_point_in_manifold(prev_tokens, curr_tokens)
         belongs_prev[i] = verdict
 
-    # 收集末尾输出的相容性关系，按有向对分组并保持出现顺序
-    compat_groups = {}  # (src_base, dst_base) -> list[list[str]]
-    groups_order = []   # list of (src_base, dst_base)
+    # 收集末尾输出的相容性关系，按无序对分组并保持出现顺序
+    # 注意：{k1,k2} 与 {k2,k1} 视为同一组，键使用按字典序排序后的 (a,b)
+    compat_groups = {}  # (a,b) -> list[list[str]]
+    groups_order = []   # list of (a,b)
     seen_blocks = set() # 去重
 
     for i in range(len(kept)):
@@ -351,19 +352,19 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         k1 = norm_name_for_chart(kept_names[i])
         k2 = norm_name_for_chart(kept_names[i - 1])
         if belongs_prev[i] is True:
-            # 收集与无序对 {k2,k1} 匹配的 comprel 块（按 comprel 的方向分组）
+            # 收集与无序对 {k2,k1} 匹配的 comprel 块（按无序对分组）
             for m in cblocks_meta:
                 if {m['left'], m['right']} == {k1, k2}:
-                    key_dir = (m['left'], m['right'])
-                    if key_dir not in compat_groups:
-                        compat_groups[key_dir] = []
-                        groups_order.append(key_dir)
+                    key_pair = tuple(sorted((m['left'], m['right'])))
+                    if key_pair not in compat_groups:
+                        compat_groups[key_pair] = []
+                        groups_order.append(key_pair)
                     b = m['lines']
-                    sig = (key_dir[0], key_dir[1], ''.join(b))
+                    sig = (key_pair[0], key_pair[1], re.sub(r'\s+', ' ', ''.join(b)).strip())
                     if sig in seen_blocks:
                         continue
                     seen_blocks.add(sig)
-                    compat_groups[key_dir].append(b)
+                    compat_groups[key_pair].append(b)
 
     # 写出结果
     with open(out_path, 'w', encoding='utf-8') as out:

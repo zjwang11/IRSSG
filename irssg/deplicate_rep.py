@@ -351,30 +351,34 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         verdict = next_point_in_manifold(prev_tokens, curr_tokens)
         belongs_prev[i] = verdict
 
-    # 收集末尾输出的相容性关系，按有向对分组并保持出现顺序
-    compat_groups = {}  # (src_base, dst_base) -> list[list[str]]
-    groups_order = []   # list of (src_base, dst_base)
-    seen_blocks = set() # 去重
+    # Collect compatibility relations grouped by unordered pair {src_base, dst_base}
+    # Keep first-seen direction only for header display.
+    compat_groups = {}      # frozenset({A,B}) -> list[list[str]]
+    groups_order = []       # list of frozenset({A,B}) in first-seen order
+    display_order = {}      # frozenset({A,B}) -> (first_src, first_dst)
+    seen_blocks = set()     # signatures to dedupe identical blocks
 
     for i in range(len(kept)):
         if i == 0:
             continue  # 第一块无上一个 k 点
         k1 = norm_name_for_chart(kept_names[i])
         k2 = norm_name_for_chart(kept_names[i - 1])
-        # 收集与无序对 {k2,k1} 匹配的 comprel 块（按 comprel 的方向分组）
+        # Collect blocks whose unordered pair matches {k2,k1}
         for m in cblocks_meta:
             if {m['left'], m['right']} == {k1, k2}:
-                key_dir = (m['left'], m['right'])
-                if key_dir not in compat_groups:
-                    compat_groups[key_dir] = []
-                    groups_order.append(key_dir)
+                pair_key = frozenset((m['left'], m['right']))
+                if pair_key not in compat_groups:
+                    compat_groups[pair_key] = []
+                    groups_order.append(pair_key)
+                    # preserve first-seen direction for header
+                    display_order[pair_key] = (m['left'], m['right'])
                 b = m['lines']
-                # 去重仅按整个块内容，避免误删重复行
-                sig = (key_dir[0], key_dir[1], ''.join(b))
+                # dedupe by unordered pair + block content
+                sig = (tuple(sorted(pair_key)), ''.join(b))
                 if sig in seen_blocks:
                     continue
                 seen_blocks.add(sig)
-                compat_groups[key_dir].append(b)
+                compat_groups[pair_key].append(b)
 
     # 写出结果
     with open(out_path, 'w', encoding='utf-8') as out:
@@ -388,10 +392,11 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         if groups_order:
             if kept:
                 out.write('\n\n')
-            for src, dst in groups_order:
-                blocks = compat_groups[(src, dst)]
+            for pair_key in groups_order:
+                blocks = compat_groups[pair_key]
                 if not blocks:
                     continue
+                src, dst = display_order[pair_key]
                 out.write(f"{src}->{dst} Compatibility relations:\n")
                 for b in blocks:
                     for ln in b:
