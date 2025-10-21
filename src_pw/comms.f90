@@ -35,11 +35,11 @@ module comms
 
     integer,     public            :: max_plane
     
-    integer,    allocatable, save :: rot_input(:,:,:)
-    real(dp),    allocatable, save :: tau_input(:,:)
-    complex(dp),    allocatable, save :: SU2_input(:,:,:)
-    integer,    allocatable, save :: time_reversal_input(:)
-    real(dp),    allocatable, save :: spin_rot_input(:,:,:)
+    integer,    allocatable, save :: rot(:,:,:)
+    real(dp),    allocatable, save :: tau(:,:)
+    complex(dp),    allocatable, save :: SU2(:,:,:)
+    integer,    allocatable, save :: time_reversal(:)
+    real(dp),    allocatable, save :: spin_rot(:,:,:)
 
     ! from WAVECAR
     integer    , allocatable, save, public ::  igall(:,:) 
@@ -55,4 +55,3 @@ module comms
     real(dp), allocatable, save, public :: kpoints_from_outcar(:,:) 
 
 end module comms
-

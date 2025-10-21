@@ -16,24 +16,24 @@ subroutine run_wann()
     integer            :: narg, iarg, lens, stat 
     character(len=100) :: arg, cmd 
 
-    integer,     allocatable :: rot(:,:,:)
-    real(dp),     allocatable :: spin_rot(:,:,:)
-    real(dp),    allocatable :: SO3(:,:,:)
-    real(dp),    allocatable :: tau(:,:)
-    complex(dp), allocatable :: SU2(:,:,:)
+    integer,     allocatable :: rot_lg(:,:,:)
+    real(dp),     allocatable :: spin_rot_lg(:,:,:)
+    real(dp),    allocatable :: SO3_lg(:,:,:)
+    real(dp),    allocatable :: tau_lg(:,:)
+    complex(dp), allocatable :: SU2_lg(:,:,:)
     complex(dp), allocatable :: kphase(:)
     complex(dp), allocatable :: tilte_mat(:,:,:)
     complex(dp), allocatable :: Gphase(:,:)
     integer,     allocatable :: tilte_vec(:,:)
     integer,     allocatable :: litt_group(:)
-    integer,     allocatable :: time_reversal(:)
+    integer,     allocatable :: time_reversal_lg(:)
     integer     ::           num_litt_group
     integer     ::          num_litt_group_unitary
     integer, allocatable :: litt_group_unitary(:)
-    integer, allocatable :: rot_unitary(:,:,:)
-    real(dp), allocatable :: SO3_unitary(:,:,:)
-    complex(dp), allocatable :: SU2_unitary(:,:,:)
-    real(dp), allocatable :: tau_unitary(:,:)
+    integer, allocatable :: rot_unitary_lg(:,:,:)
+    real(dp), allocatable :: SO3_unitary_lg(:,:,:)
+    complex(dp), allocatable :: SU2_unitary_lg(:,:,:)
+    real(dp), allocatable :: tau_unitary_lg(:,:)
     integer :: irrep_num
     integer :: irrep_unitary_num
     integer, allocatable :: op_order(:)
@@ -65,8 +65,8 @@ subroutine run_wann()
     
 
 interface
-subroutine irrep_ssg(num_litt_group_unitary,litt_group_unitary, rot, tau,&
-                      SO3, SU2, &
+subroutine irrep_ssg(num_litt_group_unitary,litt_group_unitary, rot_lg, tau_lg,&
+                      SO3_lg, SU2_lg, &
                       KKK, WK, kphase, &
                       num_bands, m, n, ene_bands, &
                       dim_basis, num_basis, &
@@ -76,10 +76,10 @@ subroutine irrep_ssg(num_litt_group_unitary,litt_group_unitary, rot, tau,&
 
     integer, parameter :: dp = 8
     integer, intent(in) :: num_litt_group_unitary
-    integer,     intent(in) :: rot(3,3,num_litt_group_unitary)
-    real(dp),    intent(in) :: tau(3,num_litt_group_unitary)
-    real(dp),    intent(in) :: SO3(3,3,num_litt_group_unitary)
-    complex(dp), intent(in) :: SU2(2,2,num_litt_group_unitary)
+    integer,     intent(in) :: rot_lg(3,3,num_litt_group_unitary)
+    real(dp),    intent(in) :: tau_lg(3,num_litt_group_unitary)
+    real(dp),    intent(in) :: SO3_lg(3,3,num_litt_group_unitary)
+    complex(dp), intent(in) :: SU2_lg(2,2,num_litt_group_unitary)
     integer,     intent(in) :: litt_group_unitary(num_litt_group_unitary)
     integer,     intent(in) :: KKK 
     real(dp),    intent(in) :: WK(3)
@@ -144,15 +144,15 @@ end interface
         iarg = iarg + 1
     enddo 
     !
-    allocate(rot_input(3,3,max_nsym))  ;  rot_input=0
-    allocate(tau_input(3,max_nsym))     ;  tau_input=0.0_dp
-    allocate(SU2_input(2,2,max_nsym)) ; SU2_input=cmplx(0.0_dp,0.0_dp,kind=dp)
-    allocate(time_reversal_input(max_nsym)) ; time_reversal_input=0
-    allocate(spin_rot_input(3,3,max_nsym)) ; spin_rot_input=0.0_dp
+    allocate(rot(3,3,max_nsym))  ;  rot=0
+    allocate(tau(3,max_nsym))     ;  tau=0.0_dp
+    allocate(SU2(2,2,max_nsym)) ; SU2=cmplx(0.0_dp,0.0_dp,kind=dp)
+    allocate(time_reversal(max_nsym)) ; time_reversal=0
+    allocate(spin_rot(3,3,max_nsym)) ; spin_rot=0.0_dp
     !
     ssg_label = ''
     !
-    call get_ssg_from_MOM2SSG(spg, ssg_label,num_sym,rot_input,tau_input,SU2_input,spin_rot_input,time_reversal_input)
+    call get_ssg_from_MOM2SSG(spg, ssg_label,num_sym,rot,tau,SU2,spin_rot,time_reversal)
     !
     call load_bilbao(spg)
     !
@@ -164,23 +164,23 @@ end interface
         call read_HmnR()
     endif
     !
-    call output_ssg_operator(ssg_label,num_sym,rot_input,tau_input,SU2_input,spin_rot_input,time_reversal_input)
+    call output_ssg_operator(ssg_label,num_sym,rot,tau,SU2,spin_rot,time_reversal)
     !
     call setarray()
     !
-    allocate(rot(3,3,num_sym))                      ; rot=0
-    allocate(SO3(3,3,num_sym))                      ; SO3=0.d0
-    allocate(SU2(2,2,num_sym))                      ; SU2=0.d0 
-    allocate(tau(3,num_sym))                      ; tau=0.d0 
+    allocate(rot_lg(3,3,num_sym))                      ; rot_lg=0
+    allocate(SO3_lg(3,3,num_sym))                      ; SO3_lg=0.d0
+    allocate(SU2_lg(2,2,num_sym))                      ; SU2_lg=0.d0 
+    allocate(tau_lg(3,num_sym))                      ; tau_lg=0.d0 
     allocate(kphase(num_sym))                       ; kphase=0.d0
     allocate(litt_group(num_sym))                   ; litt_group=0        
-    allocate(time_reversal(num_sym))                ; time_reversal=0  
-    allocate(SO3_unitary(3,3,num_sym))              ; SO3_unitary=0.d0
-    allocate(SU2_unitary(2,2,num_sym))              ; SU2_unitary=0.d0
-    allocate(rot_unitary(3,3,num_sym))         ; rot_unitary=0
-    allocate(tau_unitary(3,num_sym))                ; tau_unitary=0.d0
+    allocate(time_reversal_lg(num_sym))                ; time_reversal_lg=0  
+    allocate(SO3_unitary_lg(3,3,num_sym))              ; SO3_unitary_lg=0.d0
+    allocate(SU2_unitary_lg(2,2,num_sym))              ; SU2_unitary_lg=0.d0
+    allocate(rot_unitary_lg(3,3,num_sym))         ; rot_unitary_lg=0
+    allocate(tau_unitary_lg(3,num_sym))                ; tau_unitary_lg=0.d0
     allocate(litt_group_unitary(num_sym))            ; litt_group_unitary=0   
-    allocate(spin_rot(3,3,num_sym))                 ; spin_rot=0.0_dp
+    allocate(spin_rot_lg(3,3,num_sym))                 ; spin_rot_lg=0.0_dp
     allocate(tilte_mat(num_sumorb,num_sumorb,num_sym)) ; tilte_mat = 0.d0
 
     !
@@ -203,24 +203,24 @@ end interface
             if (abs(3.d0*WK(i)-1.d0).lt.0.0002d0) WK(i) = 1.d0/3.d0
         enddo 
         
-        call kgroup(num_sym, num_sym, rot_input, time_reversal_input, WK, litt_group, num_litt_group)
+        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, num_litt_group)
 
         num_litt_group_unitary = 0
         do i=1, num_litt_group
-            rot(:,:,i) = rot_input(:,:,litt_group(i))
-            SO3(:,:,i) = matmul(matmul(br2, rot(:,:,i)), br4)
-            SU2(:,:,i) = SU2_input(:,:,litt_group(i))
-            spin_rot(:,:,i) = spin_rot_input(:,:,litt_group(i))
-            time_reversal(i) = time_reversal_input(litt_group(i))
-            tau(:,i) = tau_input(:,litt_group(i))
+            rot_lg(:,:,i) = rot(:,:,litt_group(i))
+            SO3_lg(:,:,i) = matmul(matmul(br2, rot_lg(:,:,i)), br4)
+            SU2_lg(:,:,i) = SU2(:,:,litt_group(i))
+            spin_rot_lg(:,:,i) = spin_rot(:,:,litt_group(i))
+            time_reversal_lg(i) = time_reversal(litt_group(i))
+            tau_lg(:,i) = tau(:,litt_group(i))
 
-            if (time_reversal(i)==1) then
+            if (time_reversal_lg(i)==1) then
                 num_litt_group_unitary = num_litt_group_unitary + 1
                 litt_group_unitary(num_litt_group_unitary) = litt_group(i)
-                SO3_unitary(:,:,num_litt_group_unitary) = SO3(:,:,i)
-                SU2_unitary(:,:,num_litt_group_unitary) = SU2(:,:,i)
-                rot_unitary(:,:,num_litt_group_unitary) = rot(:,:,i)
-                tau_unitary(:,num_litt_group_unitary) = tau(:,i)
+                SO3_unitary_lg(:,:,num_litt_group_unitary) = SO3_lg(:,:,i)
+                SU2_unitary_lg(:,:,num_litt_group_unitary) = SU2_lg(:,:,i)
+                rot_unitary_lg(:,:,num_litt_group_unitary) = rot_lg(:,:,i)
+                tau_unitary_lg(:,num_litt_group_unitary) = tau_lg(:,i)
             endif
             
         enddo
@@ -228,7 +228,7 @@ end interface
         
         isSpinor = .true.
         if (nspin==2) then
-            call judge_up_down_relation(num_litt_group,SU2,time_reversal,spin_no_reversal)
+            call judge_up_down_relation(num_litt_group,SU2_lg,time_reversal_lg,spin_no_reversal)
             if (.not. spin_no_reversal) then
                 isSpinor = .true.
                 call get_WF_spin_polarized(3)
@@ -281,7 +281,7 @@ end interface
                 num_litt_group_unitary, &
                 ncenter, pos_center, &
                 num_sumorb, num_sumorb, norb_center, orbt, &
-                rot_unitary, SO3_unitary, tau_unitary, &
+                rot_unitary_lg, SO3_unitary_lg, tau_unitary_lg, &
                 kphase, tilte_mat)
 
         allocate(op_order(num_litt_group))
@@ -291,8 +291,8 @@ end interface
         allocate(torsion(num_litt_group))
         allocate(phase(num_litt_group))
  
-        call get_ch_from_op(num_litt_group, spin_rot(:,:,1:num_litt_group), rot(:,:,1:num_litt_group), &
-                            tau(:,1:num_litt_group), SU2(:,:,1:num_litt_group), time_reversal(1:num_litt_group), &
+        call get_ch_from_op(num_litt_group, spin_rot_lg(:,:,1:num_litt_group), rot_lg(:,:,1:num_litt_group), &
+                            tau_lg(:,1:num_litt_group), SU2_lg(:,:,1:num_litt_group), time_reversal_lg(1:num_litt_group), &
                             WK, op_order, irrep_num, ch_table, phase, &
                             irrep_unitary_num, ch_unitary_table, torsion)
 
@@ -328,7 +328,7 @@ end interface
 
         if (nspin==1 .or. spin_no_reversal) then
             call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
-                            rot_unitary, tau_unitary, SO3_unitary, SU2_unitary, &
+                            rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                             kkk, WK, kphase, &
                             num_bands, bot_band, top_band, EE, &
                             num_sumorb, num_sumorb, &
@@ -338,7 +338,7 @@ end interface
                             rot_mat_tb=tilte_mat, tolE_=tolE)
         else
             call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
-                    rot_unitary, tau_unitary, SO3_unitary, SU2_unitary, &
+                    rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                     kkk, WK, kphase, &
                     num_bands*2, bot_band*2-1, top_band*2, EE, &
                     num_wann, num_wann, &
@@ -368,30 +368,30 @@ end interface
             if (abs(3.d0*WK(i)-1.d0).lt.0.0002d0) WK(i) = 1.d0/3.d0
         enddo 
         
-        call kgroup(num_sym, num_sym, rot_input, time_reversal_input, WK, litt_group, num_litt_group)
+        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, num_litt_group)
 
         num_litt_group_unitary = 0
 
         do i=1, num_litt_group
-            rot(:,:,i) = rot_input(:,:,litt_group(i))
-            SO3(:,:,i) = matmul(matmul(br2, rot(:,:,i)), br4)
-            SU2(:,:,i) = SU2_input(:,:,litt_group(i))
-            spin_rot(:,:,i) = spin_rot_input(:,:,litt_group(i))
-            time_reversal(i) = time_reversal_input(litt_group(i))
-            tau(:,i) = tau_input(:,litt_group(i))
+            rot_lg(:,:,i) = rot(:,:,litt_group(i))
+            SO3_lg(:,:,i) = matmul(matmul(br2, rot_lg(:,:,i)), br4)
+            SU2_lg(:,:,i) = SU2(:,:,litt_group(i))
+            spin_rot_lg(:,:,i) = spin_rot(:,:,litt_group(i))
+            time_reversal_lg(i) = time_reversal(litt_group(i))
+            tau_lg(:,i) = tau(:,litt_group(i))
 
-            if (time_reversal(i)==1) then
+            if (time_reversal_lg(i)==1) then
                 num_litt_group_unitary = num_litt_group_unitary + 1
                 litt_group_unitary(num_litt_group_unitary) = litt_group(i)
-                SO3_unitary(:,:,num_litt_group_unitary) = SO3(:,:,i)
-                SU2_unitary(:,:,num_litt_group_unitary) = SU2(:,:,i)
-                rot_unitary(:,:,num_litt_group_unitary) = rot(:,:,i)
-                tau_unitary(:,num_litt_group_unitary) = tau(:,i)
+                SO3_unitary_lg(:,:,num_litt_group_unitary) = SO3_lg(:,:,i)
+                SU2_unitary_lg(:,:,num_litt_group_unitary) = SU2_lg(:,:,i)
+                rot_unitary_lg(:,:,num_litt_group_unitary) = rot_lg(:,:,i)
+                tau_unitary_lg(:,num_litt_group_unitary) = tau_lg(:,i)
             endif
             
         enddo
 
-        call judge_up_down_relation(num_litt_group,SU2,time_reversal,spin_no_reversal)
+        call judge_up_down_relation(num_litt_group,SU2_lg,time_reversal_lg,spin_no_reversal)
 
         if (.not. spin_no_reversal) then
             isSpinor = .true.
@@ -432,7 +432,7 @@ end interface
                 num_litt_group_unitary, &
                 ncenter, pos_center, &
                 num_sumorb, num_sumorb, norb_center, orbt, &
-                rot_unitary, SO3_unitary, tau_unitary, &
+                rot_unitary_lg, SO3_unitary_lg, tau_unitary_lg, &
                 kphase, tilte_mat)
                     
         allocate(op_order(num_litt_group))
@@ -442,8 +442,8 @@ end interface
         allocate(torsion(num_litt_group))
         allocate(phase(num_litt_group))
 
-        call get_ch_from_op(num_litt_group, spin_rot(:,:,1:num_litt_group), rot(:,:,1:num_litt_group), &
-                            tau(:,1:num_litt_group), SU2(:,:,1:num_litt_group), time_reversal(1:num_litt_group), &
+        call get_ch_from_op(num_litt_group, spin_rot_lg(:,:,1:num_litt_group), rot_lg(:,:,1:num_litt_group), &
+                            tau_lg(:,1:num_litt_group), SU2_lg(:,:,1:num_litt_group), time_reversal_lg(1:num_litt_group), &
                             WK, op_order, irrep_num, ch_table, phase, irrep_unitary_num, ch_unitary_table, torsion)
 
         allocate(ch_table_less(irrep_num,num_litt_group_unitary))
@@ -473,7 +473,7 @@ end interface
 
         if (spin_no_reversal) then
             call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
-                            rot_unitary, tau_unitary, SO3_unitary, SU2_unitary, &
+                            rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                             kkk, WK, kphase, &
                             num_bands, bot_band, top_band, EE, &
                             num_wann, num_wann, &
@@ -483,7 +483,7 @@ end interface
                             rot_mat_tb=tilte_mat, tolE_=tolE)
         else
             call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
-                    rot_unitary, tau_unitary, SO3_unitary, SU2_unitary, &
+                    rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                     kkk, WK, kphase, &
                     num_bands*2, bot_band*2-1, top_band*2, EE, &
                     num_sumorb, num_sumorb, &
@@ -507,20 +507,20 @@ end interface
 
     call downarray()
 
-    deallocate(rot)
-    deallocate(SO3)
-    deallocate(SU2)
-    deallocate(tau)
+    deallocate(rot_lg)
+    deallocate(SO3_lg)
+    deallocate(SU2_lg)
+    deallocate(tau_lg)
     deallocate(kphase)
     deallocate(tilte_mat)
     deallocate(litt_group)
-    deallocate(time_reversal)
-    deallocate(rot_unitary)
-    deallocate(SO3_unitary)
-    deallocate(SU2_unitary)
+    deallocate(time_reversal_lg)
+    deallocate(rot_unitary_lg)
+    deallocate(SO3_unitary_lg)
+    deallocate(SU2_unitary_lg)
     deallocate(litt_group_unitary)
-    deallocate(tau_unitary)
-    deallocate(spin_rot)
+    deallocate(tau_unitary_lg)
+    deallocate(spin_rot_lg)
     WRITE(6,*) 
     WRITE(6,*) "*****************************************************"
     WRITE(6,*) 

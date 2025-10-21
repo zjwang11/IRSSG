@@ -268,7 +268,17 @@ def find_magprim_unit(cell):
         the standardization rotation matrix to the magnetic moments.
     """
     # Step 1: Relabel atoms by species and magnetic moments
-    cell_new, mapping = relabel_by_species_and_magmoms(cell)
+    if len(cell) == 4:
+        cell_ = []
+        cell_.append(cell[0].copy())
+        cell_.append(cell[1].copy())
+        cell_.append(cell[2].copy())
+        cell_.append(cell[2].copy())
+        cell_.append(cell[3].copy)
+        
+        cell_new, mapping = relabel_by_species_and_magmoms(cell_)
+    else:
+        cell_new, mapping = relabel_by_species_and_magmoms(cell)
     
     # Step 2: Find primitive cell
     cell_new2 = prim_cell(cell_new)
@@ -285,10 +295,15 @@ def find_magprim_unit(cell):
     U = ph.symmetry.dataset["std_rotation_matrix"]
     
     # Step 5: Restore original labels and apply transformation
-    cell = relabel_by_species_and_magmoms_back(cell_new2, mapping)
-    cell[-1] = cell[-1] @ U.T
+    cell_out = relabel_by_species_and_magmoms_back(cell_new2, mapping)
+    cell_out[-1] = cell_out[-1] @ U.T
     
-    return cell
+    P = np.linalg.inv(ph.primitive_matrix)
+    
+    if len(cell) == 4:
+        del cell_out[-2]
+    
+    return cell_out, P
 
 def replace_in_list(original_list, a, b):
     """

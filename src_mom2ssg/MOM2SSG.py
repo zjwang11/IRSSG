@@ -28,8 +28,8 @@ import argparse
 import numpy as np
 from numpy.linalg import norm, det
 
-from spglib import get_symmetry_dataset
 import copy
+from spglib import get_symmetry_dataset
 
 # Local module imports
 from .small_func import *
@@ -41,36 +41,24 @@ from .load_ssgdata import load_ssg_list
 from .wyckoff import get_swyckoff, output_wyckoff
 from .find_ssg_operation import findAllOp
 from .get_ssg_number import search4ssg
-from .std2ssg import standardize_ssg_cell
+from .std2ssg import standardize_ssg_cell,addA
 from .spintrans import spin_axis
 from .eqvpg2label import get_std_pg
+from .find_magprim_unit import find_magprim_unit
 
 
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,tol=1e-3):
+    num_operator = len(operations['spin'])
+    
     space_international = nonmag_sym['international']
     spg_op_num = nonmag_sym['rotations'].shape[0]
-    print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
-    ncell_pos_ssg = count_identity_pairs(operations['RotC'], operations['spin'], tol=1e-3)
-    print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
-
+    ncell_pos_ssg = count_identity_pairs(operations['RotC'], operations['spin'], tol=1e-3) #find pure translation number
     ncell_pos_asg = count_identity_pairs(operations['RotC'], [np.eye(3)]*len(operations['RotC']), tol=1e-3)
     assert ncell_pos_asg%ncell_pos_ssg == 0
     ncell_ssg_asg = int(ncell_pos_asg)//int(ncell_pos_ssg)
-    print(f"The volume of SSG cell is {ncell_ssg_asg} times of ASG cell.")
     assert ncell_ssg_asg%operations['Ik'] == 0
-    print(f"The volume of SSG_SPG cell is {ncell_ssg_asg//operations['Ik']} times of ASG cell.")
-    print(f"The volume of SSG cell is {operations['Ik']} times of SSG_SPG cell.")
-    
-    num_operator = len(operations['spin'])
-
     assert spg_op_num%num_operator == 0
-    print('N_ASG/N_SSG = ',spg_op_num//num_operator)
     
-    print(lps)
-       
-    print(f"z' = [{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]")
-    print(f"x' = [{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]")
-
     if ssgnum == 'need more loop':
         print('The SSG number can not be identified!')
     else:
@@ -78,12 +66,33 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print(f'The SSG number: {ssgnum}')
         print(f'The SSG label: {format_ssg}')
         
+    if 'Collinear' in lps:
+        print('''I: Collinear SSG along z' direction; S0: C\N{INFINITY}={C\N{INFINITY}z',Mx'C\N{INFINITY}z'}''')
+    elif 'Coplanar' in lps:
+        print('''II: Coplanar SSG in the x'y' plane; S0: Cs={E,Mz'}''')
+    else:
+        print('''III: Noncoplanar SSG; S0: C1={E}''')
+        
+    print("The new axises in spin space:")
+    print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
+    print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
+    print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
+    
+    print("The SSG = S0 x G0")
+    print('P (spin part of G0): ' + get_std_pg(operations['QLabel'])[1])
+    print('H (spacial part of G0): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
+    
+    print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
+
+    print(f"The volume of SSG cell is {ncell_ssg_asg} times of ASG cell.")
+    
+    print(f"The volume of SSG_SPG cell is {ncell_ssg_asg//operations['Ik']} times of ASG cell.")
+    print(f"The volume of SSG cell is {operations['Ik']} times of SSG_SPG cell.")
     
     
-    
-    # print('Non-magnetic space group: ' + space_international + f' ({spg_op_num})',end = '  ;  ')
-    print('CSG H(space part): '+ sg_symbol_from_number(operations['Gnum']),end = ',  ')
-    print('NPG P(spin part): ' + get_std_pg(operations['QLabel'])[1])
+   
+    print('N_ASG/N_SSG = ',spg_op_num//num_operator)
+
     print('='*40)
     
     print('Spin space group operations:')
@@ -148,6 +157,99 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
             print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
 
+
+
+    print()
+    print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
+
+    from phonopy import Phonopy
+    from phonopy.structure.atoms import PhonopyAtoms
+    
+    
+    unitcell_pos = PhonopyAtoms(
+        cell=cell[0],
+        scaled_positions=cell[1],
+        numbers=cell[2]
+    )
+    
+    ph = Phonopy(unitcell_pos, primitive_matrix="auto",symprec=tol)
+    R33 = inv(ph.primitive_matrix)
+    det33 = np.linalg.det(R33)
+    
+    asg_cell = R33.T @ cell[0]
+    print('Atomic primitive cell')
+    print(f"[{asg_cell[0,0]:>6.3f}, {asg_cell[0,1]:>6.3f}, {asg_cell[0,2]:>6.3f}]:a")
+    print(f"[{asg_cell[1,0]:>6.3f}, {asg_cell[1,1]:>6.3f}, {asg_cell[1,2]:>6.3f}]:b")
+    print(f"[{asg_cell[2,0]:>6.3f}, {asg_cell[2,1]:>6.3f}, {asg_cell[2,2]:>6.3f}]:c")
+    print()
+    
+    if ncell_pos_ssg > 1:  # magnetic super cell
+        cell_mag_unit, P = find_magprim_unit(cell)
+    else:
+        cell_mag_unit = copy.deepcopy(cell)
+        P = np.eye(3)
+    
+    unitcell_mag = PhonopyAtoms(
+        cell=cell_mag_unit[0],
+        scaled_positions=cell_mag_unit[1],
+        numbers=cell_mag_unit[2]
+    )
+    ph = Phonopy(unitcell_mag, primitive_matrix="auto",symprec=tol)
+    R32 = inv(ph.primitive_matrix)
+    det32 = np.linalg.det(R32)
+    
+    if operations['Gnum'] == nonmag_sym['number']:
+        P2 = np.eye(3)
+    else:
+        
+        A_frac_all = addA(operations)
+        cell_tmp = copy.deepcopy(list(cell_mag_unit))
+        cell_tmp[1] = np.concatenate([cell_tmp[1], A_frac_all], axis=0)
+        cell_tmp[2] += [cell_tmp[2][-1]+1 for i in range(len(A_frac_all))]
+        cell_tmp[3] = np.concatenate([cell_tmp[3], np.zeros([len(A_frac_all),3])], axis=0)
+        unitcell_ssg_spg_A = PhonopyAtoms(
+            cell=cell_tmp[0],
+            scaled_positions=cell_tmp[1],
+            numbers=cell_tmp[2]
+        )
+        ph = Phonopy(unitcell_ssg_spg_A, primitive_matrix="auto",symprec=tol)
+        P2 = inv(ph.primitive_matrix)
+        
+    R31 = R32 @ inv(P2)
+
+    det31 = np.linalg.det(R31)
+    
+    
+    print("H (a',b',c')=(a,b,c)R1")
+    print('R1 = ')
+    print(f"[{R31[1][0]:>6.3f}, {R31[1][1]:>6.3f}, {R31[1][2]:>6.3f}]")
+    print(f"[{R31[2][0]:>6.3f}, {R31[2][1]:>6.3f}, {R31[2][2]:>6.3f}]")
+    print(f"[{R31[0][0]:>6.3f}, {R31[0][1]:>6.3f}, {R31[0][2]:>6.3f}]")
+    print('det(R1) = ',det31)
+    print()
+    
+    print("T0 (a'',b'',c'')=(a,b,c)R2")
+    print('R2 = ')
+    print(f"[{R32[1][0]:>6.3f}, {R32[1][1]:>6.3f}, {R32[1][2]:>6.3f}]")
+    print(f"[{R32[2][0]:>6.3f}, {R32[2][1]:>6.3f}, {R32[2][2]:>6.3f}]")
+    print(f"[{R32[0][0]:>6.3f}, {R32[0][1]:>6.3f}, {R32[0][2]:>6.3f}]")
+
+    print('det(R2) = ',det32)
+    print()
+    
+    print("POSCAR (a''',b''',c''')=(a,b,c)R3")
+    print('R3 = ')
+    print(f"[{R33[1][0]:>6.3f}, {R33[1][1]:>6.3f}, {R33[1][2]:>6.3f}]")
+    print(f"[{R33[2][0]:>6.3f}, {R33[2][1]:>6.3f}, {R33[2][2]:>6.3f}]")
+    print(f"[{R33[0][0]:>6.3f}, {R33[0][1]:>6.3f}, {R33[0][2]:>6.3f}]")
+    print('det(R3) = ',det33)
+    print()
+    
+    if ssgnum != 'need more loop':
+        print('More information about this SSG can be found at')
+        print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
+    
+    
 def get_ssg(file_name,ssg_list=None,tol=1e-3,tolm=1e-4):
     
     if ssg_list is None:
@@ -270,7 +372,7 @@ def main():
             spin_rot_list = copy.deepcopy(ssg_ops['spin'])
             axis_vector = spin_axis(spin_rot_list,ssg_ops['QLabel'])
             
-        
+        axis_vector.append(np.cross(axis_vector[0],axis_vector[1]))
         
         cell_addelements = (lattice,position,numbers,elements,np.array(mag))
         cell_sc_output_acc,wyckoff = get_swyckoff(cell_addelements, ssg_ops, tol=tolerance)
@@ -297,7 +399,7 @@ def main():
         elif ssgnum == 'need more loop':
             lps = ''
         else:
-            lps = 'Spatial magnetic configuration'
+            lps = 'Noncoplanar magnetic configuration'
         
         if ssgnum != 'need more loop':
             format_ssg = get_SSG_label(ssgnum,ssg_list_)
@@ -306,12 +408,9 @@ def main():
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, cell, mag, ssg_ops, tolm=magtolerance)
         
-        format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg)
+        format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
         
         if ssgnum != 'need more loop':
-            print('More information about this SSG can be found at')
-            print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
-        
             if standardize_flag and vasp_input:
                 standardize_ssg_cell(input_file,ssgnum,cell,ssg_ops,ssg_list_,tol=tolerance,tolm=magtolerance,symm_flag=True,check_flag=True)
 

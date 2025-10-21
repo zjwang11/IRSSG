@@ -298,7 +298,7 @@ def standardize_ssg_cell(file_name,ssgnum_in, cell, operations, ssg_list, tol=1e
     
     # Find magnetic primitive unit if raw translations are present
     if flag:
-        cell = find_magprim_unit(cell)
+        cell,_ = find_magprim_unit(cell)
     
     # Prepare cell for symmetry analysis (remove elements, keep magnetic moments)
     cell_ = cell[:-2] + cell[-1:]
@@ -333,7 +333,7 @@ def standardize_ssg_cell(file_name,ssgnum_in, cell, operations, ssg_list, tol=1e
         numbers=cell[2]
     )
 
-    ph = Phonopy(unitcell, primitive_matrix="auto")
+    ph = Phonopy(unitcell, primitive_matrix="auto",symprec=tol)
     S1 = inv(ph.primitive_matrix)
     U = ph.symmetry.dataset["std_rotation_matrix"]
     # print(abs(cell[0] - S1.T@cell_prim[0]@U).max())   # == 0
