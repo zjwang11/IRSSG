@@ -70,7 +70,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print('''I: Collinear SSG along z' direction; S0: C\N{INFINITY}={C\N{INFINITY}z',Mx'C\N{INFINITY}z'}''')
     elif 'Coplanar' in lps:
         print('''II: Coplanar SSG in the x'y' plane; S0: Cs={E,Mz'}''')
-    else:
+    elif 'Noncoplanar' in lps:
         print('''III: Noncoplanar SSG; S0: C1={E}''')
         
     print("The new axises in spin space:")
@@ -82,28 +82,37 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print('P (spin part of G0): ' + get_std_pg(operations['QLabel'])[1])
     print('H (spacial part of G0): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
     
-    print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
+    # print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
 
-    print(f"The volume of SSG cell is {ncell_ssg_asg} times of ASG cell.")
+    # print(f"The volume of SSG cell is {ncell_ssg_asg} times of ASG cell.")
     
-    print(f"The volume of SSG_SPG cell is {ncell_ssg_asg//operations['Ik']} times of ASG cell.")
-    print(f"The volume of SSG cell is {operations['Ik']} times of SSG_SPG cell.")
+    # print(f"The volume of SSG_SPG cell is {ncell_ssg_asg//operations['Ik']} times of ASG cell.")
+    # print(f"The volume of SSG cell is {operations['Ik']} times of SSG_SPG cell.")
     
-    
-   
-    print('N_ASG/N_SSG = ',spg_op_num//num_operator)
-
     print('='*40)
     
-    print('Spin space group operations:')
+    print('Spin space group operations: {U||R|v}')
+    print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
+    if 'Collinear' in lps:
+        print('''U=\u03BE + I_2 in I ''')
+    elif 'Coplanar' in lps:
+        print('''U= \u03B6_{2x2} + I_1 in II''')
 
-    print(f'# ssg_symm: {num_operator}')
+    print(f'# Number: {num_operator}')
+    # if dim_mag == 1:
+    #     print('{Spin|| Ri  | taui}')
+    # elif dim_mag == 2:
+    #     print('{   Spin O2 || Ri  | taui}')
+    # else:
+    #     print('{      Spin O3    || Ri  | taui}')
+
     if dim_mag == 1:
-        print('{Spin|| Ri  | taui}')
+        print('{  \u03BE || Ri  | taui}')
     elif dim_mag == 2:
-        print('{   Spin O2 || Ri  | taui}')
+        print('{  \u03B6_{2x2}  || Ri  | taui}')
     else:
-        print('{      Spin O3    || Ri  | taui}')
+        print('{        U        || Ri  | taui}')
+        
     for i in range(num_operator):
         time_reversal = det(operations['spin'][i])
         if time_reversal > 0:
@@ -158,8 +167,10 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
 
 
+    print("D U_\u03B1 D-1  is in cartetian coordinates, which is in ssg.data.")
+    
+    print('='*40)
 
-    print()
     print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
 
     from phonopy import Phonopy
@@ -245,6 +256,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print('det(R3) = ',det33)
     print()
     
+    print('N_ASG/N_SSG = ',spg_op_num//num_operator)
+    print()
     if ssgnum != 'need more loop':
         print('More information about this SSG can be found at')
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)

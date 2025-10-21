@@ -153,7 +153,7 @@ end interface
     !
     ssg_label = ''
     !
-    call get_ssg_from_MOM2SSG(spg, ssg_label,num_sym,rot,tau,SU2,spin_rot,time_reversal)
+    call get_ssg(spg, ssg_label,num_sym,rot,tau,SU2,spin_rot,time_reversal)
     !
     call load_bilbao(spg)
     !
