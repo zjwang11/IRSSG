@@ -26,21 +26,21 @@ subroutine run_pw()
     integer,     allocatable :: tilte_vec(:,:)
     integer,     allocatable :: litt_group(:)
     integer,     allocatable :: time_reversal_lg(:)
-    integer     ::           num_litt_group
-    integer     ::          num_litt_group_unitary
+    integer     ::           numLG
+    integer     ::          numULG
     integer, allocatable :: litt_group_unitary(:)
     integer, allocatable :: rot_unitary_lg(:,:,:)
     real(dp), allocatable :: SO3_unitary_lg(:,:,:)
     complex(dp), allocatable :: SU2_unitary_lg(:,:,:)
     real(dp), allocatable :: tau_unitary_lg(:,:)
-    integer :: irrep_num
-    integer :: irrep_unitary_num
+    integer :: Ncoirrep
+    integer :: Nirrep
     integer, allocatable :: op_order(:)
     complex(dp), allocatable :: ch_table(:,:)
-    complex(dp), allocatable :: ch_table_less(:,:)
+    complex(dp), allocatable :: Ch_table2(:,:)
 
     complex(dp), allocatable :: ch_unitary_table(:,:)
-    complex(dp), allocatable :: ch_unitary_table_less(:,:)
+    complex(dp), allocatable :: Ch_table1(:,:)
 
     integer, allocatable :: irrep_coirrep_relation(:,:)
 
@@ -66,25 +66,25 @@ subroutine run_pw()
 
 
 interface
-subroutine irrep_ssg(num_litt_group_unitary,litt_group_unitary, rot_lg, tau_lg,&
+subroutine irrep_ssg(numULG,litt_group_unitary, rot_lg, tau_lg,&
                       SO3_lg, SU2_lg, &
                       KKK, WK, kphase, &
                       num_bands, m, n, ene_bands, &
                       dim_basis, num_basis, &
-                      coeffa, coeffb, irrep_num, ch_table, &
+                      coeffa, coeffb, Ncoirrep, ch_table, &
                       irrep_name_list, &
                       G_phase_pw, rot_vec_pw, rot_mat_tb, tolE_)
 
     integer, parameter :: dp = 8
-    integer, intent(in) :: num_litt_group_unitary
-    integer,     intent(in) :: rot_lg(3,3,num_litt_group_unitary)
-    real(dp),    intent(in) :: tau_lg(3,num_litt_group_unitary)
-    real(dp),    intent(in) :: SO3_lg(3,3,num_litt_group_unitary)
-    complex(dp), intent(in) :: SU2_lg(2,2,num_litt_group_unitary)
-    integer,     intent(in) :: litt_group_unitary(num_litt_group_unitary)
+    integer, intent(in) :: numULG
+    integer,     intent(in) :: rot_lg(3,3,numULG)
+    real(dp),    intent(in) :: tau_lg(3,numULG)
+    real(dp),    intent(in) :: SO3_lg(3,3,numULG)
+    complex(dp), intent(in) :: SU2_lg(2,2,numULG)
+    integer,     intent(in) :: litt_group_unitary(numULG)
     integer,     intent(in) :: KKK 
     real(dp),    intent(in) :: WK(3)
-    complex(dp), intent(in) :: kphase(num_litt_group_unitary)
+    complex(dp), intent(in) :: kphase(numULG)
 
     integer,     intent(in) :: num_bands, m, n 
     real(dp),    intent(in) :: ene_bands(num_bands) 
@@ -93,12 +93,12 @@ subroutine irrep_ssg(num_litt_group_unitary,litt_group_unitary, rot_lg, tau_lg,&
     complex(dp), intent(in) :: coeffa(dim_basis, num_bands)
     complex(dp), intent(in) :: coeffb(dim_basis, num_bands)
 
-    integer, intent(in) :: irrep_num
-    character(len=15), intent(in) :: irrep_name_list(irrep_num)
-    complex(dp), intent(in) :: ch_table(irrep_num,num_litt_group_unitary)
-    complex(dp), intent(in), optional :: G_phase_pw(dim_basis, num_litt_group_unitary)
-    integer,     intent(in), optional :: rot_vec_pw(dim_basis, num_litt_group_unitary)
-    complex(dp), intent(in), optional :: rot_mat_tb(dim_basis, dim_basis, num_litt_group_unitary)
+    integer, intent(in) :: Ncoirrep
+    character(len=15), intent(in) :: irrep_name_list(Ncoirrep)
+    complex(dp), intent(in) :: ch_table(Ncoirrep,numULG)
+    complex(dp), intent(in), optional :: G_phase_pw(dim_basis, numULG)
+    integer,     intent(in), optional :: rot_vec_pw(dim_basis, numULG)
+    complex(dp), intent(in), optional :: rot_mat_tb(dim_basis, dim_basis, numULG)
     real(dp),intent(in) :: tolE_
 
 
@@ -194,10 +194,10 @@ end interface
         
         call read_wavecar(kkk)
         
-        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, num_litt_group)
+        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, numLG)
 
-        num_litt_group_unitary = 0
-        do i=1, num_litt_group
+        numULG = 0
+        do i=1, numLG
             rot_lg(:,:,i) = rot(:,:,litt_group(i))
             SO3_lg(:,:,i) = matmul(matmul(br2, rot_lg(:,:,i)), br4)
             SU2_lg(:,:,i) = SU2(:,:,litt_group(i))
@@ -206,19 +206,19 @@ end interface
             tau_lg(:,i) = tau(:,litt_group(i))
 
             if (time_reversal_lg(i)==1) then
-                num_litt_group_unitary = num_litt_group_unitary + 1
-                litt_group_unitary(num_litt_group_unitary) = litt_group(i)
-                SO3_unitary_lg(:,:,num_litt_group_unitary) = SO3_lg(:,:,i)
-                SU2_unitary_lg(:,:,num_litt_group_unitary) = SU2_lg(:,:,i)
-                rot_unitary_lg(:,:,num_litt_group_unitary) = rot_lg(:,:,i)
-                tau_unitary_lg(:,num_litt_group_unitary) = tau_lg(:,i)
+                numULG = numULG + 1
+                litt_group_unitary(numULG) = litt_group(i)
+                SO3_unitary_lg(:,:,numULG) = SO3_lg(:,:,i)
+                SU2_unitary_lg(:,:,numULG) = SU2_lg(:,:,i)
+                rot_unitary_lg(:,:,numULG) = rot_lg(:,:,i)
+                tau_unitary_lg(:,numULG) = tau_lg(:,i)
             endif
             
         enddo
 
 
         if (nspin==2) then
-            call judge_up_down_relation(num_litt_group,SU2_lg,time_reversal_lg,spin_no_reversal)
+            call judge_up_down_relation(numLG,SU2_lg,time_reversal_lg,spin_no_reversal)
             if (.not. spin_no_reversal) then
                 call read_wavecar_spin_polarized(kkk)
             endif
@@ -263,80 +263,79 @@ end interface
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
        
 
-        call pw_setup_ssg(WK, num_litt_group_unitary, &
+        call pw_setup_ssg(WK, numULG, &
                     max_plane, ncnt, igall, &
                     rot_unitary_lg, tau_unitary_lg,&
                     kphase, Gphase, tilte_vec)
                     
-        allocate(op_order(num_litt_group))
-        allocate(ch_table(num_litt_group,num_litt_group))
-        allocate(ch_unitary_table(num_litt_group,num_litt_group))
-        allocate(discriminant_value(num_litt_group))
-        allocate(torsion(num_litt_group))
-        allocate(phase(num_litt_group))
+        allocate(op_order(numLG))
+        allocate(ch_table(numLG,numLG))
+        allocate(ch_unitary_table(numLG,numLG))
+        allocate(discriminant_value(numLG))
+        allocate(torsion(numLG))
+        allocate(phase(numLG))
 
 #ifdef TEST
-        call get_ssgrep_through_SSGREP(num_litt_group,rot_lg,tau_lg,spin_rot_lg,SU2_lg,time_reversal_lg)
+        call get_ssgrep_through_SSGREP(numLG,rot_lg,tau_lg,spin_rot_lg,SU2_lg,time_reversal_lg)
 #endif
         
-        call get_ch_from_op(num_litt_group, spin_rot_lg(:,:,1:num_litt_group), rot_lg(:,:,1:num_litt_group), &
-                            tau_lg(:,1:num_litt_group), SU2_lg(:,:,1:num_litt_group), time_reversal_lg(1:num_litt_group), &
-                            WK, op_order, irrep_num, ch_table, phase, &
-                            irrep_unitary_num, ch_unitary_table, torsion)
+        call get_ch_from_op(numLG, spin_rot_lg(:,:,1:numLG), rot_lg(:,:,1:numLG), &
+                            tau_lg(:,1:numLG), SU2_lg(:,:,1:numLG), time_reversal_lg(1:numLG), &
+                            WK, op_order, Ncoirrep, ch_table, phase, &
+                            Nirrep, ch_unitary_table, torsion)
 
-        allocate(ch_table_less(irrep_num,num_litt_group_unitary))
-        allocate(ch_unitary_table_less(irrep_unitary_num,num_litt_group_unitary))
-        allocate(irrep_coirrep_relation(2,irrep_num))
-        allocate(irrep_name_list(irrep_num))
+        allocate(Ch_table2(Ncoirrep,numULG))
+        allocate(Ch_table1(Nirrep,numULG))
+        allocate(irrep_coirrep_relation(2,Ncoirrep))
+        allocate(irrep_name_list(Ncoirrep))
 
 
-        ch_table_less(1:irrep_num,1:num_litt_group_unitary) = ch_table(1:irrep_num,1:num_litt_group_unitary)
-        ch_unitary_table_less(1:irrep_unitary_num,1:num_litt_group_unitary) = ch_unitary_table(1:irrep_unitary_num,1:num_litt_group_unitary)
+        Ch_table2(1:Ncoirrep,1:numULG) = ch_table(1:Ncoirrep,1:numULG)
+        Ch_table1(1:Nirrep,1:numULG) = ch_unitary_table(1:Nirrep,1:numULG)
 
         deallocate(ch_table)
         deallocate(ch_unitary_table)
         
         
 
-        call find_relation_between_unitary_irrep_coirrep(num_litt_group_unitary,irrep_num,ch_table_less,irrep_unitary_num,ch_unitary_table_less,irrep_coirrep_relation,&
+        call find_relation_between_unitary_irrep_coirrep(numULG,Ncoirrep,Ch_table2,Nirrep,Ch_table1,irrep_coirrep_relation,&
                                                         discriminant_value,torsion)
 
-        call output_character_table(k_name,num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,ch_table_less,phase, &
-                                irrep_unitary_num,ch_unitary_table_less,irrep_coirrep_relation,irrep_name_list,discriminant_value)
+        call output_character_table(k_name,numLG,numULG,litt_group,op_order,Ncoirrep,Ch_table2,phase, &
+                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value)
 
+        call get_comprel(numLG,numULG,litt_group,op_order,Ncoirrep,irrep_name_list,Ch_table2)
 
-        call get_comprel(num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,irrep_name_list,ch_table_less)
-
-        do i=1,irrep_num
-            do j=1,num_litt_group_unitary
-                ch_table_less(i,j) = ch_table_less(i,j) * phase(j)
+        do i=1,Ncoirrep
+            do j=1,numULG
+                Ch_table2(i,j) = Ch_table2(i,j) * phase(j)
             enddo
         enddo
 
         if (nspin==1 .or. spin_no_reversal) then
-            call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
+            call irrep_ssg( numULG,litt_group_unitary,&
                             rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                             kkk, WK, kphase, &
                             num_bands, bot_band, top_band, EE, &
                             max_plane, ncnt, &
                             coeffa, coeffb, &
-                            irrep_num, ch_table_less, &
+                            Ncoirrep, Ch_table2, &
                             irrep_name_list, &
                             G_phase_pw=Gphase, rot_vec_pw=tilte_vec, tolE_=tolE)
         else
-            call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
+            call irrep_ssg( numULG,litt_group_unitary,&
                     rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                     kkk, WK, kphase, &
                     num_bands*2, bot_band*2-1, top_band*2, EE, &
                     max_plane, ncnt, &
                     coeffa, coeffb, &
-                    irrep_num, ch_table_less, &
+                    Ncoirrep, Ch_table2, &
                     irrep_name_list, &
                     G_phase_pw=Gphase, rot_vec_pw=tilte_vec, tolE_=tolE)
         endif
 
-        deallocate(ch_table_less)
-        deallocate(ch_unitary_table_less)
+        deallocate(Ch_table2)
+        deallocate(Ch_table1)
         deallocate(op_order)
         deallocate(irrep_coirrep_relation)
         deallocate(irrep_name_list)
@@ -353,10 +352,10 @@ end interface
 
         call read_wavecar(kkk)
         
-        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, num_litt_group)
+        call kgroup(num_sym, num_sym, rot, time_reversal, WK, litt_group, numLG)
 
-        num_litt_group_unitary = 0
-        do i=1, num_litt_group
+        numULG = 0
+        do i=1, numLG
             rot_lg(:,:,i) = rot(:,:,litt_group(i))
             SO3_lg(:,:,i) = matmul(matmul(br2, rot_lg(:,:,i)), br4)
             SU2_lg(:,:,i) = SU2(:,:,litt_group(i))
@@ -365,17 +364,17 @@ end interface
             tau_lg(:,i) = tau(:,litt_group(i))
 
             if (time_reversal_lg(i)==1) then
-                num_litt_group_unitary = num_litt_group_unitary + 1
-                litt_group_unitary(num_litt_group_unitary) = litt_group(i)
-                SO3_unitary_lg(:,:,num_litt_group_unitary) = SO3_lg(:,:,i)
-                SU2_unitary_lg(:,:,num_litt_group_unitary) = SU2_lg(:,:,i)
-                rot_unitary_lg(:,:,num_litt_group_unitary) = rot_lg(:,:,i)
-                tau_unitary_lg(:,num_litt_group_unitary) = tau_lg(:,i)
+                numULG = numULG + 1
+                litt_group_unitary(numULG) = litt_group(i)
+                SO3_unitary_lg(:,:,numULG) = SO3_lg(:,:,i)
+                SU2_unitary_lg(:,:,numULG) = SU2_lg(:,:,i)
+                rot_unitary_lg(:,:,numULG) = rot_lg(:,:,i)
+                tau_unitary_lg(:,numULG) = tau_lg(:,i)
             endif
             
         enddo
         
-        call judge_up_down_relation(num_litt_group,SU2_lg,time_reversal_lg,spin_no_reversal)
+        call judge_up_down_relation(numLG,SU2_lg,time_reversal_lg,spin_no_reversal)
         if (.not. spin_no_reversal) then
             call read_wavecar_spin_polarized(kkk-num_k)
         endif
@@ -419,77 +418,77 @@ end interface
         
         ! write(180,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))
  
-        call pw_setup_ssg(WK, num_litt_group_unitary, &
+        call pw_setup_ssg(WK, numULG, &
             max_plane, ncnt, igall, &
             rot_unitary_lg, tau_unitary_lg,&
             kphase, Gphase, tilte_vec)
                  
-        allocate(op_order(num_litt_group))
-        allocate(ch_table(num_litt_group,num_litt_group))
-        allocate(ch_unitary_table(num_litt_group,num_litt_group))
-        allocate(discriminant_value(num_litt_group))
-        allocate(torsion(num_litt_group))
-        allocate(phase(num_litt_group))
+        allocate(op_order(numLG))
+        allocate(ch_table(numLG,numLG))
+        allocate(ch_unitary_table(numLG,numLG))
+        allocate(discriminant_value(numLG))
+        allocate(torsion(numLG))
+        allocate(phase(numLG))
         
 #ifdef TEST
-        call get_ssgrep_through_SSGREP(num_litt_group,rot_lg,tau_lg,spin_rot_lg,SU2_lg,time_reversal_lg)
+        call get_ssgrep_through_SSGREP(numLG,rot_lg,tau_lg,spin_rot_lg,SU2_lg,time_reversal_lg)
 #endif
         
-        call get_ch_from_op(num_litt_group, spin_rot_lg(:,:,1:num_litt_group), rot_lg(:,:,1:num_litt_group), &
-                            tau_lg(:,1:num_litt_group), SU2_lg(:,:,1:num_litt_group), time_reversal_lg(1:num_litt_group), &
-                            WK, op_order, irrep_num, ch_table, phase, irrep_unitary_num, ch_unitary_table, torsion)
+        call get_ch_from_op(numLG, spin_rot_lg(:,:,1:numLG), rot_lg(:,:,1:numLG), &
+                            tau_lg(:,1:numLG), SU2_lg(:,:,1:numLG), time_reversal_lg(1:numLG), &
+                            WK, op_order, Ncoirrep, ch_table, phase, Nirrep, ch_unitary_table, torsion)
 
-        allocate(ch_table_less(irrep_num,num_litt_group_unitary))
-        allocate(ch_unitary_table_less(irrep_unitary_num,num_litt_group_unitary))
-        allocate(irrep_coirrep_relation(2,irrep_num))
-        allocate(irrep_name_list(irrep_num))
+        allocate(Ch_table2(Ncoirrep,numULG))
+        allocate(Ch_table1(Nirrep,numULG))
+        allocate(irrep_coirrep_relation(2,Ncoirrep))
+        allocate(irrep_name_list(Ncoirrep))
 
-        ch_table_less(1:irrep_num,1:num_litt_group_unitary) = ch_table(1:irrep_num,1:num_litt_group_unitary)
-        ch_unitary_table_less(1:irrep_unitary_num,1:num_litt_group_unitary) = ch_unitary_table(1:irrep_unitary_num,1:num_litt_group_unitary)
+        Ch_table2(1:Ncoirrep,1:numULG) = ch_table(1:Ncoirrep,1:numULG)
+        Ch_table1(1:Nirrep,1:numULG) = ch_unitary_table(1:Nirrep,1:numULG)
 
         deallocate(ch_table)
         deallocate(ch_unitary_table)
 
 
 
-        call find_relation_between_unitary_irrep_coirrep(num_litt_group_unitary,irrep_num,ch_table_less,irrep_unitary_num,ch_unitary_table_less,irrep_coirrep_relation,&
+        call find_relation_between_unitary_irrep_coirrep(numULG,Ncoirrep,Ch_table2,Nirrep,Ch_table1,irrep_coirrep_relation,&
                                                         discriminant_value,torsion)
 
-        call output_character_table(k_name,num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,ch_table_less,phase,&
-                                irrep_unitary_num,ch_unitary_table_less,irrep_coirrep_relation,irrep_name_list,discriminant_value)
+        call output_character_table(k_name,numLG,numULG,litt_group,op_order,Ncoirrep,Ch_table2,phase,&
+                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value)
 
-        ! call get_comprel(num_litt_group,num_litt_group_unitary,litt_group,op_order,irrep_num,irrep_name_list,ch_table_less)
+        ! call get_comprel(numLG,numULG,litt_group,op_order,Ncoirrep,irrep_name_list,Ch_table2)
 
-        do i=1,irrep_num
-            do j=1,num_litt_group_unitary
-                ch_table_less(i,j) = ch_table_less(i,j) * phase(j)
+        do i=1,Ncoirrep
+            do j=1,numULG
+                Ch_table2(i,j) = Ch_table2(i,j) * phase(j)
             enddo
         enddo
 
         if (spin_no_reversal) then
-            call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
+            call irrep_ssg( numULG,litt_group_unitary,&
                             rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                             kkk, WK, kphase, &
                             num_bands, bot_band, top_band, EE, &
                             max_plane, ncnt, &
                             coeffa, coeffb, &
-                            irrep_num, ch_table_less, &
+                            Ncoirrep, Ch_table2, &
                             irrep_name_list, &
                             G_phase_pw=Gphase, rot_vec_pw=tilte_vec, tolE_=tolE)
         else
-            call irrep_ssg( num_litt_group_unitary,litt_group_unitary,&
+            call irrep_ssg( numULG,litt_group_unitary,&
                     rot_unitary_lg, tau_unitary_lg, SO3_unitary_lg, SU2_unitary_lg, &
                     kkk, WK, kphase, &
                     num_bands*2, bot_band*2-1, top_band*2, EE, &
                     max_plane, ncnt, &
                     coeffa, coeffb, &
-                    irrep_num, ch_table_less, &
+                    Ncoirrep, Ch_table2, &
                     irrep_name_list, &
                     G_phase_pw=Gphase, rot_vec_pw=tilte_vec, tolE_=tolE)
         endif
 
-        deallocate(ch_table_less)
-        deallocate(ch_unitary_table_less)
+        deallocate(Ch_table2)
+        deallocate(Ch_table1)
         deallocate(op_order)
         deallocate(irrep_coirrep_relation)
         deallocate(irrep_name_list)
