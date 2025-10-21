@@ -32,6 +32,11 @@ jobs:
             tar -xzf test/wann/symm_hr.dat.tar.gz -C test/wann
           fi
 
+      - name: Remove prebuilt shared objects from repo
+        run: |
+          set -euxo pipefail
+          rm -f src_mom2ssg/smith_form/libintlng.so || true
+
       - name: Build wheels (manylinux2014, x86_64)
         uses: pypa/cibuildwheel@v2.21.3
         env:

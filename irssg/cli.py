@@ -19,6 +19,13 @@ def _has_ssg_data():
     return os.path.exists("ssg.data")
 
 
+def _require_file(path: str, err: str) -> int:
+    if not os.path.exists(path):
+        sys.stderr.write(err + "\n")
+        return 1
+    return 0
+
+
 def _has_pw_inputs():
     return os.path.exists("OUTCAR") and os.path.exists("WAVECAR")
 
@@ -132,27 +139,69 @@ def main() -> int:
         modes[bucket].append(a)
         i += 1
 
-    # No mode flags: if OUTCAR & WAVECAR exist, run SSG then PW; otherwise run only SSG
+    # No explicit mode flags: default to PW flow
     if not any(present.values()):
-        if _run_ssg([]) != 0:
-            return 1
-        if _has_pw_inputs():
-            rc = _run_pw(bin_path, modes["pw"])
+        # Ensure ssg.data exists; if not, run SSG with any provided SSG opts (none by default)
+        if not _has_ssg_data():
+            rc = _run_ssg(modes["ssg"])  # may be empty
             if rc != 0:
                 return rc
-            return _run_deplicate([])
-        return 0
+        # Require WAVECAR and OUTCAR
+        if not _has_pw_inputs():
+            sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
+            return 1
+        rc = _run_pw(bin_path, modes["pw"])
+        if rc != 0:
+            return rc
+        return _run_deplicate([])
 
     # Only SSG
     if present["ssg"] and not present["pw"] and not present["wann"]:
         return _run_ssg(modes["ssg"])
 
+    # If both -pw and -wann are specified, this is invalid
+    if present["pw"] and present["wann"]:
+        sys.stderr.write("Cannot specify both -pw and -wann in one run.\n")
+        return 2
+
+    # -ssg with -pw: run SSG first, then PW
+    if present["ssg"] and present["pw"] and not present["wann"]:
+        rc = _run_ssg(modes["ssg"])  # run SSG unconditionally first
+        if rc != 0:
+            return rc
+        # Require WAVECAR and OUTCAR
+        if not _has_pw_inputs():
+            sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
+            return 1
+        rc = _run_pw(bin_path, modes["pw"])
+        if rc != 0:
+            return rc
+        return _run_deplicate([])
+
+    # -ssg with -wann: run SSG first, then Wann
+    if present["ssg"] and present["wann"] and not present["pw"]:
+        rc = _run_ssg(modes["ssg"])  # run SSG unconditionally first
+        if rc != 0:
+            return rc
+        # Require tbbox.in
+        if _require_file("tbbox.in", "WANN mode requires tbbox.in in current directory.") != 0:
+            return 1
+        rc = _run_wann(bin_path, modes["wann"])
+        if rc != 0:
+            return rc
+        return _run_deplicate([])
+
     # PW flow
     if present["pw"] and not present["wann"]:
+        # Ensure ssg.data exists (run SSG first if missing)
         if not _has_ssg_data():
             rc = _run_ssg(modes["ssg"])  # may be empty
             if rc != 0:
                 return rc
+        # Require WAVECAR and OUTCAR
+        if not _has_pw_inputs():
+            sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
+            return 1
         rc = _run_pw(bin_path, modes["pw"])
         if rc != 0:
             return rc
@@ -160,10 +209,14 @@ def main() -> int:
 
     # WANN flow
     if present["wann"] and not present["pw"]:
+        # Ensure ssg.data exists (run SSG first if missing)
         if not _has_ssg_data():
             rc = _run_ssg(modes["ssg"])  # may be empty
             if rc != 0:
                 return rc
+        # Require tbbox.in
+        if _require_file("tbbox.in", "WANN mode requires tbbox.in in current directory.") != 0:
+            return 1
         rc = _run_wann(bin_path, modes["wann"])
         if rc != 0:
             return rc

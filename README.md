@@ -111,4 +111,4 @@ Notes
 - To repackage a platform wheel locally: `python -m pip wheel . --no-build-isolation`. The resulting wheel includes the compiled binary.
 
 
-# irssg_py2
+# irssg_construction

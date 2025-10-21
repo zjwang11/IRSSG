@@ -1,4 +1,4 @@
-project('irssg-pkg', 'fortran',
+project('irssg-pkg', 'fortran', 'c',
   version : '0.1.1',
   meson_version : '>=0.64.0',
   default_options : [
@@ -103,7 +103,21 @@ install_subdir(
   strip_directory: true,
   exclude_files: ['identify.pkl.tar.gz']
 )
-install_subdir('src_mom2ssg/smith_form', install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form', strip_directory: true)
+# Build the small C shared library for smith_form and install it
+intlng_lib = shared_library(
+  'intlng',
+  'src_mom2ssg/smith_form/libintlng.c',
+  install: true,
+  install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form'
+)
+
+# Install the smith_form Python sources, excluding any prebuilt shared objects
+install_subdir(
+  'src_mom2ssg/smith_form',
+  install_dir: py3.get_install_dir() / 'irssg' / 'ssg' / 'smith_form',
+  strip_directory: true,
+  exclude_files: ['libintlng.so']
+)
 
 # Install data directory
 install_subdir('lib/kLittleGroups', install_dir: py3.get_install_dir() / 'irssg' / 'data', strip_directory: false)
