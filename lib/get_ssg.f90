@@ -204,8 +204,9 @@ contains
       write(*,'(A)')'It belongs to Spin Space Group (SSG) ' // trim(adjustl(ssg_label)) // ' .'
     endif
     write(tmp,'(I0)')nsym
-    write(*,'(A)')'the list of '//trim(adjustl(tmp))//' SSG operators:    { spin part ||  Ri  |  taui }'
-    write(*,'(A)')'   spin part(O3)       Ri     taui   Ri(Cart. Coord.)          Ri(spin-1/2)'
+    write(*,'(A)')'the list of '//trim(adjustl(tmp))//' SSG operators:    { Ui ||  Ri  |  taui }'
+    ! write(*,'(A)')'   spin part(O3)       Ri     taui   Ri(Cart. Coord.)          Ri(spin-1/2)'
+    write(*,'(A)')' Ui(O3, spin part)     Ri     taui   Ri(Cart. Coord.)          SU2(spin part)'
     do i=1,nsym
       if (time_reversal(i)==1) then
         write(*,'(A,1I4,A)')'#',i,'   without time reversal'

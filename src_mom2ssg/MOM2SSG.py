@@ -73,14 +73,14 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     elif 'Noncoplanar' in lps:
         print('''III: Noncoplanar SSG; S0: C1={E}''')
         
-    print("The new axises in spin space:")
+    print("The redefined axises in spin space: (x',y',z')=(x,y,z)D")
     print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
     print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
     print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
     
-    print("The SSG = S0 x G0")
+    print("The SSG G = S0 x G0")
     print('P (spin part of G0): ' + get_std_pg(operations['QLabel'])[1])
-    print('H (spacial part of G0): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
+    print('H (lattice part of G0): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
     
     # print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
 
@@ -93,10 +93,13 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     print('Spin space group operations: {U||R|v}')
     print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
+    
     if 'Collinear' in lps:
-        print('''U=\u03BE + I_2 in I ''')
+        print('''U=\u03BE + I_2 in type I ''')
     elif 'Coplanar' in lps:
-        print('''U= \u03B6_{2x2} + I_1 in II''')
+        print('''U= \u03B6_{2x2} + I_1 in type II''')
+        
+    print("D U D^{-1}  is in cartetian coordinates, which is in ssg.data.")
 
     print(f'# Number: {num_operator}')
     # if dim_mag == 1:
@@ -165,9 +168,6 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][2, :], float)),end=' ')
             print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
             print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
-
-
-    print("D U_\u03B1 D-1  is in cartetian coordinates, which is in ssg.data.")
     
     print('='*40)
 
