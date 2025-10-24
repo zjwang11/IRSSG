@@ -36,7 +36,7 @@ from .small_func import *
 from .SG_utils import sg_symbol_from_number
 from .SSGLabel import get_SSG_label
 from .lirssg import generate_irssg_in
-from .poscar_io import read_poscar_no_elements, mcif2cell
+from .poscar_io import read_poscar_no_elements, mcif2cell, write_poscar
 from .load_ssgdata import load_ssg_list
 from .wyckoff import get_swyckoff, output_wyckoff
 from .find_ssg_operation import findAllOp
@@ -195,12 +195,6 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     R33 = inv(ph.primitive_matrix)
     det33 = np.linalg.det(R33)
     
-    if abs(det33) > 1.5:
-        print('Warning: The POSCAR cell is not a conventional cell!')
-        is_super_cell = True
-    else:
-        is_super_cell = False
-    
     asg_cell = R33.T @ cell[0]
     print('Atomic primitive cell')
     print(f"[{asg_cell[0,0]:>6.3f}, {asg_cell[0,1]:>6.3f}, {asg_cell[0,2]:>6.3f}]:a")
@@ -245,25 +239,23 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     det31 = np.linalg.det(R31)
     
     
-    print("H (a1,b1,c1)=(a,b,c)R1, det(R1) = ",det31)
-    print("T0 (a2,b2,c2)=(a,b,c)R2, det(R2) = ",det32)
-    print("POSCAR (a3,b3,c3)=(a,b,c)R3, det(R3) = ",det33)
+    print("H:(a1,b1,c1) = (a,b,c)R1, det(R1) = ",det31)
+    print("T0:(a2,b2,c2) = (a,b,c)R2, det(R2) = ",det32)
+    print("POSCAR:(a3,b3,c3) = (a,b,c)R3, det(R3) = ",det33)
     print()
     
     print('R1 = ')
-    print(f"[{R31[1][0]:>6.3f}, {R31[1][1]:>6.3f}, {R31[1][2]:>6.3f}]")
-    print(f"[{R31[2][0]:>6.3f}, {R31[2][1]:>6.3f}, {R31[2][2]:>6.3f}]")
-    print(f"[{R31[0][0]:>6.3f}, {R31[0][1]:>6.3f}, {R31[0][2]:>6.3f}]")
+    for v in R31:
+        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
     
     print('R2 = ')
-    print(f"[{R32[1][0]:>6.3f}, {R32[1][1]:>6.3f}, {R32[1][2]:>6.3f}]")
-    print(f"[{R32[2][0]:>6.3f}, {R32[2][1]:>6.3f}, {R32[2][2]:>6.3f}]")
-    print(f"[{R32[0][0]:>6.3f}, {R32[0][1]:>6.3f}, {R32[0][2]:>6.3f}]")
+    for v in R32:
+        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
 
     print('R3 = ')
-    print(f"[{R33[1][0]:>6.3f}, {R33[1][1]:>6.3f}, {R33[1][2]:>6.3f}]")
-    print(f"[{R33[2][0]:>6.3f}, {R33[2][1]:>6.3f}, {R33[2][2]:>6.3f}]")
-    print(f"[{R33[0][0]:>6.3f}, {R33[0][1]:>6.3f}, {R33[0][2]:>6.3f}]")
+    for v in R33:
+        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
+        
     print()
     
     print('N_ASG/N_SSG = ',spg_op_num//num_operator)
@@ -272,6 +264,12 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print('More information about this SSG can be found at')
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
     
+    
+    if abs(det33) > 1.5:
+        is_super_cell = True
+    else:
+        is_super_cell = False
+        
     return is_super_cell,cell_mag_unit
     
     
@@ -400,9 +398,9 @@ def main():
         axis_vector.append(np.cross(axis_vector[0],axis_vector[1]))
         
         cell_addelements = (lattice,position,numbers,elements,np.array(mag))
-        cell_sc_output_acc,wyckoff = get_swyckoff(cell_addelements, ssg_ops, tol=tolerance)
-        output_wyckoff(cell_sc_output_acc,wyckoff)
-        
+        cell_output_acc,wyckoff = get_swyckoff(cell_addelements, ssg_ops, tol=tolerance)
+        output_wyckoff(cell_output_acc,wyckoff)
+        write_poscar(cell_output_acc,file_name='POSCAR.symm')
         
         pkg_dir = os.path.dirname(os.path.abspath(__file__))
         pg_path = os.path.join(pkg_dir, 'ssg_data', 'PG_dic_list.npy')
@@ -436,7 +434,12 @@ def main():
         is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
         
         if is_super_cell:
-            pass
+            print('Warning: The POSCAR cell is not a SSG primitive cell!!! The SSG primitive cell is output in POSCAR.ssg_primitive.')
+            cell_addelements_magunit = (cell_mag_unit[0],cell_mag_unit[1],cell_mag_unit[2],elements,cell_mag_unit[-1])
+            write_poscar(cell_addelements_magunit,file_name='POSCAR.ssg_primitive')
+            
+        
+        
             
         if ssgnum != 'need more loop':
             if standardize_flag and vasp_input:

@@ -5,7 +5,7 @@ def wrap01(f):
     f = np.asarray(f, float)
     return f - np.floor(f)
 
-def get_swyckoff(cell, operations, tol=1e-4):
+def get_swyckoff(cell, operations, tol=1e-4, enforce_spin_invariance=False):
 
     lattice, position, numbers, elements, mag = cell
     N = len(position)
@@ -90,25 +90,50 @@ def get_swyckoff(cell, operations, tol=1e-4):
             xrep0   = pos_i[rep_loc]
             xrep_sym = symmetrize_rep(xrep0, operations)
 
+            # First, determine mapping ops that generate each orbit member from the representative
             block_pos = []
-            block_mag = []
+            ops_used = []
             for k in orb:
                 x_new, op_k = generate_member_from_rep(xrep_sym, pos_i[k], operations)
                 block_pos.append(x_new)
-
-                block_mag.append(mag_i[k])
-
+                ops_used.append(op_k)
                 pos_out[idxs[k]] = x_new
-                mag_out[idxs[k]] = block_mag[-1]
+
+            # Symmetrize magnetic moments using spin operations
+            # Bring each member's moment back to the representative frame via S^T, then average
+            S_list = [np.asarray(operations['spin'][op]) for op in ops_used]
+            m_back = [S.T @ mag_i[k] for k, S in zip(orb, S_list)]
+            if len(m_back) > 0:
+                mrep = np.mean(np.array(m_back, float), axis=0)
+            else:
+                mrep = np.zeros(3, float)
+
+            # Generate symmetrized magnetic moments for each orbit member: m_k = S_k @ mrep
+            block_mag = [S @ mrep for S in S_list]
+            for k, m_new in zip(orb, block_mag):
+                mag_out[idxs[k]] = m_new
+
+            # Site stabilizer
+            # By default, return spatial stabilizers. If enforce_spin_invariance=True,
+            # further require the spin part to leave mrep invariant as well.
+            stab_pos = stabilizer(xrep_sym, operations)
+            if enforce_spin_invariance:
+                symmetry_idx = []
+                for iop in stab_pos:
+                    S = np.asarray(operations['spin'][iop])
+                    if np.linalg.norm(S @ mrep - mrep) < tol:
+                        symmetry_idx.append(iop)
+            else:
+                symmetry_idx = stab_pos
 
             wy_dict[idxs[rep_loc]] = {
                 "position": np.array(block_pos, float),
                 "magmom":   np.array(block_mag, float),
-                "symmetry": [  
+                "symmetry": [
                     [np.asarray(operations['RotC'][iop]),
                      np.asarray(operations['TauC'][iop]),
                      np.asarray(operations['spin'][iop])]
-                    for iop in stabilizer(xrep_sym, operations)
+                    for iop in symmetry_idx
                 ],
             }
         wyckoff_out[z] = wy_dict
