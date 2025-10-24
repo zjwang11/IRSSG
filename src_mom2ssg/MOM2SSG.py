@@ -67,20 +67,16 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print(f'The SSG label: {format_ssg}')
         
     if 'Collinear' in lps:
-        print('''I: Collinear SSG along z' direction; S0: C\N{INFINITY}={C\N{INFINITY}z',Mx'C\N{INFINITY}z'}''')
+        print('''I: Collinear SSG along z' direction; So: C\N{INFINITY}={C\N{INFINITY}z',Mx'C\N{INFINITY}z'}''')
     elif 'Coplanar' in lps:
-        print('''II: Coplanar SSG in the x'y' plane; S0: Cs={E,Mz'}''')
+        print('''II: Coplanar SSG in the x'y' plane; So: Cs={E,Mz'}''')
     elif 'Noncoplanar' in lps:
-        print('''III: Noncoplanar SSG; S0: C1={E}''')
+        print('''III: Noncoplanar SSG; So: C1={E}''')
         
-    print("The redefined axises in spin space: (x',y',z')=(x,y,z)D")
-    print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
-    print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
-    print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
     
-    print("The SSG G = S0 x G0")
-    print('P (spin part of G0): ' + get_std_pg(operations['QLabel'])[1])
-    print('H (lattice part of G0): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
+    print("The SSG G = So x Go")
+    print('P (spin part of Go): ' + get_std_pg(operations['QLabel'])[1])
+    print('H (lattice part of Go): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
     
     # print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
 
@@ -99,8 +95,6 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     elif 'Coplanar' in lps:
         print('''U= \u03B6_{2x2} + I_1 in type II''')
         
-    print("D U D^{-1}  is in cartetian coordinates, which is in ssg.data.")
-
     print(f'# Number: {num_operator}')
     # if dim_mag == 1:
     #     print('{Spin|| Ri  | taui}')
@@ -169,6 +163,20 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
             print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
     
+    print()
+    print("The redefined axises in spin space: (x',y',z')=(x,y,z)D")
+    
+    # print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
+    # print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
+    # print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
+    
+    print(" D = ")
+    A = [axis_vector[1], axis_vector[2], axis_vector[0]] 
+    for row in zip(*A): 
+        print(f"{row[0]:>6.3f} {row[1]:>6.3f} {row[2]:>6.3f}")
+    
+    print("D U D^{-1}  is in cartetian coordinates, which is in ssg.data.")
+    
     print('='*40)
 
     print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
@@ -186,6 +194,12 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     ph = Phonopy(unitcell_pos, primitive_matrix="auto",symprec=tol)
     R33 = inv(ph.primitive_matrix)
     det33 = np.linalg.det(R33)
+    
+    if abs(det33) > 1.5:
+        print('Warning: The POSCAR cell is not a conventional cell!')
+        is_super_cell = True
+    else:
+        is_super_cell = False
     
     asg_cell = R33.T @ cell[0]
     print('Atomic primitive cell')
@@ -231,29 +245,25 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     det31 = np.linalg.det(R31)
     
     
-    print("H (a',b',c')=(a,b,c)R1")
+    print("H (a1,b1,c1)=(a,b,c)R1, det(R1) = ",det31)
+    print("T0 (a2,b2,c2)=(a,b,c)R2, det(R2) = ",det32)
+    print("POSCAR (a3,b3,c3)=(a,b,c)R3, det(R3) = ",det33)
+    print()
+    
     print('R1 = ')
     print(f"[{R31[1][0]:>6.3f}, {R31[1][1]:>6.3f}, {R31[1][2]:>6.3f}]")
     print(f"[{R31[2][0]:>6.3f}, {R31[2][1]:>6.3f}, {R31[2][2]:>6.3f}]")
     print(f"[{R31[0][0]:>6.3f}, {R31[0][1]:>6.3f}, {R31[0][2]:>6.3f}]")
-    print('det(R1) = ',det31)
-    print()
     
-    print("T0 (a'',b'',c'')=(a,b,c)R2")
     print('R2 = ')
     print(f"[{R32[1][0]:>6.3f}, {R32[1][1]:>6.3f}, {R32[1][2]:>6.3f}]")
     print(f"[{R32[2][0]:>6.3f}, {R32[2][1]:>6.3f}, {R32[2][2]:>6.3f}]")
     print(f"[{R32[0][0]:>6.3f}, {R32[0][1]:>6.3f}, {R32[0][2]:>6.3f}]")
 
-    print('det(R2) = ',det32)
-    print()
-    
-    print("POSCAR (a''',b''',c''')=(a,b,c)R3")
     print('R3 = ')
     print(f"[{R33[1][0]:>6.3f}, {R33[1][1]:>6.3f}, {R33[1][2]:>6.3f}]")
     print(f"[{R33[2][0]:>6.3f}, {R33[2][1]:>6.3f}, {R33[2][2]:>6.3f}]")
     print(f"[{R33[0][0]:>6.3f}, {R33[0][1]:>6.3f}, {R33[0][2]:>6.3f}]")
-    print('det(R3) = ',det33)
     print()
     
     print('N_ASG/N_SSG = ',spg_op_num//num_operator)
@@ -261,6 +271,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     if ssgnum != 'need more loop':
         print('More information about this SSG can be found at')
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
+    
+    return is_super_cell,cell_mag_unit
     
     
 def get_ssg(file_name,ssg_list=None,tol=1e-3,tolm=1e-4):
@@ -421,8 +433,11 @@ def main():
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, cell, mag, ssg_ops, tolm=magtolerance)
         
-        format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
         
+        if is_super_cell:
+            pass
+            
         if ssgnum != 'need more loop':
             if standardize_flag and vasp_input:
                 standardize_ssg_cell(input_file,ssgnum,cell,ssg_ops,ssg_list_,tol=tolerance,tolm=magtolerance,symm_flag=True,check_flag=True)
