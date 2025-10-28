@@ -870,7 +870,7 @@ end subroutine get_irreducible_rep
             
         else
             write(*,'(A)')'Irreps for complete group: '//irrep_name(2:)
-            write(154,'(A)')'There are no antiunitary operations in the little group.'//irrep_name(2:)
+            write(154,'(A)')'There are no antiunitary operations in the little group.'
         endif
 
         ! write(154,*)

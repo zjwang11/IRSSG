@@ -91,7 +91,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
     
     if 'Collinear' in lps:
-        print('''U=\u03BE + I_2 in type I ''')
+        print('''U=I_2 + \u03BE in type I''')
     elif 'Coplanar' in lps:
         print('''U= \u03B6_{2x2} + I_1 in type II''')
         
