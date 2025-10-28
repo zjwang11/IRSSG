@@ -170,12 +170,15 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     # print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
     # print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
     
-    print(" D = ")
-    A = [axis_vector[1], axis_vector[2], axis_vector[0]] 
-    for row in zip(*A): 
-        print(f"{row[0]:>6.3f} {row[1]:>6.3f} {row[2]:>6.3f}")
+    A = [axis_vector[1], axis_vector[2], axis_vector[0]]
+    rows = [f"{r0:>6.3f} {r1:>6.3f} {r2:>6.3f}" for r0, r1, r2 in zip(*A)]
+    prefix = "D = "
+    print(prefix + rows[0])
+    indent = " " * len(prefix)
+    for r in rows[1:]:
+        print(indent + r)
     
-    print("D U D^{-1}  is in cartetian coordinates, which is in ssg.data.")
+    print("D U D^{-1}  is in Cartesian coordinates, which is in ssg.data.")
     
     print('='*40)
 
@@ -197,9 +200,9 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     asg_cell = R33.T @ cell[0]
     print('Atomic primitive cell')
-    print(f"[{asg_cell[0,0]:>6.3f}, {asg_cell[0,1]:>6.3f}, {asg_cell[0,2]:>6.3f}]:a")
-    print(f"[{asg_cell[1,0]:>6.3f}, {asg_cell[1,1]:>6.3f}, {asg_cell[1,2]:>6.3f}]:b")
-    print(f"[{asg_cell[2,0]:>6.3f}, {asg_cell[2,1]:>6.3f}, {asg_cell[2,2]:>6.3f}]:c")
+    print(f":a  [{asg_cell[0,0]:>6.3f}, {asg_cell[0,1]:>6.3f}, {asg_cell[0,2]:>6.3f}]:")
+    print(f":b  [{asg_cell[1,0]:>6.3f}, {asg_cell[1,1]:>6.3f}, {asg_cell[1,2]:>6.3f}]:")
+    print(f":c  [{asg_cell[2,0]:>6.3f}, {asg_cell[2,1]:>6.3f}, {asg_cell[2,2]:>6.3f}]:")
     print()
     
     if ncell_pos_ssg > 1:  # magnetic super cell
@@ -239,22 +242,20 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     det31 = np.linalg.det(R31)
     
     
-    print("H:(a1,b1,c1) = (a,b,c)R1, det(R1) = ",det31)
-    print("T0:(a2,b2,c2) = (a,b,c)R2, det(R2) = ",det32)
-    print("POSCAR:(a3,b3,c3) = (a,b,c)R3, det(R3) = ",det33)
-    print()
+    print("H:(a1,b1,c1) = (a,b,c)R1, det(R1) = ",round(det31), end = '   ')
+    print("T0:(a2,b2,c2) = (a,b,c)R2, det(R2) = ",round(det32), end = '   ')
+    print("POSCAR:(a3,b3,c3) = (a,b,c)R3, det(R3) = ",round(det33))
     
-    print('R1 = ')
-    for v in R31:
-        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
-    
-    print('R2 = ')
-    for v in R32:
-        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
-
-    print('R3 = ')
-    for v in R33:
-        print(f"{v[0]:>6.3f} {v[1]:>6.3f} {v[2]:>6.3f}")
+    # Print R1, R2, R3 side-by-side in three lines, aligned like D
+    rows_R1 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R31]
+    rows_R2 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R32]
+    rows_R3 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R33]
+    p1, p2, p3 = "R1 = ", "R2 = ", "R3 = "
+    i1, i2, i3 = " " * len(p1), " " * len(p2), " " * len(p3)
+    sep = "  "
+    print(p1 + rows_R1[0] + sep + p2 + rows_R2[0] + sep + p3 + rows_R3[0])
+    print(i1 + rows_R1[1] + sep + i2 + rows_R2[1] + sep + i3 + rows_R3[1])
+    print(i1 + rows_R1[2] + sep + i2 + rows_R2[2] + sep + i3 + rows_R3[2])
         
     print()
     
