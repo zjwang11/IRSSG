@@ -697,6 +697,9 @@ end subroutine get_irreducible_rep
         complex(dp), intent(in) :: phase(num_litt_group_unitary)
         
         integer :: i,j
+        logical :: all_phase_one
+        real(dp) :: tol_phase
+        integer :: jj
         character(len=100) :: irrep_name
         character(len=15) :: irrep_name_list(irrep_num)
         character(len=5) :: irrep_unitary_name_list(irrep_unitary_num)
@@ -774,16 +777,28 @@ end subroutine get_irreducible_rep
             write(*,*)
         enddo
         
-        write(*,'(A)',advance='no')' phase     '
-        do j=1,num_litt_group_unitary
-            if (aimag(phase(j)) >= 0.0_dp) then
-                write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
-            else
-                write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
+        ! Only print phase line if not all phases are 1
+        tol_phase = 1.0e-4_dp
+        all_phase_one = .true.
+        do jj=1,num_litt_group_unitary
+            if (abs(real(phase(jj)) - 1.0_dp) > tol_phase .or. abs(aimag(phase(jj))) > tol_phase) then
+                all_phase_one = .false.
+                exit
             endif
-            write(*,'(A)',advance='no')'  '
         enddo
-        write(*,*)
+
+        if (.not. all_phase_one) then
+            write(*,'(A)',advance='no')' phase     '
+            do j=1,num_litt_group_unitary
+                if (aimag(phase(j)) >= 0.0_dp) then
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
+                else
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
+                endif
+                write(*,'(A)',advance='no')'  '
+            enddo
+            write(*,*)
+        endif
 
         ! write(154,'(A)')'Character table for unitary group'
         ! write(154,'(1000I13)')litt_group(order_op(1:num_litt_group_unitary))
@@ -836,16 +851,18 @@ end subroutine get_irreducible_rep
             
         enddo
 
-        write(154,'(A)',advance='no')' phase     '
-        do j=1,num_litt_group_unitary
-            if (aimag(phase(j)) >= 0.0_dp) then
-                write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
-            else
-                write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
-            endif
-            write(154,'(A)',advance='no')'  '
-        enddo
-        write(154,*)
+        if (.not. all_phase_one) then
+            write(154,'(A)',advance='no')' phase     '
+            do j=1,num_litt_group_unitary
+                if (aimag(phase(j)) >= 0.0_dp) then
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
+                else
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
+                endif
+                write(154,'(A)',advance='no')'  '
+            enddo
+            write(154,*)
+        endif
 
         if (num_litt_group/=num_litt_group_unitary) then 
             write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)

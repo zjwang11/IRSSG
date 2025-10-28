@@ -252,7 +252,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     rows_R3 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R33]
     p1, p2, p3 = "R1 = ", "R2 = ", "R3 = "
     i1, i2, i3 = " " * len(p1), " " * len(p2), " " * len(p3)
-    sep = "  "
+    sep = "   "
     print(p1 + rows_R1[0] + sep + p2 + rows_R2[0] + sep + p3 + rows_R3[0])
     print(i1 + rows_R1[1] + sep + i2 + rows_R2[1] + sep + i3 + rows_R3[1])
     print(i1 + rows_R1[2] + sep + i2 + rows_R2[2] + sep + i3 + rows_R3[2])
