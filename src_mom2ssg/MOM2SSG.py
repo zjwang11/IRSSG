@@ -242,20 +242,36 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     det31 = np.linalg.det(R31)
     
     
-    print("H:(a1,b1,c1) = (a,b,c)R1, det(R1) = ",round(det31), end = '   ')
-    print("T0:(a2,b2,c2) = (a,b,c)R2, det(R2) = ",round(det32), end = '   ')
-    print("POSCAR:(a3,b3,c3) = (a,b,c)R3, det(R3) = ",round(det33))
+    # Header line for R1/R2/R3 with det values
+    hdr1 = f"H:(a1,b1,c1) = (a,b,c)R1, det(R1) = {round(det31)}"
+    hdr2 = f"T0:(a2,b2,c2) = (a,b,c)R2, det(R2) = {round(det32)}"
+    hdr3 = f"POSCAR:(a3,b3,c3) = (a,b,c)R3, det(R3) = {round(det33)}"
+    sep_hdr = "   "
+    print(hdr1 + sep_hdr + hdr2 + sep_hdr + hdr3)
     
-    # Print R1, R2, R3 side-by-side in three lines, aligned like D
+    # Print R1, R2, R3 side-by-side in three lines, aligned under their headers
     rows_R1 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R31]
     rows_R2 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R32]
     rows_R3 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R33]
     p1, p2, p3 = "R1 = ", "R2 = ", "R3 = "
     i1, i2, i3 = " " * len(p1), " " * len(p2), " " * len(p3)
-    sep = "   "
-    print(p1 + rows_R1[0] + sep + p2 + rows_R2[0] + sep + p3 + rows_R3[0])
-    print(i1 + rows_R1[1] + sep + i2 + rows_R2[1] + sep + i3 + rows_R3[1])
-    print(i1 + rows_R1[2] + sep + i2 + rows_R2[2] + sep + i3 + rows_R3[2])
+    # Compute start columns for R2 and R3 to align with header segments
+    pos_R2 = len(hdr1) + len(sep_hdr)
+    pos_R3 = pos_R2 + len(hdr2) + len(sep_hdr)
+    # First row with prefixes
+    line0 = p1 + rows_R1[0]
+    line0 = line0.ljust(pos_R2) + p2 + rows_R2[0]
+    line0 = line0.ljust(pos_R3) + p3 + rows_R3[0]
+    print(line0)
+    # Subsequent rows aligned under numbers
+    line1 = i1 + rows_R1[1]
+    line1 = line1.ljust(pos_R2) + i2 + rows_R2[1]
+    line1 = line1.ljust(pos_R3) + i3 + rows_R3[1]
+    print(line1)
+    line2 = i1 + rows_R1[2]
+    line2 = line2.ljust(pos_R2) + i2 + rows_R2[2]
+    line2 = line2.ljust(pos_R3) + i3 + rows_R3[2]
+    print(line2)
         
     print()
     
