@@ -255,26 +255,26 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             if(num_litt_group_unitary<=6) then
                 do jl = 1, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             else
                 do jl = 1, 3
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
 
                 write(*,'(A)',advance='no')'   ... ...   '
                 do jl = num_litt_group_unitary-2, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             endif
@@ -285,9 +285,9 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
 
             do jl = 1, num_litt_group_unitary
                 if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                 else
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                 endif
             enddo
 
@@ -330,26 +330,26 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             if(num_litt_group_unitary<=6) then
                 do jl = 1, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             else
                 do jl = 1, 3
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
 
                 write(*,'(A)',advance='no')'   ... ...   '
                 do jl = num_litt_group_unitary-2, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             endif
@@ -359,9 +359,9 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             ! write(180,'(1I4,A,1E12.4E2,A)',advance='no')iband,' ',EE(iband),' '
             do jl = 1, num_litt_group_unitary
                 if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                 else
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                 endif
             enddo
 
@@ -411,26 +411,26 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             if(num_litt_group_unitary<=6) then
                 do jl = 1, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             else
                 do jl = 1, 3
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
 
                 write(*,'(A)',advance='no')'   ... ...   '
                 do jl = num_litt_group_unitary-2, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             endif
@@ -441,9 +441,9 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             ! write(180,'(1I4,A,1E12.4E2,A)',advance='no')iband,' ',EE(iband),' '
             do jl = 1, num_litt_group_unitary
                 if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                 else
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                 endif
             enddo
 
@@ -496,26 +496,26 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             if(num_litt_group_unitary<=6) then
                 do jl = 1, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             else
                 do jl = 1, 3
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
 
                 write(*,'(A)',advance='no')'   ... ...   '
                 do jl = num_litt_group_unitary-2, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             endif
@@ -526,9 +526,9 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
 
             do jl = 1, num_litt_group_unitary
                 if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                 else
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                 endif
             enddo
 
@@ -551,26 +551,26 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             if(num_litt_group_unitary<=6) then
                 do jl = 1, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             else
                 do jl = 1, 3
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
 
                 write(*,'(A)',advance='no')'   ... ...   '
                 do jl = num_litt_group_unitary-2, num_litt_group_unitary
                     if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                     else
-                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                        write(*,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                     endif
                 enddo
             endif
@@ -581,9 +581,9 @@ subroutine irssg_reps(num_litt_group_unitary,litt_group_unitary,num_bands,bot_ba
             ! write(180,'(1I4,A,1E12.4E2,A)',advance='no')iband,' ',EE(iband),' '
             do jl = 1, num_litt_group_unitary
                 if (aimag(chrct_phase(iband,jl))>=0.0_dp) then
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'+',aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'+',aimag(chrct_phase(iband,jl))+1e-6,'i'
                 else
-                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl)),'-',-aimag(chrct_phase(iband,jl)),'i'
+                    write(180,'(A,1F5.2,A,1F4.2,A)',advance='no')'  ',real(chrct_phase(iband,jl))+1e-6,'-',-aimag(chrct_phase(iband,jl))+1e-6,'i'
                 endif
             enddo
 

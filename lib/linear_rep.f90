@@ -742,13 +742,13 @@ end subroutine get_irreducible_rep
         write(178,'(A)')'Character table for unitary group'
         write(178,'(A,1000I20)')'   ',litt_group(order_op(1:num_litt_group_unitary))
         do i=1,irrep_unitary_num
-            write(178,'(1I3,1000F10.5)')i,character_unitary_table(i,1:num_litt_group_unitary)
+            write(178,'(1I3,1000F10.5)')i,character_unitary_table(i,1:num_litt_group_unitary)+cmplx(1e-6_dp,1e-6_dp,dp)
         enddo
         write(178,*)
         write(178,'(A)')'Character table for complete group'
         write(178,'(A,1000I20)')'   ',litt_group(order_op(1:num_litt_group_unitary))
         do i=1,irrep_num
-            write(178,'(1I3,1000F10.5)',advance='no')i,character_table(i,1:num_litt_group_unitary)
+            write(178,'(1I3,1000F10.5)',advance='no')i,character_table(i,1:num_litt_group_unitary)+cmplx(1e-6_dp,1e-6_dp,dp)
             if (irrep_coirrep_relation(2,i) == 0) then
                 write(178,'(A,1I10)')' ',irrep_coirrep_relation(1,i)
             else
@@ -768,9 +768,9 @@ end subroutine get_irreducible_rep
             irrep_unitary_name_list(i) = trim(adjustl(kname))//trim(adjustl(irrep_name))
             do j=1,num_litt_group_unitary
                 if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
-                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'+',aimag(character_unitary_table(i,j)),'i'
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'+',aimag(character_unitary_table(i,j))+1e-6,'i'
                 else
-                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'-',-aimag(character_unitary_table(i,j)),'i'
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'-',-aimag(character_unitary_table(i,j))+1e-6,'i'
                 endif
                 write(*,'(A)',advance='no')'  '
             enddo
@@ -791,9 +791,9 @@ end subroutine get_irreducible_rep
             write(*,'(A)',advance='no')' phase     '
             do j=1,num_litt_group_unitary
                 if (aimag(phase(j)) >= 0.0_dp) then
-                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'+',aimag(phase(j))+1e-6,'i'
                 else
-                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
+                    write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'-',-aimag(phase(j))+1e-6,'i'
                 endif
                 write(*,'(A)',advance='no')'  '
             enddo
@@ -827,9 +827,9 @@ end subroutine get_irreducible_rep
             irrep_unitary_name_list(i) = trim(adjustl(kname))//trim(adjustl(irrep_name))
             do j=1,num_litt_group_unitary
                 if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'+',aimag(character_unitary_table(i,j)),'i'
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'+',aimag(character_unitary_table(i,j))+1e-6,'i'
                 else
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j)),'-',-aimag(character_unitary_table(i,j)),'i'
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'-',-aimag(character_unitary_table(i,j))+1e-6,'i'
                 endif
                 write(154,'(A)',advance='no')'  '
             enddo
@@ -855,9 +855,9 @@ end subroutine get_irreducible_rep
             write(154,'(A)',advance='no')' phase     '
             do j=1,num_litt_group_unitary
                 if (aimag(phase(j)) >= 0.0_dp) then
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'+',aimag(phase(j)),'i'
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'+',aimag(phase(j))+1e-6,'i'
                 else
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j)),'-',-aimag(phase(j)),'i'
+                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'-',-aimag(phase(j))+1e-6,'i'
                 endif
                 write(154,'(A)',advance='no')'  '
             enddo

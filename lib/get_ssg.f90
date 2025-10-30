@@ -191,9 +191,9 @@ contains
       else
         write(177,'(A,1I4,A)')'#',i,'   with time reversal'
       endif
-      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5,A,4F10.5)')rotation(1,1:3,i),'  ',tau(1,i),'  ',SO3(1,1:3,i),'  ',spin_rotation(1,1:3,i),'  ',spin_SU2(1,1:2,i)
-      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5,A,4F10.5)')rotation(2,1:3,i),'  ',tau(2,i),'  ',SO3(2,1:3,i),'  ',spin_rotation(2,1:3,i),'  ',spin_SU2(2,1:2,i)
-      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5)')rotation(3,1:3,i),'  ',tau(3,i),'  ',SO3(3,1:3,i),'  ',spin_rotation(3,1:3,i)
+      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5,A,4F10.5)')rotation(1,1:3,i),'  ',tau(1,i)+1e-6,'  ',SO3(1,1:3,i)+1e-6,'  ',spin_rotation(1,1:3,i)+1e-6,'  ',spin_SU2(1,1:2,i)+1e-6
+      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5,A,4F10.5)')rotation(2,1:3,i),'  ',tau(2,i)+1e-6,'  ',SO3(2,1:3,i)+1e-6,'  ',spin_rotation(2,1:3,i)+1e-6,'  ',spin_SU2(2,1:2,i)+1e-6
+      write(177,'(3I3,A,1F10.5,A,3F10.5,A,3F10.5)')rotation(3,1:3,i),'  ',tau(3,i)+1e-6,'  ',SO3(3,1:3,i)+1e-6,'  ',spin_rotation(3,1:3,i)+1e-6
     enddo
 
 
@@ -213,72 +213,11 @@ contains
       else
         write(*,'(A,1I4,A)')'#',i,'   with time reversal'
       endif
-      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A,2F6.3,A,2F6.3,A)')spin_rotation(1,1:3,i),'  ',rotation(1,1:3,i),' ',tau(1,i),'  ',SO3(1,1:3,i),'  (',spin_SU2(1,1,i),') (',spin_SU2(1,2,i),')'
-      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A,2F6.3,A,2F6.3,A)')spin_rotation(2,1:3,i),'  ',rotation(2,1:3,i),' ',tau(2,i),'  ',SO3(2,1:3,i),'  (',spin_SU2(2,1,i),') (',spin_SU2(2,2,i),')'
-      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A)')spin_rotation(3,1:3,i),'  ',rotation(3,1:3,i),' ',tau(3,i),'  ',SO3(3,1:3,i)
+      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A,2F6.3,A,2F6.3,A)')spin_rotation(1,1:3,i)+1e-6,'  ',rotation(1,1:3,i),' ',tau(1,i)+1e-6,'  ',SO3(1,1:3,i)+1e-6,'  (',spin_SU2(1,1,i)+1e-6,') (',spin_SU2(1,2,i)+1e-6,')'
+      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A,2F6.3,A,2F6.3,A)')spin_rotation(2,1:3,i)+1e-6,'  ',rotation(2,1:3,i),' ',tau(2,i)+1e-6,'  ',SO3(2,1:3,i)+1e-6,'  (',spin_SU2(2,1,i)+1e-6,') (',spin_SU2(2,2,i)+1e-6,')'
+      write(*,'(3F6.3,A,3I2,A,1F7.3,A,3F6.3,A)')spin_rotation(3,1:3,i)+1e-6,'  ',rotation(3,1:3,i),' ',tau(3,i)+1e-6,'  ',SO3(3,1:3,i)+1e-6
     enddo
 
   endsubroutine
 
-  subroutine get_ssgrep_through_SSGREP(num_litt_group,rot,tau,spin_rotation,SU2,time_reversal)
-  implicit none
-  integer,intent(in) :: num_litt_group
-  integer,intent(in) :: rot(3,3,num_litt_group)
-  real(dp),intent(in) :: tau(3,num_litt_group)
-  complex(dp),intent(in) :: SU2(2,2,num_litt_group)
-  integer,intent(in) :: time_reversal(num_litt_group)
-  real(dp),intent(in) :: spin_rotation(3,3,num_litt_group)
-  complex(dp) :: time_rev_mat(2,2)
-  
-  integer :: i, ios 
-
-  time_rev_mat = 0.0_dp
-  time_rev_mat(1,2) = cmplx(-1.0_dp,0.0_dp,dp)
-  time_rev_mat(2,1) = cmplx(1.0_dp,0.0_dp,dp)
-
-  open(unit=ssg_file_unit, file='space_rot_k.mat', status='replace', action='write', form='formatted', iostat=ios)
-  do i=1,num_litt_group
-    write(ssg_file_unit,'(A,I3)') '# ',i
-    write(ssg_file_unit,'(3I4)') rot(1,1:3,i)
-    write(ssg_file_unit,'(3I4)') rot(2,1:3,i)
-    write(ssg_file_unit,'(3I4)') rot(3,1:3,i)
-    write(ssg_file_unit,*)
-  enddo
-  close(ssg_file_unit)
-
-  open(unit=ssg_file_unit, file='spin_rot_k.mat', status='replace', action='write', form='formatted', iostat=ios)
-  do i=1,num_litt_group
-    write(ssg_file_unit,'(A,I3)') '# ',i
-    write(ssg_file_unit,'(3F12.6)') spin_rotation(1,1:3,i)
-    write(ssg_file_unit,'(3F12.6)') spin_rotation(2,1:3,i)
-    write(ssg_file_unit,'(3F12.6)') spin_rotation(3,1:3,i)
-    write(ssg_file_unit,*)
-  enddo
-  close(ssg_file_unit)
-
-  open(unit=ssg_file_unit, file='spin_SU2_k.mat', status='replace', action='write', form='formatted', iostat=ios)
-  do i=1,num_litt_group
-    write(ssg_file_unit,'(A,I3)') '# ',i
-    write(ssg_file_unit,*) time_reversal(i)
-    if(time_reversal(i) == 1) then
-      write(ssg_file_unit,'(2F12.6)') SU2(1,1:2,i)
-      write(ssg_file_unit,'(2F12.6)') SU2(2,1:2,i)
-    else
-      write(ssg_file_unit,'(2F12.6)') matmul(SU2(1,1:2,i),time_rev_mat)
-      write(ssg_file_unit,'(2F12.6)') matmul(SU2(2,1:2,i),time_rev_mat)
-    endif
-    write(ssg_file_unit,*)
-  enddo
-  close(ssg_file_unit)
-
-  open(unit=ssg_file_unit, file='space_tau_k.mat', status='replace', action='write', form='formatted', iostat=ios)
-  do i=1,num_litt_group
-    write(ssg_file_unit,'(A,I3)') '# ',i
-    write(ssg_file_unit,'(3F12.8)') tau(:,i)
-    write(ssg_file_unit,*)
-  enddo
-  close(ssg_file_unit)
-
-
-  endsubroutine get_ssgrep_through_SSGREP
 end module get_ssg_mod
