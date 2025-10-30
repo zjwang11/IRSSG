@@ -76,7 +76,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     print("The SSG G = So x Go")
     print('P (spin part of Go): ' + get_std_pg(operations['QLabel'])[1])
-    print('H (lattice part of Go): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)')
+    #print('H (lattice part of Go): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)') #wzj
+    print('H (lattice part of Go): '+ sg_symbol_from_number(operations['Gnum']))
     
     # print(f"The volume of POSCAR is {ncell_pos_ssg} times of the SSG cell.")
 
@@ -91,7 +92,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
     
     if 'Collinear' in lps:
-        print('''U=\u03BE + I_2 in type I ''')
+        print('''U= I_2 + \u03BE in type I ''')
     elif 'Coplanar' in lps:
         print('''U= \u03B6_{2x2} + I_1 in type II''')
         
@@ -104,64 +105,64 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     #     print('{      Spin O3    || Ri  | taui}')
 
     if dim_mag == 1:
-        print('{  \u03BE || Ri  | taui}')
+        print('{  \u03BE ||   Ri   |  taui }')
     elif dim_mag == 2:
-        print('{  \u03B6_{2x2}  || Ri  | taui}')
+        print('{   \u03B6_{2x2}   ||    Ri   |  taui }')
     else:
-        print('{        U        || Ri  | taui}')
+        print('{          U         ||   Ri    |  taui }')
         
     for i in range(num_operator):
         time_reversal = det(operations['spin'][i])
         if time_reversal > 0:
-            time_reversal_str = 'without time reversal'
+            time_reversal_str = 'without time-reversal'
         else:
-            time_reversal_str = 'with time reversal'
+            time_reversal_str = 'with time-reversal'
             
         print(f'# {i+1:>3d}   {time_reversal_str}')
         
         operations["TauC"][i] = (operations["TauC"][i]+0.5)%1-0.5
         if dim_mag == 1:
             print(f"{spin_rot_list[i]:>4d}",end='  ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)))
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             print("      ",end='')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)))
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)+1e-6))
             
             print("      ",end='')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)+1e-6))
 
 
         elif dim_mag == 2:
-            print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][0, :], float)),end=' ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             
-            print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][1, :], float)),end=' ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)+1e-6))
             
-            print(" "*13,end='')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
+            print(" "*16,end='')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)+1e-6))
 
 
         else:
-            print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][0, :], float)),end=' ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             
-            print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][1, :], float)),end=' ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][1].reshape(-1), float)+1e-6))
             
-            print("".join(f"{v:>6.3f}" for v in np.asarray(spin_rot_list[i][2, :], float)),end=' ')
-            print("".join(f"{v:>2d}" for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end=' ')
-            print("".join(f"{v:>6.3f}" for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][2, :], float)+1e-6),end='  ')
+            print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)+1e-6))
     
     print()
     print("The redefined axises in spin space: (x',y',z')=(x,y,z)D")
@@ -171,7 +172,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     # print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
     
     A = [axis_vector[1], axis_vector[2], axis_vector[0]]
-    rows = [f"{r0:>6.3f} {r1:>6.3f} {r2:>6.3f}" for r0, r1, r2 in zip(*A)]
+    rows = [f"{r0+1e-6:>6.3f} {r1+1e-6:>6.3f} {r2+1e-6:>6.3f}" for r0, r1, r2 in zip(*A)]
     prefix = "D = "
     print(prefix + rows[0])
     indent = " " * len(prefix)
@@ -200,9 +201,9 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     asg_cell = R33.T @ cell[0]
     print('Atomic primitive cell')
-    print(f":a  [{asg_cell[0,0]:>6.3f}, {asg_cell[0,1]:>6.3f}, {asg_cell[0,2]:>6.3f}]:")
-    print(f":b  [{asg_cell[1,0]:>6.3f}, {asg_cell[1,1]:>6.3f}, {asg_cell[1,2]:>6.3f}]:")
-    print(f":c  [{asg_cell[2,0]:>6.3f}, {asg_cell[2,1]:>6.3f}, {asg_cell[2,2]:>6.3f}]:")
+    print(f":a  [{asg_cell[0,0]+1e-6:>6.3f}, {asg_cell[0,1]+1e-6:>6.3f}, {asg_cell[0,2]+1e-6:>6.3f}]:")
+    print(f":b  [{asg_cell[1,0]+1e-6:>6.3f}, {asg_cell[1,1]+1e-6:>6.3f}, {asg_cell[1,2]+1e-6:>6.3f}]:")
+    print(f":c  [{asg_cell[2,0]+1e-6:>6.3f}, {asg_cell[2,1]+1e-6:>6.3f}, {asg_cell[2,2]+1e-6:>6.3f}]:")
     print()
     
     if ncell_pos_ssg > 1:  # magnetic super cell
@@ -250,9 +251,9 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print(hdr1 + sep_hdr + hdr2 + sep_hdr + hdr3)
     
     # Print R1, R2, R3 side-by-side in three lines, aligned under their headers
-    rows_R1 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R31]
-    rows_R2 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R32]
-    rows_R3 = [f"{r[0]:>6.3f} {r[1]:>6.3f} {r[2]:>6.3f}" for r in R33]
+    rows_R1 = [f"{r[0]+1e-6:>6.3f} {r[1]+1e-6:>6.3f} {r[2]+1e-6:>6.3f}" for r in R31]
+    rows_R2 = [f"{r[0]+1e-6:>6.3f} {r[1]+1e-6:>6.3f} {r[2]+1e-6:>6.3f}" for r in R32]
+    rows_R3 = [f"{r[0]+1e-6:>6.3f} {r[1]+1e-6:>6.3f} {r[2]+1e-6:>6.3f}" for r in R33]
     p1, p2, p3 = "R1 = ", "R2 = ", "R3 = "
     i1, i2, i3 = " " * len(p1), " " * len(p2), " " * len(p3)
     # Compute start columns for R2 and R3 to align with header segments
@@ -282,7 +283,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
     
     
-    if abs(det33) > 1.5:
+    if abs(det33) > abs(det32)+0.5:
         is_super_cell = True
     else:
         is_super_cell = False
@@ -301,7 +302,7 @@ def get_ssg(file_name,ssg_list=None,tol=1e-3,tolm=1e-4):
 
     else:
         # print('Have no input files !!!')
-        raise ValueError('cant find input file!!!')
+        raise ValueError("Can't find input file!!!")
     
     lattice = cell[0].copy()
     position = cell[1].copy()
