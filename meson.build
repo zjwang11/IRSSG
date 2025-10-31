@@ -1,5 +1,5 @@
 project('irssg-pkg', 'fortran', 'c',
-  version : '0.1.1',
+  version : '1.0.1',
   meson_version : '>=0.64.0',
   default_options : [
     'buildtype=release'

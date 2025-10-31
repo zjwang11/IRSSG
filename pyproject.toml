@@ -8,7 +8,7 @@ build-backend = "mesonpy"
 
 [project]
 name = "irssg-pkg"
-version = "0.1.1"
+version = "1.0.1"
 description = "IRSSG unified Fortran binary packaged for pip install"
 readme = "README.md"
 requires-python = ">=3.8"
