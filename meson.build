@@ -76,7 +76,7 @@ py3.install_sources(files(
   'src_mom2ssg/MOM2SSG.py',
   'src_mom2ssg/small_func.py',
   'src_mom2ssg/SG_utils.py',
-  'src_mom2ssg/SSGLabel.py',
+  'src_mom2ssg/get_ssg_symbol.py',
   'src_mom2ssg/SG_isomorphism.py',
   'src_mom2ssg/lirssg.py',
   'src_mom2ssg/poscar_io.py',

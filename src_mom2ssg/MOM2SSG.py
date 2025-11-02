@@ -34,7 +34,7 @@ from spglib import get_symmetry_dataset
 # Local module imports
 from .small_func import *
 from .SG_utils import sg_symbol_from_number
-from .SSGLabel import get_SSG_label
+from .get_ssg_symbol import get_SSG_label
 from .lirssg import generate_irssg_in
 from .poscar_io import read_poscar_no_elements, mcif2cell, write_poscar
 from .load_ssgdata import load_ssg_list
