@@ -709,6 +709,7 @@ end subroutine get_irreducible_rep
 
 
         write(*,*)
+        write(154,*)
         write(tmp,'(I0)') num_litt_group_unitary
         write(*,'(A)')trim(adjustl(tmp))//' unitary elements of the little group:'
         write(154,'(A)')trim(adjustl(tmp))//' unitary elements of the little group:'
@@ -738,9 +739,7 @@ end subroutine get_irreducible_rep
             enddo
         endif
         write(*,*)
-        write(154,*)
         write(*,*)
-        write(154,*)
 
         irrep_name_list(:) = ''
         irrep_unitary_name_list(:) = ''
@@ -773,6 +772,7 @@ end subroutine get_irreducible_rep
             irrep_name = ''
             write(irrep_name,*)i
             write(*,'(A4,A,1I3,A)',advance='no')trim(adjustl(kname))//trim(adjustl(irrep_name)),' ',discriminant_value(i),'   '
+            write(155,*)discriminant_value(i)
             irrep_unitary_name_list(i) = trim(adjustl(kname))//trim(adjustl(irrep_name))
             do j=1,num_litt_group_unitary
                 if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
