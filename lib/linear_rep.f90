@@ -711,28 +711,36 @@ end subroutine get_irreducible_rep
         write(*,*)
         write(tmp,'(I0)') num_litt_group_unitary
         write(*,'(A)')trim(adjustl(tmp))//' unitary elements of the little group:'
+        write(154,'(A)')trim(adjustl(tmp))//' unitary elements of the little group:'
         do i=1,num_litt_group_unitary
             write(*,'(1I5)',advance='no')litt_group(order_op(i))
+            write(154,'(1I5)',advance='no')litt_group(order_op(i))
             if (mod(i,15)==0 .and. i/=num_litt_group_unitary) then
                 write(*,*)
+                write(154,*)
             endif
         enddo
 
         write(*,*)
         if (num_litt_group_unitary == num_litt_group) then
             write(*,'(A)')'No anti-unitary elements of the little group.'
+            write(154,'(A)')'No anti-unitary elements of the little group.'
         else
             write(tmp,'(I0)') num_litt_group - num_litt_group_unitary
             write(*,'(A)')trim(adjustl(tmp))//' anti-unitary elements of the little group:'
+            write(154,'(A)')trim(adjustl(tmp))//' anti-unitary elements of the little group:'
             do i=num_litt_group_unitary+1,num_litt_group
                 write(*,'(1I5)',advance='no')litt_group(order_op(i))
                 if (mod(i-num_litt_group_unitary,15)==0 .and. i/=num_litt_group) then
                     write(*,*)
+                    write(154,*)
                 endif
             enddo
         endif
         write(*,*)
+        write(154,*)
         write(*,*)
+        write(154,*)
 
         irrep_name_list(:) = ''
         irrep_unitary_name_list(:) = ''
@@ -851,18 +859,18 @@ end subroutine get_irreducible_rep
             
         enddo
 
-        if (.not. all_phase_one) then
-            write(154,'(A)',advance='no')' phase     '
-            do j=1,num_litt_group_unitary
-                if (aimag(phase(j)) >= 0.0_dp) then
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'+',aimag(phase(j))+1e-6,'i'
-                else
-                    write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'-',-aimag(phase(j))+1e-6,'i'
-                endif
-                write(154,'(A)',advance='no')'  '
-            enddo
-            write(154,*)
-        endif
+        ! if (.not. all_phase_one) then
+        !     write(154,'(A)',advance='no')' phase     '
+        !     do j=1,num_litt_group_unitary
+        !         if (aimag(phase(j)) >= 0.0_dp) then
+        !             write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'+',aimag(phase(j))+1e-6,'i'
+        !         else
+        !             write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(phase(j))+1e-6,'-',-aimag(phase(j))+1e-6,'i'
+        !         endif
+        !         write(154,'(A)',advance='no')'  '
+        !     enddo
+        !     write(154,*)
+        ! endif
 
         if (num_litt_group/=num_litt_group_unitary) then 
             write(*,'(A)')'Coirreps for complete group: '//irrep_name(2:)
@@ -870,7 +878,8 @@ end subroutine get_irreducible_rep
             
         else
             write(*,'(A)')'Irreps for complete group: '//irrep_name(2:)
-            write(154,'(A)')'There are no anti-unitary operations in the little group.'
+            ! write(154,'(A)')'There are no anti-unitary operations in the little group.'
+            write(154,'(A)')'Irreps for complete group: '//irrep_name(2:)
         endif
 
         ! write(154,*)
