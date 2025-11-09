@@ -725,8 +725,8 @@ end subroutine get_irreducible_rep
         write(*,*)
         write(154,*)
         if (num_litt_group_unitary == num_litt_group) then
-            write(*,'(A)')'No anti-unitary elements of the little group.'
-            write(154,'(A)')'No anti-unitary elements of the little group.'
+            write(*,'(A)',advance='no')'No anti-unitary elements of the little group.'
+            write(154,'(A)',advance='no')'No anti-unitary elements of the little group.'
         else
             write(tmp,'(I0)') num_litt_group - num_litt_group_unitary
             write(*,'(A)')trim(adjustl(tmp))//' anti-unitary elements of the little group:'

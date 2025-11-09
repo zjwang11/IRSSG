@@ -64,7 +64,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     else:
 
         print(f'The SSG number: {ssgnum}')
-        print(f'The SSG label: {format_ssg}')
+        print(f'The SSG symbol: {format_ssg}')
         
     if 'Collinear' in lps:
         print('''I: Collinear SSG along z' direction; So: C\N{INFINITY}={C\N{INFINITY}z',Mx'C\N{INFINITY}z'}''')
