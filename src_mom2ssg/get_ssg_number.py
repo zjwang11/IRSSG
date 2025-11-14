@@ -9,13 +9,29 @@ from .SG_utils import identify_SG_lattice
 from .SG_isomorphism import find_sg_iso_transform
 from .find_ssg_operation import findAllOp, findAllOp_v2
 from .load_ssgdata import load_ssg_list
+from .eqvpg2label import hm_to_schoenflies, schoenflies_to_hm
 from .poscar_io import read_poscar_no_elements
 
 def search4ssg(cell, ssg_list, tol = 1e-4, tolm=1e-4):
     ssg_dict = findAllOp(cell, tol, tolm)
     # print(ssg_dict)
     search = str(ssg_dict['Gnum']) + '.' + str(ssg_dict['Ik']) + '.' + str(ssg_dict['It'])
+    # Normalize equivalent HM forms; use Schoenflies for non-crystal groups.
     eqvPg = ssg_dict['QLabel']
+    CRYSTAL_SCH = {
+        'C1','Ci','C2','Cs','C2h','D2','C2v','D2h',
+        'C4','S4','C4h','D4','C4v','D2d','D4h',
+        'C3','C3i','D3','C3v','D3d',
+        'C6','C3h','C6h','D6','C6v','D3h','D6h',
+        'T','Th','O','Td','Oh'
+    }
+    try:
+        sch = hm_to_schoenflies(str(eqvPg))
+    except Exception:
+        sch = None
+    # Only convert to Schoenflies for non-crystal point groups; keep crystal HM unchanged
+    if sch is not None and sch not in CRYSTAL_SCH:
+        eqvPg = sch
     dim = findDimension(cell,tolm=tolm)
     H = ssg_dict['Hnum']
     ssg_maybe = []
@@ -31,6 +47,12 @@ def search4ssg(cell, ssg_list, tol = 1e-4, tolm=1e-4):
         # print(ssg_dict)
         search = str(ssg_dict['Gnum']) + '.' + str(ssg_dict['Ik']) + '.' + str(ssg_dict['It'])
         eqvPg = ssg_dict['QLabel']
+        try:
+            sch = hm_to_schoenflies(str(eqvPg))
+        except Exception:
+            sch = None
+        if sch is not None and sch not in CRYSTAL_SCH:
+            eqvPg = sch
         dim = findDimension(cell,tolm=tolm)
         H = ssg_dict['Hnum']
         ssg_maybe = []
@@ -182,4 +204,3 @@ def checkH(ss,ssg_dict, shift, transform):
         if not flag:
             return False
     return True
-
