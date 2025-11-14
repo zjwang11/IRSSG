@@ -25,8 +25,11 @@ dependencies = [
 irssg = "irssg.cli:main"
 
 [tool.cibuildwheel]
-# Build CPython 3.13 -> 3.8 on Linux (descending order)
+# Build CPython 3.14/3.14t/3.13t and 3.13 -> 3.8 on Linux (descending order)
 build = [
+  "cp314t-*",  # free-threaded 3.14 (if available)
+  "cp314-*",   # CPython 3.14 (if available)
+  "cp313t-*",  # free-threaded 3.13
   "cp313-*",
   "cp312-*",
   "cp311-*",
