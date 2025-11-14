@@ -1,0 +1,103 @@
+name: Build & Publish to TestPyPI
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - 'v*'
+      - 'test*'
+
+jobs:
+  build-wheels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Decompress repo data needed in wheel (identify.pkl)
+        run: |
+          set -euxo pipefail
+          if [ -f src_mom2ssg/ssg_data/identify.pkl.tar.gz ]; then
+            tar -xzf src_mom2ssg/ssg_data/identify.pkl.tar.gz -C src_mom2ssg/ssg_data
+          fi
+
+      - name: Remove prebuilt shared objects from repo
+        run: |
+          set -euxo pipefail
+          rm -f src_mom2ssg/smith_form/libintlng.so || true
+
+      - name: Set version from tag (v*/test* -> X.Y.Z)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          set -eux
+          VERSION="${GITHUB_REF_NAME}"
+          if [[ "$VERSION" == v* ]]; then
+            VERSION="${VERSION#v}"
+          elif [[ "$VERSION" == test* ]]; then
+            VERSION="${VERSION#test}"
+          fi
+          test -n "$VERSION"
+          echo "Using VERSION=$VERSION"
+          # pyproject.toml
+          sed -i -E "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+          # setup.cfg
+          sed -i -E "s/^version = .*/version = $VERSION/" setup.cfg
+          # meson.build: line starting with '  version : '...
+          sed -i -E "s/^([[:space:]]*version[[:space:]]*:[[:space:]]*')[^']*(',)/\1$VERSION\2/" meson.build
+
+      - name: Build wheels (manylinux2014, x86_64)
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+        with:
+          output-dir: wheelhouse
+
+      - name: Build wheels (manylinux_2_28, x86_64)
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
+        with:
+          output-dir: wheelhouse
+
+      - name: Show built wheels
+        run: ls -lh wheelhouse
+
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux
+          path: wheelhouse/*.whl
+
+  publish-testpypi:
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-linux
+          path: dist
+
+      - name: Publish wheels to TestPyPI
+        uses: pypa/gh-action-pypi-publish@v1.10.2
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}

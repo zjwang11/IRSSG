@@ -1,35 +1,16 @@
-# Build artifacts
-*.o
-*.mod
-*.mod0
-*.smod
-*.a
 # Ignore root-level compiled binary named "irssg", but allow package dir
 /irssg
 !/irssg/
 
-# Python build artifacts
-build/
-dist/
-dist_py39/
-*.egg-info/
-*.whl
-__pycache__/
-
-# Vendor (mom2ssg) packaging artifacts
-mom2ssg/dist/
-mom2ssg/build/
-mom2ssg/*.egg-info/
 
 # Editors/OS
-.DS_Store
 .idea/
 .vscode/
 *~
-*.log
+
 
 # Large data stored compressed in repo; ignore uncompressed originals
-src_mom2ssg/ssg_data/identify.pkl
 test/wann/symm_hr.dat
 src_mom2ssg/ssg_data/*.pkl
 test/wann/*.dat
+
