@@ -12,6 +12,11 @@ version = "1.0.1"
 description = "IRSSG unified Fortran binary packaged for pip install"
 readme = "README.md"
 requires-python = ">=3.8"
+authors = [
+  { name = "Sheng Zhang", email = "zhangsheng221@mails.ucas.ac.cn" },
+  { name = "Ziyin Song",  email = "songziyin@iphy.ac.cn" },
+  { name = "Zhijun Wang", email = "wzj@iphy.ac.cn" }
+]
 dependencies = [
   "importlib_resources; python_version < '3.9'",
   "numpy>=1.20.1",
@@ -38,6 +43,9 @@ build = [
   "cp38-*",
 ]
 skip = ["pp*", "*musllinux*"]
+
+[tool.irssg]
+affiliation = "Beijing National Laboratory for Condensed Matter Physics, and Institute of Physics, Chinese Academy of Sciences, Beijing 100190, China; University of Chinese Academy of Sciences, Beijing 100049, China; Condensed Matter Physics Data Center, Chinese Academy of Sciences, Beijing 100190, China"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
