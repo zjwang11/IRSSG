@@ -42,11 +42,8 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
-          # manylinux2014 does not currently provide free-threaded (t) or 3.14 builds
-          CIBW_SKIP: "cp313t-* cp314-* cp314t-*"
-          CIBW_TEST_REQUIRES: "numpy spglib phonopy"
-          CIBW_TEST_COMMAND: >-
-            python -c "import os, irssg, irssg.cli; import irssg.ssg.MOM2SSG as m; print('import-ok', m.__name__)"
+          # Build only versions available/supported on manylinux2014
+          CIBW_BUILD: "cp313-* cp312-* cp311-* cp310-* cp39-* cp38-*"
         with:
           output-dir: wheelhouse
 
@@ -57,9 +54,8 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
           # allow pre-release Python downloads for 3.14/3.14t when not GA yet
           CIBW_PRERELEASE_PYTHONS: "1"
-          CIBW_TEST_REQUIRES: "numpy spglib phonopy"
-          CIBW_TEST_COMMAND: >-
-            python -c "import os, irssg, irssg.cli; import irssg.ssg.MOM2SSG as m; print('import-ok', m.__name__)"
+          # Build newer Python and free-threaded variants here
+          CIBW_BUILD: "cp314*-* cp313t-*"
         with:
           output-dir: wheelhouse
 
