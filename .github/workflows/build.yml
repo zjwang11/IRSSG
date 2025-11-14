@@ -18,7 +18,7 @@ jobs:
           lfs: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -42,8 +42,7 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
-          # Build only versions available/supported on manylinux2014
-          CIBW_BUILD: "cp313-* cp312-* cp311-* cp310-* cp39-* cp38-*"
+          # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
 
@@ -52,12 +51,7 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
-          # allow pre-release Python downloads for 3.14/3.14t when not GA yet
-          CIBW_PRERELEASE_PYTHONS: "1"
-          # Build newer Python and free-threaded variants here
-          CIBW_BUILD: "cp314-* cp314t-* cp313t-* cp313-*"
-          # Enable free-threaded ("t") builds
-          CIBW_FREE_THREADED_SUPPORT: "1"
+          # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
 
@@ -73,8 +67,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Test 3.14 → 3.8 in descending order
-        python-version: ['3.14','3.13','3.12','3.11','3.10','3.9','3.8']
+        # Test 3.14t/3.14 and 3.13t/3.13, then 3.12 → 3.8
+        python-version: ['3.14t','3.14','3.13t','3.13','3.12','3.11','3.10','3.9','3.8']
     steps:
       - name: Checkout
         env:
@@ -91,7 +85,7 @@ jobs:
           fi
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -134,7 +128,17 @@ jobs:
             python -m pip install --only-binary=:all: importlib_resources \
             || python -m pip install importlib_resources
           fi
-          pyver=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
+          # Determine wheel Python tag, accounting for free-threaded (t) builds
+          pyver=$(python - <<'PY'
+import sys, sysconfig
+maj, min = sys.version_info[:2]
+tag = f"cp{maj}{min}"
+soabi = sysconfig.get_config_var('SOABI') or ''  # e.g., cpython-313t-x86_64-linux-gnu
+if f"{maj}{min}t" in soabi:
+    tag += 't'
+print(tag)
+PY
+          )
           # Iterate over wheel tags we expect to produce and test each if present
           for tag in manylinux_2_28 manylinux_2_17 manylinux2014; do
             w=$(ls dist/*${pyver}*${tag}*x86_64.whl 2>/dev/null | head -n1 || true)
