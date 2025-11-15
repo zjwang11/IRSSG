@@ -42,6 +42,10 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+          # Allow pre-release Python downloads if needed (e.g., 3.14/3.14t)
+          CIBW_PRERELEASE_PYTHONS: "1"
+          # Enable free-threaded (t) wheels for CPython where available (e.g., cp313t)
+          CIBW_FREE_THREADED_SUPPORT: "1"
           # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
@@ -51,6 +55,10 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
+          # Allow pre-release Python downloads (e.g., 3.14 / 3.14t when not GA)
+          CIBW_PRERELEASE_PYTHONS: "1"
+          # Enable free-threaded (t) wheels
+          CIBW_FREE_THREADED_SUPPORT: "1"
           # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
