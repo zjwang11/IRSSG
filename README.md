@@ -15,3 +15,14 @@ In addition, to obtain the band characters and coreps of bands under Wannier bas
 $ irssg -wann [ -nk $a $b ] [ -nb $m $n ] [ -tolE $dE ] > irssg.out
 
 
+
+
+## API
+
+- load_ssg_list() — load the bundled SSG dataset list
+- identify_SG_lattice(gid) — returns (lattice_symbol, prim_vec), use prim_vec as primitive basis (columns)
+- findAllOp(cell_new, tol=..., tolm=1e-4) — compute symmetry operations; returns ops_dic
+- load_one_ssg(ssgnum_in) — load a single SSG entry; returns ssgdic
+- pos2abr(cell_prim) — convert to A/B/R centered setting; returns (cell_pos2abr, shift)
+- generate_irssg_in(...) — generate IRSSG input files from a cell/arguments
+- get_SSG_label(ssgnum, ssg_list) — get formatted SSG label for display
