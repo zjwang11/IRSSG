@@ -1,4 +1,4 @@
-project('irssg-pkg', 'fortran', 'c',
+project('irssg', 'fortran', 'c',
   version : '1.0.1',
   meson_version : '>=0.64.0',
   default_options : [

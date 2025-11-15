@@ -7,7 +7,7 @@ requires = [
 build-backend = "mesonpy"
 
 [project]
-name = "irssg-pkg"
+name = "irssg"
 version = "1.0.1"
 description = "IRSSG unified Fortran binary packaged for pip install"
 readme = "README.md"
