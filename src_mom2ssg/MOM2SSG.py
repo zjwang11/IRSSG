@@ -165,7 +165,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)+1e-6))
     
     print()
-    print("The redefined axises in spin space: (x',y',z')=(x,y,z)D")
+    print("The redefined axes in spin space: (x',y',z')=(x,y,z)D")
     
     # print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
     # print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")

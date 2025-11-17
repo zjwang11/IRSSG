@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import re
 import sys
+import os
 
 # Separator: a line that contains only asterisks
 SEP_RE = re.compile(r'^\s*\*+\s*$')
@@ -423,3 +424,8 @@ if __name__ == '__main__':
     out_path = sys.argv[2] if len(sys.argv) > 2 else 'chart.dat'
     comprel_path = sys.argv[3] if len(sys.argv) > 3 else 'comprel.log'
     dedup_fort154(in_path, out_path, comprel_path)
+    if os.path.exists(in_path):
+        os.remove(in_path)
+    
+    if os.path.exists(comprel_path):
+        os.remove(comprel_path)

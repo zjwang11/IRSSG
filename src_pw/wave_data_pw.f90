@@ -83,15 +83,15 @@ subroutine read_wavecar(KKK)
     allocate(occ  (nband));  occ=0.d0
 
 !---------tmp for 624
-    if(num_k<10.and.kkk==1) then
-        write(624,'(I3)') NSPIN*num_k
-        do iK=1,NSPIN*num_k
-            irec=3+(iK-1)*(nband+1)
-            read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
-                                   (cener(iband),occ(iband),iband=1,nband)
-            write(624,'(3F12.6)') (wk(i),i=1,3)
-         enddo
-    endif
+    ! if(num_k<10.and.kkk==1) then
+    !     write(624,'(I3)') NSPIN*num_k
+    !     do iK=1,NSPIN*num_k
+    !         irec=3+(iK-1)*(nband+1)
+    !         read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
+    !                                (cener(iband),occ(iband),iband=1,nband)
+    !         write(624,'(3F12.6)') (wk(i),i=1,3)
+    !      enddo
+    ! endif
 !---------tmp for 624
 
 
@@ -365,15 +365,15 @@ subroutine read_wavecar_up(KKK)
     allocate(occ  (nband));  occ=0.d0
 
 !---------tmp for 624
-    if(num_k<10.and.kkk==1) then
-        write(624,'(I3)') NSPIN*num_k
-        do iK=1,NSPIN*num_k
-            irec=3+(iK-1)*(nband+1)
-            read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
-                                   (cener(iband),occ(iband),iband=1,nband)
-            write(624,'(3F12.6)') (wk(i),i=1,3)
-         enddo
-    endif
+    ! if(num_k<10.and.kkk==1) then
+    !     write(624,'(I3)') NSPIN*num_k
+    !     do iK=1,NSPIN*num_k
+    !         irec=3+(iK-1)*(nband+1)
+    !         read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
+    !                                (cener(iband),occ(iband),iband=1,nband)
+    !         write(624,'(3F12.6)') (wk(i),i=1,3)
+    !      enddo
+    ! endif
 !---------tmp for 624
 
 
@@ -577,17 +577,17 @@ subroutine read_wavecar_dn(KKK_)
     allocate(cener(nband));cener=0.d0
     allocate(occ  (nband));  occ=0.d0
 
-!---------tmp for 624
-    if(num_k<10.and.kkk==1) then
-        write(624,'(I3)') NSPIN*num_k
-        do iK=1,NSPIN*num_k
-            irec=3+(iK-1)*(nband+1)
-            read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
-                                   (cener(iband),occ(iband),iband=1,nband)
-            write(624,'(3F12.6)') (wk(i),i=1,3)
-         enddo
-    endif
-!---------tmp for 624
+! !---------tmp for 624
+!     if(num_k<10.and.kkk==1) then
+!         write(624,'(I3)') NSPIN*num_k
+!         do iK=1,NSPIN*num_k
+!             irec=3+(iK-1)*(nband+1)
+!             read(unit=10,rec=irec) xnplane,(wk(i),i=1,3), &
+!                                    (cener(iband),occ(iband),iband=1,nband)
+!             write(624,'(3F12.6)') (wk(i),i=1,3)
+!          enddo
+!     endif
+! !---------tmp for 624
 
 
 !------Find desired wavefunction----------
