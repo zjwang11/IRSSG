@@ -73,7 +73,15 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     elif 'Noncoplanar' in lps:
         print('''III: Noncoplanar SSG; So: C1={E}''')
         
-    
+    print("The redefined axes in spin space: (x',y',z')=(x,y,z)D")
+    A = [axis_vector[1], axis_vector[2], axis_vector[0]]
+    rows = [f"{r0+1e-6:>6.3f} {r1+1e-6:>6.3f} {r2+1e-6:>6.3f}" for r0, r1, r2 in zip(*A)]
+    prefix = "D = "
+    print(prefix + rows[0])
+    indent = " " * len(prefix)
+    for r in rows[1:]:
+        print(indent + r)
+        
     print("The SSG G = So x Go")
     print('P (spin part of Go): ' + get_std_pg(operations['QLabel'])[1])
     #print('H (lattice part of Go): '+ sg_symbol_from_number(operations['Gnum']) + f' ({num_operator//ncell_pos_ssg} operations)') #wzj
@@ -90,14 +98,6 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     print('Spin space group operations: {U||R|v}')
     print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
-    print("The redefined axes in spin space: (x',y',z')=(x,y,z)D")
-    A = [axis_vector[1], axis_vector[2], axis_vector[0]]
-    rows = [f"{r0+1e-6:>6.3f} {r1+1e-6:>6.3f} {r2+1e-6:>6.3f}" for r0, r1, r2 in zip(*A)]
-    prefix = "D = "
-    print(prefix + rows[0])
-    indent = " " * len(prefix)
-    for r in rows[1:]:
-        print(indent + r)
     
     if 'Collinear' in lps:
         print('''U= I_2 + \u03BE in type I ''')
