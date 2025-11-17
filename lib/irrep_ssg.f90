@@ -350,9 +350,9 @@ subroutine tb_setup_ssg(WK, &
         call invmati(rot_unitary(:,:,irot), invrot(:,:,irot)) 
         call O3_to_axis_angle(SO3_unitary(:,:,irot), axis(:,irot), angle(irot), det(irot))
         angle(irot) = angle(irot)*180.d0/PI
-        write(150,*)irot
-        write(150,*)SO3_unitary(:,:,irot)
-        write(150,*)axis(:,irot),angle(irot), det(irot)
+        ! write(150,*)irot
+        ! write(150,*)SO3_unitary(:,:,irot)
+        ! write(150,*)axis(:,irot),angle(irot), det(irot)
 
         call Dmatrix(rnx=axis(1,irot),rny=axis(2,irot),rnz=axis(3,irot),degree=angle(irot),twoja1=3,Dmat=protmt)
         if (orbt == 2) then

@@ -175,7 +175,7 @@ subroutine get_key_para_intct(keyword, nfile, intn)
         enddo 
         if (i == length + 1) cycle 
         read(chartmp(1:i-1), *) keyword2 
-        write(1080,*)keyword2,keyword
+        ! write(1080,*)keyword2,keyword
         if (trim(adjustl(keyword2)) == keyword) then 
             read(chartmp(i+1:length), *) intn 
 
