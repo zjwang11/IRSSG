@@ -90,12 +90,20 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     print('Spin space group operations: {U||R|v}')
     print("U is given in x'y'z' coordinates, while R is given in the lattice basis of POSCAR.")
+    print("The redefined axes in spin space: (x',y',z')=(x,y,z)D")
+    A = [axis_vector[1], axis_vector[2], axis_vector[0]]
+    rows = [f"{r0+1e-6:>6.3f} {r1+1e-6:>6.3f} {r2+1e-6:>6.3f}" for r0, r1, r2 in zip(*A)]
+    prefix = "D = "
+    print(prefix + rows[0])
+    indent = " " * len(prefix)
+    for r in rows[1:]:
+        print(indent + r)
     
     if 'Collinear' in lps:
         print('''U= I_2 + \u03BE in type I ''')
     elif 'Coplanar' in lps:
         print('''U= \u03B6_{2x2} + I_1 in type II''')
-        
+    
     print(f'# Number: {num_operator}')
     # if dim_mag == 1:
     #     print('{Spin|| Ri  | taui}')
@@ -165,19 +173,10 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
             print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][2].reshape(-1), float)+1e-6))
     
     print()
-    print("The redefined axes in spin space: (x',y',z')=(x,y,z)D")
     
     # print(f"[{axis_vector[1][0]:>6.3f}, {axis_vector[1][1]:>6.3f}, {axis_vector[1][2]:>6.3f}]:x'")
     # print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
     # print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
-    
-    A = [axis_vector[1], axis_vector[2], axis_vector[0]]
-    rows = [f"{r0+1e-6:>6.3f} {r1+1e-6:>6.3f} {r2+1e-6:>6.3f}" for r0, r1, r2 in zip(*A)]
-    prefix = "D = "
-    print(prefix + rows[0])
-    indent = " " * len(prefix)
-    for r in rows[1:]:
-        print(indent + r)
     
     print("D U D^{-1}  is in Cartesian coordinates, which is in ssg.data.")
     
