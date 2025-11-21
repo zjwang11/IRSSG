@@ -165,6 +165,7 @@ subroutine read_tbbox()
     real(dp)           :: tmp(3), tmpr(3)
     complex(dp)        :: crotmt(3,3), protmt(3,3), drotmt(5,5), srotmt(2,2), frotmt(7,7)
     complex(dp)        :: cmat3(3,3), cmat5(5,5), cmat7(7,7)
+    real(dp) :: dummy1, dummy2, dummy3
 
     integer, parameter :: tbbox = 1001
 
@@ -249,7 +250,7 @@ subroutine read_tbbox()
     allocate(pos_center(3, ncenter))
     startorb_center = 0
     do i = 1, ncenter 
-        read(tbbox, *) pos_center(:, i), type_center(i), norb_center(i)
+        read(tbbox, *) pos_center(:, i), type_center(i), dummy1, dummy2, dummy3, norb_center(i)
         if (i /= 1) startorb_center(i) = startorb_center(i-1) + norb_center(i-1)
     enddo 
 
