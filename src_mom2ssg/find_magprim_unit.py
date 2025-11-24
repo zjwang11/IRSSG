@@ -266,19 +266,22 @@ def find_magprim_unit(cell):
     Note:
         The function uses Phonopy to find the primitive cell and applies
         the standardization rotation matrix to the magnetic moments.
+        If the input cell only contains (lattice, positions, numbers, mag),
+        placeholder element labels are generated to keep numeric type IDs aligned.
     """
-    # Step 1: Relabel atoms by species and magnetic moments
+    # Step 0: Normalize inputs that lack an explicit element list
     if len(cell) == 4:
-        cell_ = []
-        cell_.append(cell[0].copy())
-        cell_.append(cell[1].copy())
-        cell_.append(cell[2].copy())
-        cell_.append(cell[2].copy())
-        cell_.append(cell[3].copy())
-        
-        cell_new, mapping = relabel_by_species_and_magmoms(cell_)
+        lattice, positions, numbers, mag = cell
+        type_ids = np.asarray(numbers, int)
+        max_type_id = int(type_ids.max()) if type_ids.size else 0
+        # Placeholder element labels aligned with numeric type IDs (1..max_type_id)
+        elements = [f"type{t}" for t in range(1, max_type_id + 1)]
+        working_cell = (lattice.copy(), positions.copy(), list(numbers), elements, mag.copy())
     else:
-        cell_new, mapping = relabel_by_species_and_magmoms(cell)
+        working_cell = cell
+
+    # Step 1: Relabel atoms by species and magnetic moments
+    cell_new, mapping = relabel_by_species_and_magmoms(working_cell)
     
     # Step 2: Find primitive cell
     cell_new2 = prim_cell(cell_new)
@@ -325,4 +328,3 @@ def replace_in_list(original_list, a, b):
         for item in original_list
     ]
     return modified_list
-
