@@ -274,7 +274,7 @@ def find_magprim_unit(cell):
         cell_.append(cell[1].copy())
         cell_.append(cell[2].copy())
         cell_.append(cell[2].copy())
-        cell_.append(cell[3].copy)
+        cell_.append(cell[3].copy())
         
         cell_new, mapping = relabel_by_species_and_magmoms(cell_)
     else:
