@@ -9,7 +9,9 @@ contains
         real(dp), intent(in) :: tau1(3), tau2(3)
         real(dp), intent(in) :: tol
         real(dp) :: diff(3)
-        diff = mod(tau1 - tau2, 1.0)
+        ! Use nearest-integer wrapping to be robust against values near 1.0 ± eps
+        diff = tau1 - tau2
+        diff = diff - nint(diff)
         identity_tau = sqrt(dot_product(diff,diff)) < tol
     end function identity_tau
 
@@ -53,24 +55,22 @@ contains
         complex(dp), intent(in) :: su2_list(2,2,num_litt_group)
         integer, intent(in) :: time_reversal(num_litt_group)
         integer, intent(out) :: index
-        integer :: i,  t_new_val
+        integer :: i
         logical :: id
         real(dp) :: tol
         ! Find matching index
-        tol = 1e-4
+        tol = 1e-3
         index = 0
         do i = 1, num_litt_group
             if (all(abs(rot_new - space_rot(:,:,i)) < tol) .and. abs(t_new - time_reversal(i)) < tol) then
                 id = identity_tau(tau_new, space_tau(:,i),tol)
                 if (id) then
-                    if (all(abs(su2_new - su2_list(:,:,i)) < tol) .or. all(abs(su2_new + su2_list(:,:,i)) < tol)) then
-                        if (all(abs(su2_new - su2_list(:,:,i)) < tol)) then
-                            index = i
-                            return
-                        else
-                            index = -i
-                            return
-                        end if
+                    if (maxval(abs(su2_new - su2_list(:,:,i))) < tol) then
+                        index = i
+                        return
+                    else if (maxval(abs(su2_new + su2_list(:,:,i))) < tol) then
+                        index = -i
+                        return
                     end if
                 end if
             end if
