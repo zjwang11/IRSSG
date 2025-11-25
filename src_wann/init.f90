@@ -250,7 +250,7 @@ subroutine read_tbbox()
     allocate(pos_center(3, ncenter))
     startorb_center = 0
     do i = 1, ncenter 
-        read(tbbox, *) pos_center(:, i), type_center(i), dummy1, dummy2, dummy3, norb_center(i)
+        read(tbbox, *) pos_center(:, i), dummy1, dummy2, dummy3, type_center(i), norb_center(i)
         if (i /= 1) startorb_center(i) = startorb_center(i-1) + norb_center(i-1)
     enddo 
 
