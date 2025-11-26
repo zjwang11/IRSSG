@@ -9,7 +9,7 @@ build-backend = "mesonpy"
 [project]
 name = "irssg"
 version = "1.0.1"
-description = "IRSSG unified Fortran binary packaged for pip install"
+description = "IRSSG is an open-source toolkit for identifying spin space groups and computing band irreducible (co)representations from DFT or Wannier tight-binding calculations."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
@@ -45,7 +45,7 @@ build = [
 skip = ["pp*", "*musllinux*"]
 
 [tool.irssg]
-affiliation = "Beijing National Laboratory for Condensed Matter Physics, and Institute of Physics, Chinese Academy of Sciences, Beijing 100190, China; University of Chinese Academy of Sciences, Beijing 100049, China; Condensed Matter Physics Data Center, Chinese Academy of Sciences, Beijing 100190, China"
+affiliation = "Beijing National Laboratory for Condensed Matter Physics, and Institute of Physics, Chinese Academy of Sciences, Beijing 100190, China; University of Chinese Academy of Sciences, Beijing 100049, China; Condensed Matter Physics Data Center, Chinese Academy of Sciences, Beijing 100190, China; Condensed Matter Physics Data Center, Chinese Academy of Sciences, Beijing 100190, China."
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
