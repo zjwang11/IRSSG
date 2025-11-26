@@ -11,11 +11,26 @@ name = "irssg"
 version = "1.0.1"
 description = "IRSSG is an open-source toolkit for identifying spin space groups and computing band irreducible (co)representations from DFT or Wannier tight-binding calculations."
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.8"
 authors = [
   { name = "Sheng Zhang", email = "zhangsheng221@mails.ucas.ac.cn" },
   { name = "Ziyin Song",  email = "songziyin@iphy.ac.cn" },
   { name = "Zhijun Wang", email = "wzj@iphy.ac.cn" }
+]
+classifiers = [
+  "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: POSIX :: Linux",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
 ]
 dependencies = [
   "importlib_resources; python_version < '3.9'",
