@@ -1,8 +1,8 @@
 
 # IRSSG
 *An Open-Source Software Package for Spin Space Sroups*
-Ref: Zhang, Sheng et al, arXiv:2511.21921 (2025). 
-  https://arxiv.org/abs/2511.21821
+  Ref: Zhang, Sheng et al, arXiv:2511.21921 (2025). https://arxiv.org/abs/2511.21821
+  
 We develop the package **IRSSG** to obtain the irreducible (co)representations of spin space groups (SSGs) for magnetic materials **in the absence of spin–orbit coupling (SOC)**, and to analyze the band topology and symmetry of energy bands.  
 
 IRSSG
