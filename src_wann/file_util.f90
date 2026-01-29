@@ -61,6 +61,38 @@ subroutine get_key_para_cht(keyword, nfile, chat)
 end subroutine get_key_para_cht 
 
 
+subroutine get_key_para_log(keyword, nfile, logn)
+
+    character(len=22), intent(inout) :: keyword
+    integer,           intent(in)    :: nfile
+    logical,           intent(inout) :: logn
+
+    character(len=22) :: keyword2
+    character(len=50) :: chartmp
+
+    integer           :: length
+    integer           :: ierr
+    integer           :: i, j
+
+    rewind(nfile)
+    do while (.true.)
+        read(nfile, "(A)", iostat=ierr) chartmp
+        if (ierr /= 0) exit
+        length = len_trim(chartmp)
+        do i = 1, length
+            if (chartmp(i:i) == '=' .or. chartmp(i:i) == ':') exit
+        enddo
+        if (i == length+1) cycle
+        read(chartmp(1:i-1), *) keyword2
+        if (trim(adjustl(keyword2)) == keyword) then
+            read(chartmp(i+1:length), *) logn
+            exit
+        endif
+    enddo
+
+end subroutine get_key_para_log
+
+
 subroutine get_key_para_rel(keyword, nfile, relt)
 
     character(len=22), intent(inout) :: keyword

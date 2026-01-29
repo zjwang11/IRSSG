@@ -152,11 +152,11 @@ end interface
     !
     ssg_label = ''
     !
+    call read_tbbox()
+    !
     call get_ssg_op(spg, ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
     !
     call load_bilbao(spg)
-    !
-    call read_tbbox()
     !
     if(isSpinPola) then
         call read_HmnR_spin_polarized()
@@ -226,14 +226,12 @@ end interface
         enddo
 
         
-        isSpinor = .true.
         if (nspin==2) then
+            !isSpinor = .true.
             call judge_up_down_relation(numLG,SU2_lg,time_reversal_lg,spin_no_reversal)
             if (.not. spin_no_reversal) then
-                isSpinor = .true.
                 call get_WF_spin_polarized(3)
             else
-                isSpinor = .false.
                 call get_WF_spin_polarized(1)
             endif
         else
@@ -394,10 +392,10 @@ end interface
         call judge_up_down_relation(numLG,SU2_lg,time_reversal_lg,spin_no_reversal)
 
         if (.not. spin_no_reversal) then
-            isSpinor = .true.
+            !isSpinor = .true.
             call get_WF_spin_polarized(3)
         else
-            isSpinor = .false.
+            !isSpinor = .true.
             call get_WF_spin_polarized(2)
         endif
 

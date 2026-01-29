@@ -172,6 +172,11 @@ subroutine read_tbbox()
 
     open(unit=tbbox, file='tbbox.in',form='formatted',status='old')
 
+    ! SOC flag (optional): soc = T/F, default false
+    isSpinor = .false.
+    chtp22 = 'soc'
+    call get_key_para_log(chtp22, tbbox, isSpinor)
+
     isSpinPola = .false.
     chtp22 = 'spinpol'
     call get_key_para_cht(chtp22, tbbox, casename)
