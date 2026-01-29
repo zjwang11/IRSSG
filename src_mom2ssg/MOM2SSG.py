@@ -39,7 +39,7 @@ from .lirssg import generate_irssg_in
 from .poscar_io import read_poscar_no_elements, mcif2cell, write_poscar
 from .load_ssgdata import load_ssg_list
 from .wyckoff import get_swyckoff, output_wyckoff
-from .find_ssg_operation import findAllOp
+from .find_ssg_operation import findAllOp,get_msg_operation
 from .get_ssg_number import search4ssg
 from .std2ssg import standardize_ssg_cell,addA
 from .spintrans import spin_axis
@@ -448,9 +448,13 @@ def main():
         else:
             format_ssg = 'Cannot find SSG number and international symbol!!!'
         
-        generate_irssg_in(ssg_ops['Gnum'], format_ssg, cell, mag, ssg_ops, tolm=magtolerance)
+        
         
         is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
+        
+        msg_ops = get_msg_operation(ssg_ops)
+        generate_irssg_in(ssg_ops['Gnum'], format_ssg,'', cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
+        
         
         if is_super_cell:
             print('Warning: The POSCAR cell is not a SSG primitive cell!!! The SSG primitive cell is output in POSCAR.ssg_primitive.')

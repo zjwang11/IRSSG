@@ -75,7 +75,7 @@ def judge_time_reversal(matlist):
 
 
 
-def generate_irssg_in(spg, ssgnum, cell, mag, operations, tolm=1e-4):
+def generate_irssg_in(spg, ssgnum, msgnum, cell, mag, operations, msg_operations, tolm=1e-4):
     dim_mag = findDimension(cell,tolm=tolm)
     
     wbfile = open('ssg.data','wb')
@@ -155,5 +155,27 @@ def generate_irssg_in(spg, ssgnum, cell, mag, operations, tolm=1e-4):
             O3_list_all.append(operations['RotC'][j])
             SU2_list_all.append(spin_only_SU2_list[i]@get_SU2_list(operations['spin'])[j])
     
+    # for wannier symmetrization
     np.save('ssgop_wansym.npy',{'T_list':T_list_all,'O3_list':O3_list_all,'SU2_list':SU2_list_all},allow_pickle=True)
-            
+    
+    # for msg
+    wbfile = open('msg.data','wb')
+    np.array([spg],dtype=np.int32).tofile(wbfile)
+    b   = msgnum.encode('utf-8')
+    np.array([len(b)], dtype=np.int32).tofile(wbfile)
+    wbfile.write(b)
+    
+    np.array([1],dtype=np.int32).tofile(wbfile)
+    np.array([np.eye(3)], dtype=np.float64).tofile(wbfile)
+    np.array([np.eye(2,dtype=np.complex128)], dtype=np.complex128).tofile(wbfile)
+    np.array([1],dtype=np.int32).tofile(wbfile)
+    
+    np.array([len(msg_operations['spin'])], dtype=np.int32).tofile(wbfile)
+    np.array(msg_operations['spin']).tofile(wbfile)        
+    np.array(get_SU2_list(msg_operations['spin']),dtype=np.complex128).tofile(wbfile)
+    T_list = judge_time_reversal(msg_operations['spin'])
+    np.array(T_list,dtype=np.int32).tofile(wbfile)
+    np.rint(np.array(msg_operations['RotC'])).astype(np.int32).tofile(wbfile)
+    np.array(msg_operations['TauC']).tofile(wbfile)
+    
+    wbfile.close()

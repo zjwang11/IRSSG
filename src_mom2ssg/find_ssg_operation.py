@@ -589,3 +589,8 @@ def findAllOp_v2(cell, tol,tolm=1e-4):
     return {'spin': out_spin, 'It': It, 'Hnum': Hnum, 'Ik': Ik, 'Gnum': Gnum, 'QLabel': get_std_pg(spin_label)[0], 'RotC': out_rot,
             'TauC': out_tran, 'transformation_matrix': transform, 'original_shift': shift, 'HRotC': Hrot, 'HTauC': Htran}
 
+def get_msg_operation(operation):
+    msg_operation = {'spin':[],'RotC':[],'TauC':[]}
+    for i in range(len(operation['spin'])):
+        pass
+    return msg_operation
