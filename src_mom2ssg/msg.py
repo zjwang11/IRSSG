@@ -106,33 +106,15 @@ def format_msg_label(info: Optional[Dict[str, object]]) -> str:
         text = str(val).strip()
         return text if text else None
 
-    parts = []
-
-    bns_number = clean(info.get("bns_number"))
-    bns_symbol = clean(info.get("bns_symbol"))
-    if bns_number or bns_symbol:
-        parts.append("BNS " + " ".join(v for v in (bns_number, bns_symbol) if v))
+    og_symbol = clean(info.get("og_symbol"))
+    if og_symbol:
+        return og_symbol
 
     og_number = clean(info.get("og_number"))
-    og_symbol = clean(info.get("og_symbol"))
-    if og_number or og_symbol:
-        parts.append("OG " + " ".join(v for v in (og_number, og_symbol) if v))
+    if og_number:
+        return og_number
 
-    litvin = clean(info.get("litvin_number"))
-    if litvin:
-        parts.append("Litvin " + litvin)
-
-    uni = clean(info.get("uni_number"))
-    if uni:
-        parts.append("UNI " + uni)
-
-    msg_type = clean(info.get("type"))
-    if msg_type:
-        parts.append("Type " + msg_type)
-
-    if not parts:
-        return "MSG: unknown"
-    return " | ".join(parts)
+    return "MSG: unknown"
 
 
 def _main():

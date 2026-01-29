@@ -114,11 +114,11 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     #     print('{      Spin O3    || Ri  | taui}')
 
     if dim_mag == 1:
-        print('{  \u03BE ||   Ri   |  taui }')
+        print('{  \u03BE ||   Ri   |  taui }  in msg?')
     elif dim_mag == 2:
-        print('{   \u03B6_{2x2}   ||    Ri   |  taui }')
+        print('{   \u03B6_{2x2}   ||    Ri   |  taui }  in msg?')
     else:
-        print('{          U         ||   Ri    |  taui }')
+        print('{          U         ||   Ri    |  taui }  in msg?')
         
     for i in range(num_operator):
         time_reversal = det(operations['spin'][i])
