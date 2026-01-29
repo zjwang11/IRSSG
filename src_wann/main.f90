@@ -164,7 +164,7 @@ end interface
         call read_HmnR()
     endif
     !
-    call output_ssg_operator(ssg_label,num_sym,rot,tau,SU2,spin_rot,time_reversal)
+    call output_ssg_operator(ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
     !
     call setarray()
     !

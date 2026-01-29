@@ -166,8 +166,9 @@ contains
 
 
 
-  subroutine output_ssg_operator(ssg_label,nsym,rotation,tau,spin_SU2,spin_rotation,time_reversal)
+  subroutine output_ssg_operator(ssg_label, isSpinor, nsym, rotation, tau, spin_SU2, spin_rotation, time_reversal)
     implicit none
+    logical, intent(in) :: isSpinor
     integer,intent(in) :: nsym
     integer,intent(in) :: rotation(3,3,nsym)
     real(dp),intent(in) :: tau(3,nsym)
