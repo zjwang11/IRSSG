@@ -43,11 +43,12 @@ from .find_ssg_operation import findAllOp,get_msg_operation
 from .get_ssg_number import search4ssg
 from .std2ssg import standardize_ssg_cell,addA
 from .spintrans import spin_axis
+from .msg import get_msg_info_from_cell, format_msg_label
 from .eqvpg2label import get_std_pg
 from .find_magprim_unit import find_magprim_unit
 
 
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,tol=1e-3):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,ssg_in_msg,tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -132,7 +133,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         if dim_mag == 1:
             print(f"{spin_rot_list[i]:>4d}",end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
+            print(ssg_in_msg[i])
             
             print("      ",end='')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
@@ -146,7 +148,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         elif dim_mag == 2:
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
+            print(ssg_in_msg[i])
             
             
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
@@ -161,7 +164,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         else:
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
+            print(ssg_in_msg[i])
             
             
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
@@ -448,12 +452,18 @@ def main():
         else:
             format_ssg = 'Cannot find SSG number and international symbol!!!'
         
+        msg_ops, ssg_in_msg = get_msg_operation(cell,ssg_ops)
+        msg_info = get_msg_info_from_cell(
+            cell,
+            symprec=tolerance,
+            mag_symprec=magtolerance,
+        )
         
+        formag_msg = format_msg_label(msg_info)
         
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,ssg_in_msg)
         
-        msg_ops = get_msg_operation(ssg_ops)
-        generate_irssg_in(ssg_ops['Gnum'], format_ssg,'', cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
+        generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         
         
         if is_super_cell:

@@ -589,8 +589,25 @@ def findAllOp_v2(cell, tol,tolm=1e-4):
     return {'spin': out_spin, 'It': It, 'Hnum': Hnum, 'Ik': Ik, 'Gnum': Gnum, 'QLabel': get_std_pg(spin_label)[0], 'RotC': out_rot,
             'TauC': out_tran, 'transformation_matrix': transform, 'original_shift': shift, 'HRotC': Hrot, 'HTauC': Htran}
 
-def get_msg_operation(operation):
-    msg_operation = {'spin':[],'RotC':[],'TauC':[]}
-    for i in range(len(operation['spin'])):
-        pass
-    return msg_operation
+def get_msg_operation(cell, operation, tol=1e-4):
+    msg_operation = {'spin': [], 'RotC': [], 'TauC': []}
+    ssg_in_msg = []
+    lattice = np.asarray(cell[0], dtype=float)
+    # POSCAR lattice vectors are stored as rows; use transpose for cartesian transform
+    L = lattice.T
+    L_inv = np.linalg.inv(L)
+
+    for spin, rot, tau in zip(operation['spin'], operation['RotC'], operation['TauC']):
+        # Compare SO(3) parts in the same (fractional) basis by converting spin -> RotC
+        spin_so3 = spin / np.linalg.det(spin)
+        spin_frac = L_inv @ spin_so3 @ L
+        rot_so3 = rot / np.linalg.det(rot)
+
+        is_match = np.allclose(spin_frac, rot_so3, atol=tol, rtol=tol)
+        ssg_in_msg.append(is_match)
+        if is_match:
+            msg_operation['spin'].append(spin)
+            msg_operation['RotC'].append(rot)
+            msg_operation['TauC'].append(tau)
+
+    return msg_operation, ssg_in_msg
