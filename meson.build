@@ -74,6 +74,7 @@ py3.install_sources(files('irssg/__init__.py', 'irssg/cli.py', 'irssg/deplicate_
 py3.install_sources(files(
   'src_mom2ssg/__init__.py',
   'src_mom2ssg/MOM2SSG.py',
+  'src_mom2ssg/msg.py',
   'src_mom2ssg/small_func.py',
   'src_mom2ssg/SG_utils.py',
   'src_mom2ssg/get_ssg_symbol.py',
