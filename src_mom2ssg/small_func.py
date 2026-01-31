@@ -640,3 +640,9 @@ def transform_vectors_to_new_coords(vecs, xprime, zprime, tol=1e-3):
     if V.ndim >= 1 and V.shape[-1] == 3:
         return np.einsum('ij,...j->...i', C.T, V)
     raise ValueError("vecs must have shape (3,) or (...,3).")
+
+def axis_angle_to_so3_scipy(axis, angle):
+    axis = np.asarray(axis, dtype=float)
+    rotvec = axis / np.linalg.norm(axis) * angle 
+    R = Rot.from_rotvec(rotvec).as_matrix()      
+    return R
