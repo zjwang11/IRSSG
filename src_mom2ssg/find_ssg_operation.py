@@ -642,7 +642,7 @@ def crystal_Cnm_from_R_axis(R, n_axis, n_candidates=(1,2,3,4,6), tol_deg=1e-3):
 def Cnm_tex(n, m):
     return rf"C_{n}z'^{m}"
 
-def get_msg_operation(cell, operation, tolm=1e-4, tol=1e-3):
+def get_msg_operation(cell, operation, mag, tolm=1e-4, tol=1e-3):
     dim = findDimension(cell,tolm=tolm)
     msg_operation = {'spin': [], 'RotC': [], 'TauC': []}
     ssg_in_msg = []
