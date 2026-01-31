@@ -452,7 +452,7 @@ def main():
         else:
             format_ssg = 'Cannot find SSG number and international symbol!!!'
         
-        msg_ops, ssg_in_msg = get_msg_operation(cell,ssg_ops)
+        msg_ops, ssg_in_msg = get_msg_operation(cell,ssg_ops,magtolerance)
         msg_info = get_msg_info_from_cell(
             cell,
             symprec=tolerance,

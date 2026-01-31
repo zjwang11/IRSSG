@@ -589,7 +589,61 @@ def findAllOp_v2(cell, tol,tolm=1e-4):
     return {'spin': out_spin, 'It': It, 'Hnum': Hnum, 'Ik': Ik, 'Gnum': Gnum, 'QLabel': get_std_pg(spin_label)[0], 'RotC': out_rot,
             'TauC': out_tran, 'transformation_matrix': transform, 'original_shift': shift, 'HRotC': Hrot, 'HTauC': Htran}
 
-def get_msg_operation(cell, operation, tol=1e-4):
+import numpy as np
+
+def is_eigenvector_o3(A, v, tol=1e-3):
+    """
+    A: 3x3 O(3) matrix (orthogonal), v: unit vector.
+    Return (ok, lam) where ok means Av ≈ lam v, lam should be ≈ ±1.
+    """
+    A = np.asarray(A, dtype=float)
+    v = np.asarray(v, dtype=float)
+
+    w = A @ v
+    lam = float(v @ w)                  # since ||v||=1
+    ok = np.linalg.norm(w - lam * v) <= tol and min(abs(lam-1), abs(lam+1)) <= 10*tol
+    return ok,lam
+
+def crystal_Cnm_from_R_axis(R, n_axis, n_candidates=(1,2,3,4,6), tol_deg=1e-3):
+    """
+    R: 3x3 SO(3) rotation matrix
+    n_axis: unit axis (oriented)
+    returns (n, m, theta_deg, err_deg). If no match within tol_deg, returns None.
+    """
+    R = np.asarray(R, dtype=float)
+    n_axis = np.asarray(n_axis, dtype=float)
+
+    # cos(theta) from trace
+    cos_th = (np.trace(R) - 1.0) / 2.0
+    cos_th = float(np.clip(cos_th, -1.0, 1.0))
+
+    # k = sin(theta) * axis  (for SO(3))
+    k = 0.5 * np.array([R[2,1] - R[1,2],
+                        R[0,2] - R[2,0],
+                        R[1,0] - R[0,1]])
+    sin_th = float(k @ n_axis)  # uses your oriented axis
+
+    th = float(np.arctan2(sin_th, cos_th))   # (-pi, pi]
+    if th < 0:
+        th += 2*np.pi                         # [0, 2pi)
+
+    best = None
+    for n in n_candidates:
+        m = int(np.round(th * n / (2*np.pi))) % n
+        th0 = 2*np.pi * m / n
+        d = abs(th - th0)
+        d = min(d, 2*np.pi - d)               # wrap distance
+        d_deg = d * 180/np.pi
+        if best is None or d_deg < best[3]:
+            best = (n, m, th * 180/np.pi, d_deg)
+
+    return best if best[3] <= tol_deg else None
+
+def Cnm_tex(n, m):
+    return rf"C_{n}z'^{m}"
+
+def get_msg_operation(cell, operation, tolm=1e-4, tol=1e-3):
+    dim = findDimension(cell,tolm=tolm)
     msg_operation = {'spin': [], 'RotC': [], 'TauC': []}
     ssg_in_msg = []
     lattice = np.asarray(cell[0], dtype=float)
@@ -604,10 +658,53 @@ def get_msg_operation(cell, operation, tol=1e-4):
         rot_so3 = rot / np.linalg.det(rot)
 
         is_match = np.allclose(spin_frac, rot_so3, atol=tol, rtol=tol)
-        ssg_in_msg.append(is_match)
+        
         if is_match:
             msg_operation['spin'].append(spin)
             msg_operation['RotC'].append(rot)
             msg_operation['TauC'].append(tau)
+            ssg_in_msg.append('E')
+        elif dim == 2:
+            spin_rot_inv = np.linalg.inv(spin_frac) @ rot_so3
+            normal_vector = generate_normal_vector(mag,tolm=tolm)
+            spin_only_Mz_O3 = axis_angle_to_so3_scipy(normal_vector,np.pi) * (-1)
+            spin_only_Mz_so3 = spin_only_Mz_O3 / np.linalg.det(spin_only_Mz_O3)
+            spin_only_Mz_frac = L_inv @ spin_only_Mz_so3 @ L
+            is_match = np.allclose(spin_only_Mz_frac, spin_rot_inv, atol=tol, rtol=tol)
+            if is_match:
+                msg_operation['spin'].append(spin@spin_only_Mz_O3)
+                msg_operation['RotC'].append(rot)
+                msg_operation['TauC'].append(tau)
+                ssg_in_msg.append("Mz'")
+            else:
+                ssg_in_msg.append("")
+            continue
+        elif dim == 1:
+            spin_rot_inv = np.linalg.inv(spin_frac) @ rot_so3
+            normal_vector = line_normal_vector(mag,tolm=tolm)
+            is_match, lam = is_eigenvector_o3(L@spin_rot_inv@L_inv,normal_vector,tol)
+            
+            if lam > 0:
+                lam = 1
+            else:
+                lam = -1
+                
+            if is_match:
+                msg_operation['spin'].append(lam*spin@L@spin_rot_inv@L_inv)
+                msg_operation['RotC'].append(rot)
+                msg_operation['TauC'].append(tau)
+                if lam > 0:
+                    ssg_in_msg.append("Cz'")
+                else:
+                    ssg_in_msg.append("Mx'Cz'")
+            else:
+                ssg_in_msg.append("")
+                
+            continue
+
+            
+        else:
+            ssg_in_msg.append("")
+        
 
     return msg_operation, ssg_in_msg
