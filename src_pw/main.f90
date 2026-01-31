@@ -153,11 +153,11 @@ end interface
     !
     ssg_label = ''
     !
+    call read_outcar() 
+    !
     call get_ssg_op(spg, ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
     !
     call load_bilbao(spg)
-    !
-    call read_outcar() 
     !
     call output_ssg_operator(ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
     !
