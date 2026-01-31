@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial.transform import Rotation as Rot
 from math import cos, sin, acos, pi
 from numpy.linalg import norm, inv, det
 from .small_func import findDimension,round_vec,line_normal_vector,generate_normal_vector,orthonormal_basis_from_vector,axis_angle_to_so3_scipy

@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.linalg import norm, inv, det
 from itertools import product
+from scipy.spatial.transform import Rotation as Rot
 # from smith_form.gauss_elim import gauss_elim_np
 # from find_minimal_latt import standardize_prim_basis
 
