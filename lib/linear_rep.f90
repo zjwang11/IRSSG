@@ -683,7 +683,7 @@ end subroutine get_irreducible_rep
 
     subroutine output_character_table(kname,num_litt_group,num_litt_group_unitary,litt_group,order_op,&
                                 irrep_num,character_table,phase,irrep_unitary_num,character_unitary_table,&
-                                irrep_coirrep_relation,irrep_name_list_reduce,discriminant_value)
+                                irrep_coirrep_relation,irrep_name_list_reduce,discriminant_value,is_msg)
         character(len=4) :: kname
         integer, intent(in) :: num_litt_group_unitary
         integer, intent(in) :: num_litt_group
@@ -705,8 +705,16 @@ end subroutine get_irreducible_rep
         character(len=5) :: irrep_unitary_name_list(irrep_unitary_num)
         character(len=15),intent(out) :: irrep_name_list_reduce(irrep_num)
         integer, intent(in) :: discriminant_value(num_litt_group)
+        logical, intent(in) :: is_msg
         character(len=4) :: tmp
+        character(len=1) :: msg_prefix
 
+
+        if (is_msg) then
+            msg_prefix = 'M'
+        else
+            msg_prefix = ''
+        endif
 
         write(*,*)
         write(154,*)
@@ -775,8 +783,8 @@ end subroutine get_irreducible_rep
         do i=1,irrep_unitary_num
             irrep_name = ''
             write(irrep_name,*)i
-            write(*,'(A4,A,1I3,A)',advance='no')trim(adjustl(kname))//trim(adjustl(irrep_name)),' ',discriminant_value(i),'   '
-            irrep_unitary_name_list(i) = trim(adjustl(kname))//trim(adjustl(irrep_name))
+            write(*,'(A4,A,1I3,A)',advance='no')trim(msg_prefix)//trim(adjustl(kname))//trim(adjustl(irrep_name)),' ',discriminant_value(i),'   '
+            irrep_unitary_name_list(i) = trim(msg_prefix)//trim(adjustl(kname))//trim(adjustl(irrep_name))
             do j=1,num_litt_group_unitary
                 if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
                     write(*,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'+',aimag(character_unitary_table(i,j))+1e-6,'i'
@@ -834,8 +842,8 @@ end subroutine get_irreducible_rep
         do i=1,irrep_unitary_num
             irrep_name = ''
             write(irrep_name,*)i
-            write(154,'(A4,A,1I3,A)',advance='no')trim(adjustl(kname))//trim(adjustl(irrep_name)),' ',discriminant_value(i),'   '
-            irrep_unitary_name_list(i) = trim(adjustl(kname))//trim(adjustl(irrep_name))
+            write(154,'(A4,A,1I3,A)',advance='no')trim(msg_prefix)//trim(adjustl(kname))//trim(adjustl(irrep_name)),' ',discriminant_value(i),'   '
+            irrep_unitary_name_list(i) = trim(msg_prefix)//trim(adjustl(kname))//trim(adjustl(irrep_name))
             do j=1,num_litt_group_unitary
                 if (aimag(character_unitary_table(i,j)) >= 0.0_dp) then
                     write(154,'(1F5.2,A,1F4.2,A)',advance='no')real(character_unitary_table(i,j))+1e-6,'+',aimag(character_unitary_table(i,j))+1e-6,'i'

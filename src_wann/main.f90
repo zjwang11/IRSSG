@@ -312,7 +312,7 @@ end interface
                                                         discriminant_value,torsion)
 
         call output_character_table(k_name,numLG,numULG,litt_group,op_order,Ncoirrep,Ch_table2,phase, &
-                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value)
+                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value,isSpinor)
 
 
         call get_comprel(numLG,numULG,litt_group,op_order,Ncoirrep,irrep_name_list,Ch_table2)
@@ -461,7 +461,7 @@ end interface
                                                         discriminant_value,torsion)
 
         call output_character_table(k_name,numLG,numULG,litt_group,op_order,Ncoirrep,Ch_table2,phase,&
-                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value)
+                                Nirrep,Ch_table1,irrep_coirrep_relation,irrep_name_list,discriminant_value,isSpinor)
 
         do i=1,Ncoirrep
             do j=1,numULG
