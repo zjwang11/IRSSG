@@ -168,8 +168,8 @@ subroutine read_outcar
     if (     isComplexWF) write(6, '(A23)') ' Complex eigenfunctions'
     if (.not.isComplexWF) write(6, '(A20)') ' Real eigenfunctions'
 
-    if (     isSpinor) write(6, '(A45)') ' Spin-orbit eigenfunctions'
-    if (.not.isSpinor) write(6, '(A29)') ' No spin-orbit eigenfunctions'
+    if (     isSpinor) write(6, '(A)') 'Spin-orbit eigenfunctions'
+    if (.not.isSpinor) write(6, '(A)') 'No spin-orbit eigenfunctions'
 
     if (     isSpinPola) write(6, '(A18)') 'Spin-polarization'
     if (.not.isSpinPola) write(6, '(A21)') ' No spin-polarization'
