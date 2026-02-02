@@ -184,7 +184,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print(f'The MSG number: {format_msg} (OG setting)')
     print('Magnetic space group operations: {R|v}')
     print('{   Ri    |  taui }')
-    print(f'# Number: {len(msg_operations['RotC'])}')
+    print(f"# Number: {len(msg_operations['RotC'])}")
     for i in range(len(msg_operations['RotC'])):
         time_reversal = det(msg_operations['spin'][i])
         if time_reversal > 0:
