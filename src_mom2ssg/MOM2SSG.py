@@ -48,7 +48,7 @@ from .eqvpg2label import get_std_pg
 from .find_magprim_unit import find_magprim_unit
 
 
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,ssg_in_msg,tol=1e-3):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -114,11 +114,11 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     #     print('{      Spin O3    || Ri  | taui}')
 
     if dim_mag == 1:
-        print('{  \u03BE ||   Ri   |  taui }  in msg?')
+        print('{  \u03BE ||   Ri   |  taui }')
     elif dim_mag == 2:
-        print('{   \u03B6_{2x2}   ||    Ri   |  taui }  in msg?')
+        print('{   \u03B6_{2x2}   ||    Ri   |  taui }')
     else:
-        print('{          U         ||   Ri    |  taui }  in msg?')
+        print('{          U         ||   Ri    |  taui }')
         
     for i in range(num_operator):
         time_reversal = det(operations['spin'][i])
@@ -133,8 +133,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         if dim_mag == 1:
             print(f"{spin_rot_list[i]:>4d}",end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
-            print(ssg_in_msg[i])
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             print("      ",end='')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
@@ -148,8 +147,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         elif dim_mag == 2:
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
-            print(ssg_in_msg[i])
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
@@ -164,8 +162,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         else:
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][0, :], float)+1e-6),end='  ')
             print("".join(f"{v:>2d} " for v in np.asarray(operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6),end='  ')
-            print(ssg_in_msg[i])
+            print("".join(f"{v:>6.3f} " for v in np.asarray(operations["TauC"][i][0].reshape(-1), float)+1e-6))
             
             
             print("".join(f"{v:>6.3f} " for v in np.asarray(spin_rot_list[i][1, :], float)+1e-6),end='  ')
@@ -183,6 +180,30 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     print("D U D^{-1}  is in Cartesian coordinates, which is in ssg.data.")
     
+    print('='*40)
+    print(f'The MSG number: {format_msg} (OG setting)')
+    print('Magnetic space group operations: {R|v}')
+    print('{   Ri    |  taui }')
+    print(f'# Number: {len(msg_operations['RotC'])}')
+    for i in range(len(msg_operations['RotC'])):
+        time_reversal = det(msg_operations['spin'][i])
+        if time_reversal > 0:
+            time_reversal_str = 'without time-reversal'
+        else:
+            time_reversal_str = 'with time-reversal'
+            
+        print(f'# {i+1:>3d}   {time_reversal_str}')
+        msg_operations["TauC"][i] = (msg_operations["TauC"][i]+0.5)%1-0.5
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][0].reshape(-1), float)+1e-6))
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][1].reshape(-1), float)+1e-6))
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][2].reshape(-1), float)+1e-6))
+        
     print('='*40)
 
     print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
@@ -461,7 +482,7 @@ def main():
         
         formag_msg = format_msg_label(msg_info)
         
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,ssg_in_msg)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg)
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         
