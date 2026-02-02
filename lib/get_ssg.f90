@@ -207,7 +207,7 @@ contains
     ! write(*,'(A)')'*******SpinSpaceGroup (SSG) operators********************************************'
     i = Verify(ssg_label,' ')
     if (isSpinor) then
-      write(*,'(A)')'It belongs to Magnetic Space Group (MSG) ' // trim(adjustl(ssg_label)) // '(OG setting) .'
+      write(*,'(A)')'It belongs to Magnetic Space Group (MSG) ' // trim(adjustl(ssg_label)) // ' .'
     else
       if (i /= 0 .and. ssg_label(i:i) /= 'n') then
         write(*,'(A)')'It belongs to Spin Space Group (SSG) ' // trim(adjustl(ssg_label)) // ' .'

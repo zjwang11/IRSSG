@@ -93,12 +93,17 @@ def get_msg_info_from_cell(
     return info
 
 
-def format_msg_label(info: Optional[Dict[str, object]]) -> str:
+def format_msg_label(
+    info: Optional[Dict[str, object]],
+    *,
+    return_pair: bool = False,
+) -> str | tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Format MSG identifiers into a compact string for logging/output.
+    If return_pair is True, return (bns_symbol, bns_number, og_number).
     """
     if not info:
-        return "MSG: unknown"
+        return (None, None, None) if return_pair else "MSG: unknown"
 
     def clean(val):
         if val is None:
@@ -107,13 +112,17 @@ def format_msg_label(info: Optional[Dict[str, object]]) -> str:
         return text if text else None
 
     og_symbol = clean(info.get("og_symbol"))
+    og_number = clean(info.get("og_number"))
+    bns_symbol = clean(info.get("bns_symbol"))
+    bns_number = clean(info.get("bns_number"))
+
+    if return_pair:
+        return bns_symbol, bns_number, og_number
+
     if og_symbol:
         return og_symbol
-
-    og_number = clean(info.get("og_number"))
     if og_number:
         return og_number
-
     return "MSG: unknown"
 
 

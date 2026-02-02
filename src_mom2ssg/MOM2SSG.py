@@ -48,7 +48,7 @@ from .eqvpg2label import get_std_pg
 from .find_magprim_unit import find_magprim_unit
 
 
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,tol=1e-3):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number,tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -181,7 +181,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print("D U D^{-1}  is in Cartesian coordinates, which is in ssg.data.")
     
     print('='*40)
-    print(f'The MSG number: {format_msg} (OG setting)')
+    print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
+    print(f'The SSG international symbol: {format_msg}')
     print('Magnetic space group operations: {R|v}')
     print('{   Ri    |  taui }')
     print(f"# Number: {len(msg_operations['RotC'])}")
@@ -480,9 +481,10 @@ def main():
             mag_symprec=magtolerance,
         )
         
-        formag_msg = format_msg_label(msg_info)
+        bns_symbol, bns_number, og_number = format_msg_label(msg_info, return_pair=True)
+        formag_msg = bns_symbol
         
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number)
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         
