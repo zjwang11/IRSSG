@@ -111,10 +111,37 @@ def format_msg_label(
         text = str(val).strip()
         return text if text else None
 
+    def bns_symbol_from_number(bns: Optional[str]) -> Optional[str]:
+        if not bns:
+            return None
+        text = str(bns).strip()
+        if not text:
+            return None
+        parts = text.split(".")
+        if len(parts) < 2:
+            return None
+        try:
+            a = int(parts[0])
+            b = int(parts[1])
+        except Exception:
+            try:
+                a = int(float(parts[0]))
+                b = int(float(parts[1]))
+            except Exception:
+                return None
+        try:
+            from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+            msg = MagneticSpaceGroup([a, b])
+            return getattr(msg, "sg_symbol", None)
+        except Exception:
+            return None
+
     og_symbol = clean(info.get("og_symbol"))
     og_number = clean(info.get("og_number"))
     bns_symbol = clean(info.get("bns_symbol"))
     bns_number = clean(info.get("bns_number"))
+    if not bns_symbol and bns_number:
+        bns_symbol = bns_symbol_from_number(bns_number)
 
     if return_pair:
         return bns_symbol, bns_number, og_number

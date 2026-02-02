@@ -155,7 +155,9 @@ def generate_irssg_in(spg, ssgnum, msgnum, cell, mag, operations, msg_operations
     # for msg
     wbfile = open('msg.data','wb')
     np.array([spg],dtype=np.int32).tofile(wbfile)
-    b   = msgnum.encode('utf-8')
+    if not msgnum:
+        msgnum = "MSG: unknown"
+    b   = str(msgnum).encode('utf-8')
     np.array([len(b)], dtype=np.int32).tofile(wbfile)
     wbfile.write(b)
     

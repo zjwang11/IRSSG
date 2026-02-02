@@ -482,7 +482,7 @@ def main():
         )
         
         bns_symbol, bns_number, og_number = format_msg_label(msg_info, return_pair=True)
-        formag_msg = bns_symbol
+        formag_msg = bns_symbol or "MSG: unknown"
         
         is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number)
         
