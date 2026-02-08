@@ -306,15 +306,15 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print(f'# {i+1:>3d}   {time_reversal_str}')
         msg_operations["TauC"][i] = (msg_operations["TauC"][i]+0.5)%1-0.5
         
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][0, :], float)+1e-6),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][i][0, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][0].reshape(-1), float)+1e-6))
         
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][1, :], float)+1e-6),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][i][1, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][1].reshape(-1), float)+1e-6))
         
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][2, :], float)+1e-6),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][i][2, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][2].reshape(-1), float)+1e-6))
     
