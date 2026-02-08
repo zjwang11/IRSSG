@@ -53,7 +53,7 @@ def print_8I8(arr):
         line = arr[i:i+8]
         print("".join(f"{x:8d}" for x in line))
         
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number, msg_idx, tol=1e-3):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number, msg2ssg_symbol, msg_idx, tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -291,6 +291,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print('='*40)
     print('Magnetc space group (MSG) information is output below:')
     print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
+    print(msg2ssg_symbol)
     print(f'The MSG international symbol: {format_msg}')
     print('Magnetic space group operations: {R|v}')
     print('{          U         ||   Ri    |  taui }')
@@ -324,8 +325,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print('''
 More information about this MSG can be found at
 https://cmpdc.iphy.ac.cn/hsp/
-https://www.cryst.ehu.es
-          ''')
+https://www.cryst.ehu.es''')
     
     
     
@@ -466,12 +466,21 @@ def main():
         output_wyckoff(cell_output_acc,wyckoff)
         write_poscar(cell_output_acc,file_name='POSCAR.symm')
         
+        msg2ssg_dir = os.path.dirname(os.path.abspath(__file__))
+        msg2ssg_path = os.path.join(msg2ssg_dir, 'ssg_data', 'msg2ssg.pkl')
+        
+        with open(msg2ssg_path, "rb") as f:
+            msg2ssg = pickle.load(f)
+        
+        
         pkg_dir = os.path.dirname(os.path.abspath(__file__))
         pg_path = os.path.join(pkg_dir, 'ssg_data', 'PG_dic_list.npy')
         if not os.path.exists(pg_path):
             raise FileNotFoundError(f"PG_dic_list.npy not found: {pg_path}")
+        
         loaded_list = np.load(pg_path, allow_pickle=True)
         loaded_list = loaded_list.tolist()
+        
         for pg in loaded_list:
             if pg['HM_label'] == ssg_ops['QLabel']:
                 pg_op_num = len(pg['ops'])
@@ -506,8 +515,8 @@ def main():
         
         bns_symbol, bns_number, og_number = format_msg_label(msg_info, return_pair=True)
         formag_msg = bns_symbol or "MSG: unknown"
-        
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number, msg_idx)
+        msg2ssg_symbol = msg2ssg[bns_number]
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number, msg2ssg_symbol, msg_idx)
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         
