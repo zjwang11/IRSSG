@@ -290,9 +290,12 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         
     print('='*40)
     print('Magnetic space group (MSG) information is output below:')
-    print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
+    
     if bns_number in msg2ssg.keys():
-        print(msg2ssg[bns_number])
+        print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting), {msg2ssg[bns_number]} (SSG setting)')
+    else:
+        print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
+        
     print(f'The MSG international symbol: {format_msg}')
     print('Magnetic space group operations: {U||R|v}')
     print('{          U         ||   Ri    |  taui }')
