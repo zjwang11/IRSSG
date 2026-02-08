@@ -48,7 +48,12 @@ from .eqvpg2label import get_std_pg
 from .find_magprim_unit import find_magprim_unit
 
 
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number,tol=1e-3):
+def print_8I8(arr):
+    for i in range(0, len(arr), 8):
+        line = arr[i:i+8]
+        print("".join(f"{x:8d}" for x in line))
+        
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number, msg_idx, tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -60,6 +65,7 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     assert ncell_ssg_asg%operations['Ik'] == 0
     assert spg_op_num%num_operator == 0
     
+    print('Spin space group (SSG) information is output below:')
     if ssgnum == 'need more loop':
         print('The SSG number can not be identified!')
     else:
@@ -201,9 +207,9 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     
     asg_cell = R33.T @ cell[0]
     print('Atomic primitive cell')
-    print(f":a  [{asg_cell[0,0]+1e-6:>6.3f}, {asg_cell[0,1]+1e-6:>6.3f}, {asg_cell[0,2]+1e-6:>6.3f}]:")
-    print(f":b  [{asg_cell[1,0]+1e-6:>6.3f}, {asg_cell[1,1]+1e-6:>6.3f}, {asg_cell[1,2]+1e-6:>6.3f}]:")
-    print(f":c  [{asg_cell[2,0]+1e-6:>6.3f}, {asg_cell[2,1]+1e-6:>6.3f}, {asg_cell[2,2]+1e-6:>6.3f}]:")
+    print(f"a:  [{asg_cell[0,0]+1e-6:>6.3f}, {asg_cell[0,1]+1e-6:>6.3f}, {asg_cell[0,2]+1e-6:>6.3f}]^T")
+    print(f"b:  [{asg_cell[1,0]+1e-6:>6.3f}, {asg_cell[1,1]+1e-6:>6.3f}, {asg_cell[1,2]+1e-6:>6.3f}]^T")
+    print(f"c:  [{asg_cell[2,0]+1e-6:>6.3f}, {asg_cell[2,1]+1e-6:>6.3f}, {asg_cell[2,2]+1e-6:>6.3f}]^T")
     print()
     
     if ncell_pos_ssg > 1:  # magnetic super cell
@@ -283,10 +289,12 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
         
     print('='*40)
+    print('Magnetc space group (MSG) information is output below:')
     print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
     print(f'The MSG international symbol: {format_msg}')
     print('Magnetic space group operations: {R|v}')
-    print('{   Ri    |  taui }')
+    print('{          U         ||   Ri    |  taui }')
+    # print('{   Ri    |  taui }')
     print(f"# Number: {len(msg_operations['RotC'])}")
     for i in range(len(msg_operations['RotC'])):
         time_reversal = det(msg_operations['spin'][i])
@@ -298,15 +306,21 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
         print(f'# {i+1:>3d}   {time_reversal_str}')
         msg_operations["TauC"][i] = (msg_operations["TauC"][i]+0.5)%1-0.5
         
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][0, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][0].reshape(-1), float)+1e-6))
         
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][1, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][1].reshape(-1), float)+1e-6))
         
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["spin"][2, :], float)+1e-6),end='  ')
         print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
         print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][2].reshape(-1), float)+1e-6))
     
+    print()
+    print('Indices of MSG operations within the list of SSG operations:')
+    print_8I8(msg_idx)
     print('''
 More information about this MSG can be found at
 https://cmpdc.iphy.ac.cn/hsp/
@@ -483,6 +497,7 @@ def main():
             format_ssg = 'Cannot find SSG number and international symbol!!!'
         
         msg_ops, ssg_in_msg = get_msg_operation(cell,ssg_ops,mag,magtolerance)
+        msg_idx = [i+1 for i, s in enumerate(ssg_in_msg) if s.strip() != ""]
         msg_info = get_msg_info_from_cell(
             cell,
             symprec=tolerance,
@@ -492,7 +507,7 @@ def main():
         bns_symbol, bns_number, og_number = format_msg_label(msg_info, return_pair=True)
         formag_msg = bns_symbol or "MSG: unknown"
         
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number, msg_idx)
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         

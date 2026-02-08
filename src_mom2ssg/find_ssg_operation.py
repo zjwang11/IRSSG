@@ -664,6 +664,7 @@ def get_msg_operation(cell, operation, mag, tolm=1e-4, tol=1e-3):
             msg_operation['RotC'].append(rot)
             msg_operation['TauC'].append(tau)
             ssg_in_msg.append('E')
+            
         elif dim == 2:
             spin_rot_inv = np.linalg.inv(spin_frac) @ rot_so3
             normal_vector = generate_normal_vector(mag,tolm=tolm)
@@ -679,6 +680,7 @@ def get_msg_operation(cell, operation, mag, tolm=1e-4, tol=1e-3):
             else:
                 ssg_in_msg.append("")
             continue
+        
         elif dim == 1:
             spin_rot_inv = np.linalg.inv(spin_frac) @ rot_so3
             normal_vector = line_normal_vector(mag,tolm=tolm)
