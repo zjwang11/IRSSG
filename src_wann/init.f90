@@ -189,6 +189,12 @@ subroutine read_tbbox()
         nspin = 1
     endif
 
+    ! SOC implies spinor wavefunctions; force non-spin-polarized handling
+    if (isSpinor) then
+        isSpinPola = .false.
+        nspin = 1
+    endif
+
     if (isSpinPola) then 
         hrfile_up = 'wannier90.up_hr.dat'
         chtp22 = 'hr_up_name'

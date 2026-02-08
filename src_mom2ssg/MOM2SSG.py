@@ -178,34 +178,10 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     # print(f"[{axis_vector[2][0]:>6.3f}, {axis_vector[2][1]:>6.3f}, {axis_vector[2][2]:>6.3f}]:y'")
     # print(f"[{axis_vector[0][0]:>6.3f}, {axis_vector[0][1]:>6.3f}, {axis_vector[0][2]:>6.3f}]:z'")
     
+    print()
     print("D U D^{-1}  is in Cartesian coordinates, which is in ssg.data.")
+    print()
     
-    print('='*40)
-    print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
-    print(f'The SSG international symbol: {format_msg}')
-    print('Magnetic space group operations: {R|v}')
-    print('{   Ri    |  taui }')
-    print(f"# Number: {len(msg_operations['RotC'])}")
-    for i in range(len(msg_operations['RotC'])):
-        time_reversal = det(msg_operations['spin'][i])
-        if time_reversal > 0:
-            time_reversal_str = 'without time-reversal'
-        else:
-            time_reversal_str = 'with time-reversal'
-            
-        print(f'# {i+1:>3d}   {time_reversal_str}')
-        msg_operations["TauC"][i] = (msg_operations["TauC"][i]+0.5)%1-0.5
-        
-        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][0].reshape(-1), float)+1e-6))
-        
-        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][1].reshape(-1), float)+1e-6))
-        
-        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
-        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][2].reshape(-1), float)+1e-6))
-        
-    print('='*40)
 
     print(f"Atomic space group: {nonmag_sym['number']}, {space_international}")
 
@@ -301,10 +277,42 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print()
     
     print('N_ASG/N_SSG = ',spg_op_num//num_operator)
-    print()
+    print('More information about this SSG can be found at')
+    print('https://cmpdc.iphy.ac.cn/hsp/')
     if ssgnum != 'need more loop':
-        print('More information about this SSG can be found at')
         print('https://cmpdc.iphy.ac.cn/ssg/ssgs/'+ssgnum)
+        
+    print('='*40)
+    print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
+    print(f'The MSG international symbol: {format_msg}')
+    print('Magnetic space group operations: {R|v}')
+    print('{   Ri    |  taui }')
+    print(f"# Number: {len(msg_operations['RotC'])}")
+    for i in range(len(msg_operations['RotC'])):
+        time_reversal = det(msg_operations['spin'][i])
+        if time_reversal > 0:
+            time_reversal_str = 'without time-reversal'
+        else:
+            time_reversal_str = 'with time-reversal'
+            
+        print(f'# {i+1:>3d}   {time_reversal_str}')
+        msg_operations["TauC"][i] = (msg_operations["TauC"][i]+0.5)%1-0.5
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][0, :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][0].reshape(-1), float)+1e-6))
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][1, :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][1].reshape(-1), float)+1e-6))
+        
+        print("".join(f"{v:>2d} " for v in np.asarray(msg_operations["RotC"][i][2 :].reshape(-1), int)),end='  ')
+        print("".join(f"{v:>6.3f} " for v in np.asarray(msg_operations["TauC"][i][2].reshape(-1), float)+1e-6))
+    
+    print('''
+More information about this MSG can be found at
+https://cmpdc.iphy.ac.cn/hsp/
+https://www.cryst.ehu.es
+          ''')
+    
     
     
     if abs(det33) > abs(det32)+0.5:
