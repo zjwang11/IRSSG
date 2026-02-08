@@ -12,5 +12,5 @@
 # Large data stored compressed in repo; ignore uncompressed originals
 test/wann/symm_hr.dat
 src_mom2ssg/ssg_data/*.pkl
+!src_mom2ssg/ssg_data/msg2ssg.pkl
 test/wann/*.dat
-
