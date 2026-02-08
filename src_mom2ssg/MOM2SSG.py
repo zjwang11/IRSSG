@@ -53,7 +53,7 @@ def print_8I8(arr):
         line = arr[i:i+8]
         print("".join(f"{x:8d}" for x in line))
         
-def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number, msg2ssg_symbol, msg_idx, tol=1e-3):
+def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_operations,format_msg,bns_number, og_number, msg2ssg, msg_idx, tol=1e-3):
     num_operator = len(operations['spin'])
     
     space_international = nonmag_sym['international']
@@ -291,7 +291,8 @@ def format_output(dim_mag,axis_vector,spin_rot_list,operations,lps,pg_op_num,non
     print('='*40)
     print('Magnetc space group (MSG) information is output below:')
     print(f'The MSG number: {og_number} (OG setting), {bns_number} (BNS setting)')
-    print(msg2ssg_symbol)
+    if bns_number in msg2ssg.keys():
+        print(msg2ssg[bns_number])
     print(f'The MSG international symbol: {format_msg}')
     print('Magnetic space group operations: {R|v}')
     print('{          U         ||   Ri    |  taui }')
@@ -515,8 +516,7 @@ def main():
         
         bns_symbol, bns_number, og_number = format_msg_label(msg_info, return_pair=True)
         formag_msg = bns_symbol or "MSG: unknown"
-        msg2ssg_symbol = msg2ssg[bns_number]
-        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number, msg2ssg_symbol, msg_idx)
+        is_super_cell, cell_mag_unit=format_output(dim_mag,axis_vector,spin_rot_list,ssg_ops,lps,pg_op_num,nonmag_sym,ssgnum,format_ssg,cell,msg_ops,formag_msg,bns_number, og_number, msg2ssg, msg_idx)
         
         generate_irssg_in(ssg_ops['Gnum'], format_ssg, formag_msg, cell, mag, ssg_ops, msg_ops, tolm=magtolerance)
         
