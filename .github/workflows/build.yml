@@ -151,6 +151,12 @@ jobs:
             fi
           done
 
+      - name: Install runtime system libs (LAPACK/BLAS)
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y liblapack3 libblas3
+
       - name: Run irssg PW/WANN tests (if present)
         run: |
           set -euxo pipefail
@@ -158,7 +164,7 @@ jobs:
             echo "Found ./test/pw; running PW test..."
             pushd test/pw
             echo "Command: irssg -nk 1 3 -nb 101 112"
-            timeout 120s irssg -nk 1 3 -nb 101 112 | tee run.log || true
+            timeout 120s irssg -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
             echo "Checking for TOTAL END in PW log..."
             grep -q "TOTAL END" run.log
             popd
@@ -170,7 +176,7 @@ jobs:
             echo "Found ./test/wann; running WANN test..."
             pushd test/wann
             echo "Command: irssg -wann -nk 1 3 -nb 11 72"
-            timeout 120s irssg -wann -nk 1 3 -nb 11 72 | tee run.log || true
+            timeout 120s irssg -wann -nk 1 3 -nb 11 72 2>&1 | tee run.log || true
             echo "Checking for TOTAL END in WANN log..."
             grep -q "TOTAL END" run.log
             popd
