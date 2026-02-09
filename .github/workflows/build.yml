@@ -181,6 +181,7 @@ jobs:
             echo "Found ./test/pw; running PW test..."
             pushd test/pw
             export IRSSG_DEBUG=1
+            export IRSSG_FDBG=1
             export GFORTRAN_UNBUFFERED_ALL=1
             export GFORTRAN_ERROR_BACKTRACE=1
             export GFORTRAN_SHOW_LOCUS=1
@@ -193,6 +194,7 @@ jobs:
             unset GFORTRAN_SHOW_LOCUS
             unset GFORTRAN_ERROR_BACKTRACE
             unset GFORTRAN_UNBUFFERED_ALL
+            unset IRSSG_FDBG
             unset IRSSG_DEBUG
             echo "Checking for TOTAL END in PW log..."
             grep -q "TOTAL END" run.log
@@ -205,6 +207,7 @@ jobs:
             echo "Found ./test/wann; running WANN test..."
             pushd test/wann
             export IRSSG_DEBUG=1
+            export IRSSG_FDBG=1
             export GFORTRAN_UNBUFFERED_ALL=1
             export GFORTRAN_ERROR_BACKTRACE=1
             export GFORTRAN_SHOW_LOCUS=1
@@ -217,6 +220,7 @@ jobs:
             unset GFORTRAN_SHOW_LOCUS
             unset GFORTRAN_ERROR_BACKTRACE
             unset GFORTRAN_UNBUFFERED_ALL
+            unset IRSSG_FDBG
             unset IRSSG_DEBUG
             echo "Checking for TOTAL END in WANN log..."
             grep -q "TOTAL END" run.log
