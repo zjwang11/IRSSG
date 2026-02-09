@@ -154,12 +154,7 @@ jobs:
       - name: Debug irssg binary (path + ldd)
         run: |
           set -euxo pipefail
-          IRSSG_BIN=$(python - <<'PY'
-import os, irssg
-base = os.path.dirname(irssg.__file__)
-print(os.path.join(base, "bin", "irssg"))
-PY
-          )
+          IRSSG_BIN=$(python -c "import os, irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
           echo "IRSSG_BIN=$IRSSG_BIN"
           ls -l "$IRSSG_BIN"
           file "$IRSSG_BIN" || true
