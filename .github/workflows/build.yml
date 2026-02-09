@@ -151,6 +151,20 @@ jobs:
             fi
           done
 
+      - name: Debug irssg binary (path + ldd)
+        run: |
+          set -euxo pipefail
+          IRSSG_BIN=$(python - <<'PY'
+import os, irssg
+base = os.path.dirname(irssg.__file__)
+print(os.path.join(base, "bin", "irssg"))
+PY
+          )
+          echo "IRSSG_BIN=$IRSSG_BIN"
+          ls -l "$IRSSG_BIN"
+          file "$IRSSG_BIN" || true
+          ldd "$IRSSG_BIN" || true
+
       - name: Install runtime system libs (LAPACK/BLAS)
         run: |
           set -euxo pipefail
