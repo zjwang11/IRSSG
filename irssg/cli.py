@@ -51,9 +51,16 @@ def _run_deplicate(extra_args=None):
     cmd = [sys.executable, "-m", "irssg.deplicate_rep"] + args
     return subprocess.call(cmd)
 
+def _debug(msg: str) -> None:
+    if os.environ.get("IRSSG_DEBUG"):
+        sys.stderr.write(f"[irssg-debug] {msg}\n")
+
 def main() -> int:
     # Resolve packaged data path and binary
     _, data_dir, bin_path = _base_paths()
+    _debug(f"cwd={os.getcwd()}")
+    _debug(f"bin_path={bin_path}")
+    _debug(f"data_dir={data_dir}")
 
     # Ensure IRVSPDATA points to directory containing kLittleGroups/
     os.environ.setdefault("IRVSPDATA", str(data_dir))
@@ -142,21 +149,28 @@ def main() -> int:
     # No explicit mode flags: default to PW flow
     if not any(present.values()):
         # Ensure ssg.data exists; if not, run SSG with any provided SSG opts (none by default)
+        _debug(f"has_ssg_data={_has_ssg_data()}")
         if not _has_ssg_data():
+            _debug(f"run ssg: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
             rc = _run_ssg(modes["ssg"])  # may be empty
+            _debug(f"ssg rc={rc}")
             if rc != 0:
                 return rc
         # Require WAVECAR and OUTCAR
+        _debug(f"has_pw_inputs={_has_pw_inputs()}")
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
         rc = _run_pw(bin_path, modes["pw"])
+        _debug(f"pw rc={rc}")
         if rc != 0:
             return rc
         return _run_deplicate([])
 
     # Only SSG
     if present["ssg"] and not present["pw"] and not present["wann"]:
+        _debug(f"run ssg only: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
         return _run_ssg(modes["ssg"])
 
     # If both -pw and -wann are specified, this is invalid
@@ -166,27 +180,34 @@ def main() -> int:
 
     # -ssg with -pw: run SSG first, then PW
     if present["ssg"] and present["pw"] and not present["wann"]:
+        _debug(f"run ssg: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
         rc = _run_ssg(modes["ssg"])  # run SSG unconditionally first
         if rc != 0:
             return rc
         # Require WAVECAR and OUTCAR
+        _debug(f"has_pw_inputs={_has_pw_inputs()}")
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
         rc = _run_pw(bin_path, modes["pw"])
+        _debug(f"pw rc={rc}")
         if rc != 0:
             return rc
         return _run_deplicate([])
 
     # -ssg with -wann: run SSG first, then Wann
     if present["ssg"] and present["wann"] and not present["pw"]:
+        _debug(f"run ssg: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
         rc = _run_ssg(modes["ssg"])  # run SSG unconditionally first
         if rc != 0:
             return rc
         # Require tbbox.in
         if _require_file("tbbox.in", "WANN mode requires tbbox.in in current directory.") != 0:
             return 1
+        _debug(f"run wann: {bin_path} --wann {' '.join(modes['wann'])}")
         rc = _run_wann(bin_path, modes["wann"])
+        _debug(f"wann rc={rc}")
         if rc != 0:
             return rc
         return _run_deplicate([])
@@ -194,15 +215,21 @@ def main() -> int:
     # PW flow
     if present["pw"] and not present["wann"]:
         # Ensure ssg.data exists (run SSG first if missing)
+        _debug(f"has_ssg_data={_has_ssg_data()}")
         if not _has_ssg_data():
+            _debug(f"run ssg: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
             rc = _run_ssg(modes["ssg"])  # may be empty
+            _debug(f"ssg rc={rc}")
             if rc != 0:
                 return rc
         # Require WAVECAR and OUTCAR
+        _debug(f"has_pw_inputs={_has_pw_inputs()}")
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
         rc = _run_pw(bin_path, modes["pw"])
+        _debug(f"pw rc={rc}")
         if rc != 0:
             return rc
         return _run_deplicate([])
@@ -210,14 +237,19 @@ def main() -> int:
     # WANN flow
     if present["wann"] and not present["pw"]:
         # Ensure ssg.data exists (run SSG first if missing)
+        _debug(f"has_ssg_data={_has_ssg_data()}")
         if not _has_ssg_data():
+            _debug(f"run ssg: {sys.executable} -m irssg.ssg.MOM2SSG {' '.join(modes['ssg'])}")
             rc = _run_ssg(modes["ssg"])  # may be empty
+            _debug(f"ssg rc={rc}")
             if rc != 0:
                 return rc
         # Require tbbox.in
         if _require_file("tbbox.in", "WANN mode requires tbbox.in in current directory.") != 0:
             return 1
+        _debug(f"run wann: {bin_path} --wann {' '.join(modes['wann'])}")
         rc = _run_wann(bin_path, modes["wann"])
+        _debug(f"wann rc={rc}")
         if rc != 0:
             return rc
         return _run_deplicate([])
