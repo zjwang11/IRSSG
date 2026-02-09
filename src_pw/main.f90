@@ -432,6 +432,7 @@ end interface
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
 
         call fixed_subspace(spin_rot_lg(:,:,1:numLG), numLG, tol_spin, spin_fix_dim, spin_fix_basis)
+        
         write(*,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
         write(180,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
         if (spin_fix_dim > 0) then
