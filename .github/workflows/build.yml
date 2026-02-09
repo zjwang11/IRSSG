@@ -173,7 +173,7 @@ jobs:
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y liblapack3 libblas3
+          sudo apt-get install -y liblapack3 libblas3 gdb
 
       - name: Run irssg PW/WANN tests (if present)
         run: |
@@ -189,8 +189,8 @@ jobs:
             export OMP_NUM_THREADS=1
             export OPENBLAS_NUM_THREADS=1
             IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
-            echo "Command: LD_DEBUG=libs $IRSSG_BIN -nk 1 3 -nb 101 112"
-            LD_DEBUG=libs timeout 30s "$IRSSG_BIN" -nk 1 3 -nb 101 112 2> loader.log || true
+            echo "Command: env LD_DEBUG=libs,files LD_DEBUG_OUTPUT=loader $IRSSG_BIN -nk 1 3 -nb 101 112"
+            timeout 30s env LD_DEBUG=libs,files LD_DEBUG_OUTPUT=loader "$IRSSG_BIN" -nk 1 3 -nb 101 112 || true
             echo "Command: python -m irssg.cli -nk 1 3 -nb 101 112"
             timeout 120s stdbuf -oL -eL python -m irssg.cli -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
             unset OPENBLAS_NUM_THREADS
@@ -233,6 +233,33 @@ jobs:
             echo "No ./test/wann directory. Skipping WANN test."
           fi
 
+      - name: GDB backtrace (PW/WANN) if tests fail
+        if: always()
+        run: |
+          set -euxo pipefail
+          if [ -d test/pw ] && [ -f test/pw/run.log ] && ! grep -q "TOTAL END" test/pw/run.log; then
+            pushd test/pw
+            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
+            echo "Running gdb for PW: $IRSSG_BIN -nk 1 3 -nb 101 112"
+            IRSSG_FDBG=1 IRSSG_DEBUG=1 timeout 120s gdb -q -batch \
+              -ex "set pagination off" \
+              -ex "run -nk 1 3 -nb 101 112" \
+              -ex "bt" \
+              --args "$IRSSG_BIN" -nk 1 3 -nb 101 112 > gdb_pw.txt 2>&1 || true
+            popd
+          fi
+          if [ -d test/wann ] && [ -f test/wann/run.log ] && ! grep -q "TOTAL END" test/wann/run.log; then
+            pushd test/wann
+            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
+            echo "Running gdb for WANN: $IRSSG_BIN --wann -nk 1 3 -nb 11 72"
+            IRSSG_FDBG=1 IRSSG_DEBUG=1 timeout 120s gdb -q -batch \
+              -ex "set pagination off" \
+              -ex "run --wann -nk 1 3 -nb 11 72" \
+              -ex "bt" \
+              --args "$IRSSG_BIN" --wann -nk 1 3 -nb 11 72 > gdb_wann.txt 2>&1 || true
+            popd
+          fi
+
       - name: Upload PW/WANN logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -240,5 +267,7 @@ jobs:
           name: irssg-logs-${{ matrix.python-version }}
           path: |
             test/pw/run.log
-            test/pw/loader.log
+            test/pw/loader*
+            test/pw/gdb_pw.txt
             test/wann/run.log
+            test/wann/gdb_wann.txt

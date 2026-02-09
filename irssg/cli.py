@@ -38,12 +38,20 @@ def _run_ssg(ssg_args):
 
 def _run_pw(bin_path, pw_args):
     cmd = [str(bin_path)] + pw_args
-    return subprocess.call(cmd)
+    env = os.environ.copy()
+    if not env.get("IRSSG_KEEP_LD_LIBRARY_PATH"):
+        env.pop("LD_LIBRARY_PATH", None)
+        _debug("LD_LIBRARY_PATH removed for PW child process")
+    return subprocess.call(cmd, env=env)
 
 
 def _run_wann(bin_path, wann_args):
     cmd = [str(bin_path), "--wann"] + wann_args
-    return subprocess.call(cmd)
+    env = os.environ.copy()
+    if not env.get("IRSSG_KEEP_LD_LIBRARY_PATH"):
+        env.pop("LD_LIBRARY_PATH", None)
+        _debug("LD_LIBRARY_PATH removed for WANN child process")
+    return subprocess.call(cmd, env=env)
 
 def _run_deplicate(extra_args=None):
     # Run post-processing script after successful Fortran run
