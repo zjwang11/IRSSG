@@ -181,8 +181,18 @@ jobs:
             echo "Found ./test/pw; running PW test..."
             pushd test/pw
             export IRSSG_DEBUG=1
+            export GFORTRAN_UNBUFFERED_ALL=1
+            export GFORTRAN_ERROR_BACKTRACE=1
+            export GFORTRAN_SHOW_LOCUS=1
+            export OMP_NUM_THREADS=1
+            export OPENBLAS_NUM_THREADS=1
             echo "Command: python -m irssg.cli -nk 1 3 -nb 101 112"
-            timeout 120s python -m irssg.cli -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
+            timeout 120s stdbuf -oL -eL python -m irssg.cli -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
+            unset OPENBLAS_NUM_THREADS
+            unset OMP_NUM_THREADS
+            unset GFORTRAN_SHOW_LOCUS
+            unset GFORTRAN_ERROR_BACKTRACE
+            unset GFORTRAN_UNBUFFERED_ALL
             unset IRSSG_DEBUG
             echo "Checking for TOTAL END in PW log..."
             grep -q "TOTAL END" run.log
@@ -195,8 +205,18 @@ jobs:
             echo "Found ./test/wann; running WANN test..."
             pushd test/wann
             export IRSSG_DEBUG=1
+            export GFORTRAN_UNBUFFERED_ALL=1
+            export GFORTRAN_ERROR_BACKTRACE=1
+            export GFORTRAN_SHOW_LOCUS=1
+            export OMP_NUM_THREADS=1
+            export OPENBLAS_NUM_THREADS=1
             echo "Command: python -m irssg.cli -wann -nk 1 3 -nb 11 72"
-            timeout 120s python -m irssg.cli -wann -nk 1 3 -nb 11 72 2>&1 | tee run.log || true
+            timeout 120s stdbuf -oL -eL python -m irssg.cli -wann -nk 1 3 -nb 11 72 2>&1 | tee run.log || true
+            unset OPENBLAS_NUM_THREADS
+            unset OMP_NUM_THREADS
+            unset GFORTRAN_SHOW_LOCUS
+            unset GFORTRAN_ERROR_BACKTRACE
+            unset GFORTRAN_UNBUFFERED_ALL
             unset IRSSG_DEBUG
             echo "Checking for TOTAL END in WANN log..."
             grep -q "TOTAL END" run.log
