@@ -6,6 +6,7 @@ subroutine run_pw()
     use init
     use wave_data_pw
     use linear_rep
+    use fixed_subspace_mod
     use comprel
     use kgroup_mod, only: kgroup
     implicit none 
@@ -55,11 +56,14 @@ subroutine run_pw()
     character(len=4) :: k_name
     character(len=15) :: k_frac_symbol
 
-    integer :: i, j
+    integer :: i, j, ib
     complex(dp), allocatable :: phase(:)
     character(len=100) :: ssg_label
     real(dp) :: tolE
     integer :: spg
+    real(dp) :: tol_spin
+    integer :: spin_fix_dim
+    real(dp) :: spin_fix_basis(3,3)
 
     
 
@@ -110,6 +114,7 @@ end interface
     bot_band = 0
     top_band = 0
     tolE = 1.0e-3
+    tol_spin = 1.0e-4_dp
     call get_command(cmd)
     write(*,*) 'Current command : ', trim(cmd) 
     narg = command_argument_count()
@@ -261,6 +266,21 @@ end interface
        
         write(180,'(A,3F9.6)')'K = ',WK
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
+
+        call fixed_subspace(spin_rot_lg(:,:,1:numLG), numLG, tol_spin, spin_fix_dim, spin_fix_basis)
+        write(*,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        write(180,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        if (spin_fix_dim > 0) then
+            write(*,'(A)')'Spin fixed basis (columns):'
+            write(180,'(A)')'Spin fixed basis (columns):'
+            do ib = 1, spin_fix_dim
+                write(*,'(3F12.6)')spin_fix_basis(:,ib)
+                write(180,'(3F12.6)')spin_fix_basis(:,ib)
+            enddo
+        else
+            write(*,'(A)')'Spin fixed subspace: none'
+            write(180,'(A)')'Spin fixed subspace: none'
+        endif
        
 
         call pw_setup_ssg(WK, numULG, &
@@ -410,6 +430,21 @@ end interface
        
         write(180,'(A,3F9.6)')'K = ',WK
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
+
+        call fixed_subspace(spin_rot_lg(:,:,1:numLG), numLG, tol_spin, spin_fix_dim, spin_fix_basis)
+        write(*,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        write(180,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        if (spin_fix_dim > 0) then
+            write(*,'(A)')'Spin fixed basis (columns):'
+            write(180,'(A)')'Spin fixed basis (columns):'
+            do ib = 1, spin_fix_dim
+                write(*,'(3F12.6)')spin_fix_basis(:,ib)
+                write(180,'(3F12.6)')spin_fix_basis(:,ib)
+            enddo
+        else
+            write(*,'(A)')'Spin fixed subspace: none'
+            write(180,'(A)')'Spin fixed subspace: none'
+        endif
        
 
         ! write(*,'(A,3F9.6,A)')'K = ',WK,' kname = '//trim(adjustl(k_name))

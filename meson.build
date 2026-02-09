@@ -25,6 +25,7 @@ lib_sources = files(
   'lib/lib_params.f90',
   'lib/lib_comms.f90',
   'lib/mathlib.f90',
+  'lib/fixed_subspace.f90',
   'lib/lib_bilbao.f90',
   'lib/lib_chrct.f90',
   'lib/invreal33.f90',
