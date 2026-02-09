@@ -183,3 +183,12 @@ jobs:
           else
             echo "No ./test/wann directory. Skipping WANN test."
           fi
+
+      - name: Upload PW/WANN logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: irssg-logs-${{ matrix.python-version }}
+          path: |
+            test/pw/run.log
+            test/wann/run.log
