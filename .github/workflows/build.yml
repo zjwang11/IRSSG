@@ -159,6 +159,7 @@ jobs:
           ls -l "$IRSSG_BIN"
           file "$IRSSG_BIN" || true
           ldd "$IRSSG_BIN" || true
+          ldd -v "$IRSSG_BIN" || true
 
       - name: Debug irssg launcher
         run: |
@@ -187,6 +188,9 @@ jobs:
             export GFORTRAN_SHOW_LOCUS=1
             export OMP_NUM_THREADS=1
             export OPENBLAS_NUM_THREADS=1
+            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
+            echo "Command: LD_DEBUG=libs $IRSSG_BIN -nk 1 3 -nb 101 112"
+            LD_DEBUG=libs timeout 30s "$IRSSG_BIN" -nk 1 3 -nb 101 112 2> loader.log || true
             echo "Command: python -m irssg.cli -nk 1 3 -nb 101 112"
             timeout 120s stdbuf -oL -eL python -m irssg.cli -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
             unset OPENBLAS_NUM_THREADS
@@ -236,4 +240,5 @@ jobs:
           name: irssg-logs-${{ matrix.python-version }}
           path: |
             test/pw/run.log
+            test/pw/loader.log
             test/wann/run.log
