@@ -46,6 +46,32 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: "1"
           # Enable free-threaded (t) wheels for CPython where available (e.g., cp313t)
           CIBW_FREE_THREADED_SUPPORT: "1"
+          CIBW_REPAIR_WHEEL_COMMAND: >-
+            bash -lc 'set -euxo pipefail;
+              wheel="{wheel}";
+              dest="{dest_dir}";
+              pre_dir=$(mktemp -d);
+              if command -v unzip >/dev/null 2>&1; then
+                unzip -q "$wheel" -d "$pre_dir";
+                bin="$pre_dir/irssg/bin/irssg";
+                if [ -f "$bin" ]; then
+                  readelf -W -l "$bin" > "$dest/$(basename "$wheel").pre.readelf.l" || true;
+                  readelf -W -S "$bin" > "$dest/$(basename "$wheel").pre.readelf.S" || true;
+                fi;
+              fi;
+              auditwheel repair -w "$dest" "$wheel";
+              post_wheel=$(ls -t "$dest"/*.whl | head -n1 || true);
+              if [ -n "$post_wheel" ]; then
+                post_dir=$(mktemp -d);
+                if command -v unzip >/dev/null 2>&1; then
+                  unzip -q "$post_wheel" -d "$post_dir";
+                  bin="$post_dir/irssg/bin/irssg";
+                  if [ -f "$bin" ]; then
+                    readelf -W -l "$bin" > "$dest/$(basename "$post_wheel").post.readelf.l" || true;
+                    readelf -W -S "$bin" > "$dest/$(basename "$post_wheel").post.readelf.S" || true;
+                  fi;
+                fi;
+              fi'
           # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
@@ -59,6 +85,32 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: "1"
           # Enable free-threaded (t) wheels
           CIBW_FREE_THREADED_SUPPORT: "1"
+          CIBW_REPAIR_WHEEL_COMMAND: >-
+            bash -lc 'set -euxo pipefail;
+              wheel="{wheel}";
+              dest="{dest_dir}";
+              pre_dir=$(mktemp -d);
+              if command -v unzip >/dev/null 2>&1; then
+                unzip -q "$wheel" -d "$pre_dir";
+                bin="$pre_dir/irssg/bin/irssg";
+                if [ -f "$bin" ]; then
+                  readelf -W -l "$bin" > "$dest/$(basename "$wheel").pre.readelf.l" || true;
+                  readelf -W -S "$bin" > "$dest/$(basename "$wheel").pre.readelf.S" || true;
+                fi;
+              fi;
+              auditwheel repair -w "$dest" "$wheel";
+              post_wheel=$(ls -t "$dest"/*.whl | head -n1 || true);
+              if [ -n "$post_wheel" ]; then
+                post_dir=$(mktemp -d);
+                if command -v unzip >/dev/null 2>&1; then
+                  unzip -q "$post_wheel" -d "$post_dir";
+                  bin="$post_dir/irssg/bin/irssg";
+                  if [ -f "$bin" ]; then
+                    readelf -W -l "$bin" > "$dest/$(basename "$post_wheel").post.readelf.l" || true;
+                    readelf -W -S "$bin" > "$dest/$(basename "$post_wheel").post.readelf.S" || true;
+                  fi;
+                fi;
+              fi'
           # Use pyproject.toml build selector
         with:
           output-dir: wheelhouse
@@ -67,7 +119,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux
-          path: wheelhouse/*.whl
+          path: |
+            wheelhouse/*.whl
+            wheelhouse/*.readelf.*
 
   test-installed:
     needs: linux-wheels
@@ -151,29 +205,11 @@ jobs:
             fi
           done
 
-      - name: Debug irssg binary (path + ldd)
-        run: |
-          set -euxo pipefail
-          IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
-          echo "IRSSG_BIN=$IRSSG_BIN"
-          ls -l "$IRSSG_BIN"
-          file "$IRSSG_BIN" || true
-          ldd "$IRSSG_BIN" || true
-          ldd -v "$IRSSG_BIN" || true
-
-      - name: Debug irssg launcher
-        run: |
-          set -euxo pipefail
-          which irssg
-          file "$(which irssg)" || true
-          head -n 5 "$(which irssg)" || true
-          python -c "import os; os.chdir('/tmp'); import irssg; print('irssg pkg:', irssg.__file__)"
-
       - name: Install runtime system libs (LAPACK/BLAS)
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y liblapack3 libblas3 gdb
+          sudo apt-get install -y liblapack3 libblas3
 
       - name: Run irssg PW/WANN tests (if present)
         run: |
@@ -188,9 +224,6 @@ jobs:
             export GFORTRAN_SHOW_LOCUS=1
             export OMP_NUM_THREADS=1
             export OPENBLAS_NUM_THREADS=1
-            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
-            echo "Command: env LD_DEBUG=libs,files LD_DEBUG_OUTPUT=loader $IRSSG_BIN -nk 1 3 -nb 101 112"
-            timeout 30s env LD_DEBUG=libs,files LD_DEBUG_OUTPUT=loader "$IRSSG_BIN" -nk 1 3 -nb 101 112 || true
             echo "Command: python -m irssg.cli -nk 1 3 -nb 101 112"
             timeout 120s stdbuf -oL -eL python -m irssg.cli -nk 1 3 -nb 101 112 2>&1 | tee run.log || true
             unset OPENBLAS_NUM_THREADS
@@ -233,33 +266,6 @@ jobs:
             echo "No ./test/wann directory. Skipping WANN test."
           fi
 
-      - name: GDB backtrace (PW/WANN) if tests fail
-        if: always()
-        run: |
-          set -euxo pipefail
-          if [ -d test/pw ] && [ -f test/pw/run.log ] && ! grep -q "TOTAL END" test/pw/run.log; then
-            pushd test/pw
-            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
-            echo "Running gdb for PW: $IRSSG_BIN -nk 1 3 -nb 101 112"
-            IRSSG_FDBG=1 IRSSG_DEBUG=1 timeout 120s gdb -q -batch \
-              -ex "set pagination off" \
-              -ex "run -nk 1 3 -nb 101 112" \
-              -ex "bt" \
-              --args "$IRSSG_BIN" -nk 1 3 -nb 101 112 > gdb_pw.txt 2>&1 || true
-            popd
-          fi
-          if [ -d test/wann ] && [ -f test/wann/run.log ] && ! grep -q "TOTAL END" test/wann/run.log; then
-            pushd test/wann
-            IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
-            echo "Running gdb for WANN: $IRSSG_BIN --wann -nk 1 3 -nb 11 72"
-            IRSSG_FDBG=1 IRSSG_DEBUG=1 timeout 120s gdb -q -batch \
-              -ex "set pagination off" \
-              -ex "run --wann -nk 1 3 -nb 11 72" \
-              -ex "bt" \
-              --args "$IRSSG_BIN" --wann -nk 1 3 -nb 11 72 > gdb_wann.txt 2>&1 || true
-            popd
-          fi
-
       - name: Upload PW/WANN logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -267,7 +273,4 @@ jobs:
           name: irssg-logs-${{ matrix.python-version }}
           path: |
             test/pw/run.log
-            test/pw/loader*
-            test/pw/gdb_pw.txt
             test/wann/run.log
-            test/wann/gdb_wann.txt
