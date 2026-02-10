@@ -64,6 +64,7 @@ endif
 irssg_exe = executable('irssg',
   lib_sources + pw_sources + wann_sources + main_prog,
   link_args: link_args,
+  pie: true,
   install: true,
   install_dir: py3.get_install_dir() / 'irssg' / 'bin',
 )
