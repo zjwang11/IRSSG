@@ -212,7 +212,8 @@ jobs:
           echo "IRSSG_BIN=$IRSSG_BIN"
           readelf -W -l "$IRSSG_BIN" | tee irssg_bin.readelf.l
           readelf -W -S "$IRSSG_BIN" | tee irssg_bin.readelf.S
-          ldd -v "$IRSSG_BIN" | tee irssg_bin.ldd
+          readelf -d "$IRSSG_BIN" | tee irssg_bin.readelf.d
+          env -u LD_LIBRARY_PATH ldd -v "$IRSSG_BIN" | tee irssg_bin.ldd || true
 
       - name: Install runtime system libs (LAPACK/BLAS)
         run: |
