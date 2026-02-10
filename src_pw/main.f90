@@ -287,18 +287,12 @@ end interface
             write(180,'(A)')'Symmetry-allowed spin subspace could not be classified.'
         end select
         if (spin_fix_dim > 0) then
-            write(*,'(A)')'Invariant spin basis (columns):'
-            write(180,'(A)')'Invariant spin basis (columns):'
-            do ib = 1, spin_fix_dim
-                write(*,'(3F12.6)')spin_fix_basis(:,ib)
-                write(180,'(3F12.6)')spin_fix_basis(:,ib)
-            enddo
             if (spin_fix_dim == 1) then
                 axis = spin_fix_basis(:,1)
                 nrm = sqrt(sum(axis**2))
                 if (nrm > 0.0_dp) axis = axis / nrm
-                write(*,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
-                write(180,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+                write(*,'(A,3F12.6)')'Allowed spin axis: ', axis
+                write(180,'(A,3F12.6)')'Allowed spin axis: ', axis
             else if (spin_fix_dim == 2) then
                 normal(1) = spin_fix_basis(2,1) * spin_fix_basis(3,2) - spin_fix_basis(3,1) * spin_fix_basis(2,2)
                 normal(2) = spin_fix_basis(3,1) * spin_fix_basis(1,2) - spin_fix_basis(1,1) * spin_fix_basis(3,2)
@@ -313,9 +307,6 @@ end interface
                     write(180,'(A)')'Plane normal is ill-defined.'
                 endif
             endif
-        else
-            write(*,'(A)')'No invariant spin direction.'
-            write(180,'(A)')'No invariant spin direction.'
         endif
        
 
@@ -486,18 +477,12 @@ end interface
             write(180,'(A)')'Symmetry-allowed spin subspace could not be classified.'
         end select
         if (spin_fix_dim > 0) then
-            write(*,'(A)')'Invariant spin basis (columns):'
-            write(180,'(A)')'Invariant spin basis (columns):'
-            do ib = 1, spin_fix_dim
-                write(*,'(3F12.6)')spin_fix_basis(:,ib)
-                write(180,'(3F12.6)')spin_fix_basis(:,ib)
-            enddo
             if (spin_fix_dim == 1) then
                 axis = spin_fix_basis(:,1)
                 nrm = sqrt(sum(axis**2))
                 if (nrm > 0.0_dp) axis = axis / nrm
-                write(*,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
-                write(180,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+                write(*,'(A,3F12.6)')'Allowed spin axis: ', axis
+                write(180,'(A,3F12.6)')'Allowed spin axis: ', axis
             else if (spin_fix_dim == 2) then
                 normal(1) = spin_fix_basis(2,1) * spin_fix_basis(3,2) - spin_fix_basis(3,1) * spin_fix_basis(2,2)
                 normal(2) = spin_fix_basis(3,1) * spin_fix_basis(1,2) - spin_fix_basis(1,1) * spin_fix_basis(3,2)
@@ -512,9 +497,6 @@ end interface
                     write(180,'(A)')'Plane normal is ill-defined.'
                 endif
             endif
-        else
-            write(*,'(A)')'No invariant spin direction.'
-            write(180,'(A)')'No invariant spin direction.'
         endif
        
 
