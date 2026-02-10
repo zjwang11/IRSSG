@@ -205,6 +205,15 @@ jobs:
             fi
           done
 
+      - name: Dump irssg ELF headers (readelf/ldd)
+        run: |
+          set -euxo pipefail
+          IRSSG_BIN=$(python -c "import os; os.chdir('/tmp'); import irssg; base=os.path.dirname(irssg.__file__); print(os.path.join(base,'bin','irssg'))")
+          echo "IRSSG_BIN=$IRSSG_BIN"
+          readelf -W -l "$IRSSG_BIN" | tee irssg_bin.readelf.l
+          readelf -W -S "$IRSSG_BIN" | tee irssg_bin.readelf.S
+          ldd -v "$IRSSG_BIN" | tee irssg_bin.ldd
+
       - name: Install runtime system libs (LAPACK/BLAS)
         run: |
           set -euxo pipefail
@@ -274,3 +283,6 @@ jobs:
           path: |
             test/pw/run.log
             test/wann/run.log
+            irssg_bin.readelf.l
+            irssg_bin.readelf.S
+            irssg_bin.ldd
