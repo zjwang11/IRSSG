@@ -59,6 +59,9 @@ jobs:
                   readelf -W -S "$bin" > "$dest/$(basename "$wheel").pre.readelf.S" || true;
                 fi;
               fi;
+              pybin=$(python -c "import os,sys; print(os.path.dirname(sys.executable))");
+              PATH="$pybin:$PATH";
+              patchelf --version || true;
               auditwheel repair -w "$dest" "$wheel";
               post_wheel=$(ls -t "$dest"/*.whl | head -n1 || true);
               if [ -n "$post_wheel" ]; then
@@ -98,6 +101,9 @@ jobs:
                   readelf -W -S "$bin" > "$dest/$(basename "$wheel").pre.readelf.S" || true;
                 fi;
               fi;
+              pybin=$(python -c "import os,sys; print(os.path.dirname(sys.executable))");
+              PATH="$pybin:$PATH";
+              patchelf --version || true;
               auditwheel repair -w "$dest" "$wheel";
               post_wheel=$(ls -t "$dest"/*.whl | head -n1 || true);
               if [ -n "$post_wheel" ]; then
@@ -286,4 +292,5 @@ jobs:
             test/wann/run.log
             irssg_bin.readelf.l
             irssg_bin.readelf.S
+            irssg_bin.readelf.d
             irssg_bin.ldd
