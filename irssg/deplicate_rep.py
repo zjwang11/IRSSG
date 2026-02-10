@@ -113,7 +113,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
                 return 0.0, {avar: q(bval)}
             if aval is not None and bval is not None:
                 return q(aval * bval), {}
-            return None  # var*var 等不支持
+            return None  # var*var not supported
         # Pure numeric literal
         val = _parse_number(term)
         if val is not None:
@@ -130,7 +130,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         v = _pure_var(term)
         if v is not None:
             return 0.0, {v: 1.0}
-        # 形如 u/2
+        # Forms like u/2
         m = re.fullmatch(rf'([A-Za-z][A-Za-z0-9]*)/({num_re})', term)
         if m:
             var, denom = m.group(1), m.group(2)
@@ -141,9 +141,9 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         return None
 
     def parse_expr(expr: str):
-        # 拆成带符号的项后累加，得到 (const, {var: coef})
+        # Split into signed terms and accumulate to (const, {var: coef})
         s = expr.replace(' ', '')
-        # 用 '+' 分割，先把负号变成 '+-'
+        # Split by '+', first rewrite '-' as '+-'
         s = s.replace('-', '+-')
         parts = s.split('+')
         const = 0.0
@@ -161,7 +161,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
                 coefs[v] = q(coefs.get(v, 0.0) + c)
         return const, coefs
 
-    # 解析三分量表达式
+    # Parse the three-component expressions
     exprs = []  # [(const, {var:coef}), ...]
     vars_all = set()
     for tok in prev_tokens:
@@ -172,7 +172,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         exprs.append((const, coefs))
         vars_all.update(coefs.keys())
 
-    # 下一个点必须是数值坐标
+    # The next point must be numeric coordinates
     tgt = []
     for t in curr_tokens:
         v = _parse_number(t)
@@ -180,7 +180,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
             return None
         tgt.append(q(v))
 
-    # 若没有变量，则直接数值比较
+    # If there are no variables, compare numerically
     if not vars_all:
         for (c0, coefs), val in zip(exprs, tgt):
             if coefs:
@@ -189,12 +189,13 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
                 return False
         return True
 
-    # 变量不超过 3 个
+    # No more than 3 variables
     if len(vars_all) > 3:
         return None
     vars_list = sorted(vars_all)
 
-    # 构造增广矩阵 [A|b]，用浮点近似高斯消元判断是否有解
+    # Build augmented matrix [A|b] and use floating-point Gaussian elimination
+    # to test solvability
     A = []
     b = []
     for (c0, coefs), val in zip(exprs, tgt):
@@ -202,15 +203,15 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         A.append(row)
         b.append(q(val - c0))
 
-    # 高斯消元（容忍 1e-6 级别误差）
+    # Gaussian elimination (tolerate ~1e-6 error)
     m = len(A)
     n = len(vars_list)
-    # 构造增广矩阵
+    # Build augmented matrix
     M = [row + [bb] for row, bb in zip(A, b)]
     r = 0
     eps = 1e-6
     for c in range(n):
-        # 选主元
+        # Choose pivot
         pivot = None
         for i in range(r, m):
             if abs(M[i][c]) > eps:
@@ -231,7 +232,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         r += 1
         if r == m:
             break
-    # 判矛盾：系数全 0 但 RHS 非 0
+    # Detect inconsistency: all-zero coefficients with nonzero RHS
     for i in range(m):
         if all(abs(M[i][j]) <= eps for j in range(n)) and abs(M[i][n]) > eps:
             return False
@@ -242,7 +243,7 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
     with open(in_path, 'r', encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
-    # 解析为块：每两行星号之间为一块
+    # Parse into blocks: each pair of asterisk lines forms one block
     blocks = []  # [(start_sep, block_lines, end_sep)]
     start_sep = None
     cur_lines = None
@@ -253,23 +254,23 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
                 start_sep = line
                 cur_lines = []
             else:
-                # 结束当前块
+                # End current block
                 blocks.append((start_sep, cur_lines or [], line))
-                # 此星号作为下一块的起始分隔符
+                # This asterisk line starts the next block
                 start_sep = line
                 cur_lines = []
         else:
             if cur_lines is not None:
                 cur_lines.append(line)
             else:
-                # 在首个分隔符前的内容忽略
+                # Ignore content before the first separator
                 pass
 
-    # 若最后未以分隔符结束且有内容，则补上一块
+    # If the file doesn't end with a separator and has content, add the final block
     if start_sep is not None and cur_lines is not None and cur_lines:
         blocks.append((start_sep, cur_lines, ''))
 
-    # 去掉与上一块同名的块，并记录顺序名称、frac tokens 和规范名
+    # Drop blocks with the same name as the previous one, and record order/names/frac tokens
     prev_name = None
     kept = []            # list of tuples (start, blines, end)
     kept_names = []      # matching kpoint names (raw)
@@ -303,7 +304,8 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         eq_re = re.compile(r'^\s*=+\s*$')
 
         def base_from_side(s: str) -> str:
-            # 提取侧字符串的首个字母串作为基名（忽略数字、+、* 等），如 "GM1"->"GM"，"SM1+SM2"->"SM"
+            # Extract first letter sequence as base name (ignore digits,+,*),
+            # e.g., "GM1"->"GM", "SM1+SM2"->"SM"
             m = re.search(r'[A-Za-z]+', s)
             return m.group(0).upper() if m else ''
 
@@ -314,7 +316,7 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
                 if cur is None:
                     cur = []
                 else:
-                    # 结束当前块
+                    # End current block
                     cblocks.append(cur)
                     cur = []
             else:

@@ -65,6 +65,7 @@ subroutine run_wann()
     real(dp) :: tol_spin
     integer :: spin_fix_dim
     real(dp) :: spin_fix_basis(3,3)
+    real(dp) :: axis(3), normal(3), nrm
 
     
 
@@ -281,18 +282,53 @@ end interface
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
 
         call fixed_subspace(spin_rot_lg(:,:,1:numLG), numLG, tol_spin, spin_fix_dim, spin_fix_basis)
-        write(*,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
-        write(180,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        select case (spin_fix_dim)
+        case (0)
+            write(*,'(A)')'Symmetry forbids net spin polarization at this k-point.'
+            write(180,'(A)')'Symmetry forbids net spin polarization at this k-point.'
+        case (1)
+            write(*,'(A)')'Symmetry allows spin polarization only along a single axis at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization only along a single axis at this k-point.'
+        case (2)
+            write(*,'(A)')'Symmetry allows spin polarization within a plane at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization within a plane at this k-point.'
+        case (3)
+            write(*,'(A)')'Symmetry allows spin polarization in any direction at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization in any direction at this k-point.'
+        case default
+            write(*,'(A)')'Symmetry-allowed spin subspace could not be classified.'
+            write(180,'(A)')'Symmetry-allowed spin subspace could not be classified.'
+        end select
         if (spin_fix_dim > 0) then
-            write(*,'(A)')'Spin fixed basis (columns):'
-            write(180,'(A)')'Spin fixed basis (columns):'
+            write(*,'(A)')'Invariant spin basis (columns):'
+            write(180,'(A)')'Invariant spin basis (columns):'
             do ib = 1, spin_fix_dim
                 write(*,'(3F12.6)')spin_fix_basis(:,ib)
                 write(180,'(3F12.6)')spin_fix_basis(:,ib)
             enddo
+            if (spin_fix_dim == 1) then
+                axis = spin_fix_basis(:,1)
+                nrm = sqrt(sum(axis**2))
+                if (nrm > 0.0_dp) axis = axis / nrm
+                write(*,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+                write(180,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+            else if (spin_fix_dim == 2) then
+                normal(1) = spin_fix_basis(2,1) * spin_fix_basis(3,2) - spin_fix_basis(3,1) * spin_fix_basis(2,2)
+                normal(2) = spin_fix_basis(3,1) * spin_fix_basis(1,2) - spin_fix_basis(1,1) * spin_fix_basis(3,2)
+                normal(3) = spin_fix_basis(1,1) * spin_fix_basis(2,2) - spin_fix_basis(2,1) * spin_fix_basis(1,2)
+                nrm = sqrt(sum(normal**2))
+                if (nrm > 1.0e-10_dp) then
+                    normal = normal / nrm
+                    write(*,'(A,3F12.6)')'Plane normal (unit): ', normal
+                    write(180,'(A,3F12.6)')'Plane normal (unit): ', normal
+                else
+                    write(*,'(A)')'Plane normal is ill-defined.'
+                    write(180,'(A)')'Plane normal is ill-defined.'
+                endif
+            endif
         else
-            write(*,'(A)')'Spin fixed subspace: none'
-            write(180,'(A)')'Spin fixed subspace: none'
+            write(*,'(A)')'No invariant spin direction.'
+            write(180,'(A)')'No invariant spin direction.'
         endif
 
         call tb_setup_ssg(WK, &
@@ -447,18 +483,53 @@ end interface
         write(180,'(A)')'kname = '//trim(adjustl(k_name))//'    Fractional coordinate: '//trim(adjustl(k_frac_symbol))//' (given in the conventional basis)'
 
         call fixed_subspace(spin_rot_lg(:,:,1:numLG), numLG, tol_spin, spin_fix_dim, spin_fix_basis)
-        write(*,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
-        write(180,'(A,I2)')'Spin fixed subspace dim = ', spin_fix_dim
+        select case (spin_fix_dim)
+        case (0)
+            write(*,'(A)')'Symmetry forbids net spin polarization at this k-point.'
+            write(180,'(A)')'Symmetry forbids net spin polarization at this k-point.'
+        case (1)
+            write(*,'(A)')'Symmetry allows spin polarization only along a single axis at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization only along a single axis at this k-point.'
+        case (2)
+            write(*,'(A)')'Symmetry allows spin polarization within a plane at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization within a plane at this k-point.'
+        case (3)
+            write(*,'(A)')'Symmetry allows spin polarization in any direction at this k-point.'
+            write(180,'(A)')'Symmetry allows spin polarization in any direction at this k-point.'
+        case default
+            write(*,'(A)')'Symmetry-allowed spin subspace could not be classified.'
+            write(180,'(A)')'Symmetry-allowed spin subspace could not be classified.'
+        end select
         if (spin_fix_dim > 0) then
-            write(*,'(A)')'Spin fixed basis (columns):'
-            write(180,'(A)')'Spin fixed basis (columns):'
+            write(*,'(A)')'Invariant spin basis (columns):'
+            write(180,'(A)')'Invariant spin basis (columns):'
             do ib = 1, spin_fix_dim
                 write(*,'(3F12.6)')spin_fix_basis(:,ib)
                 write(180,'(3F12.6)')spin_fix_basis(:,ib)
             enddo
+            if (spin_fix_dim == 1) then
+                axis = spin_fix_basis(:,1)
+                nrm = sqrt(sum(axis**2))
+                if (nrm > 0.0_dp) axis = axis / nrm
+                write(*,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+                write(180,'(A,3F12.6)')'Allowed spin axis (unit): ', axis
+            else if (spin_fix_dim == 2) then
+                normal(1) = spin_fix_basis(2,1) * spin_fix_basis(3,2) - spin_fix_basis(3,1) * spin_fix_basis(2,2)
+                normal(2) = spin_fix_basis(3,1) * spin_fix_basis(1,2) - spin_fix_basis(1,1) * spin_fix_basis(3,2)
+                normal(3) = spin_fix_basis(1,1) * spin_fix_basis(2,2) - spin_fix_basis(2,1) * spin_fix_basis(1,2)
+                nrm = sqrt(sum(normal**2))
+                if (nrm > 1.0e-10_dp) then
+                    normal = normal / nrm
+                    write(*,'(A,3F12.6)')'Plane normal (unit): ', normal
+                    write(180,'(A,3F12.6)')'Plane normal (unit): ', normal
+                else
+                    write(*,'(A)')'Plane normal is ill-defined.'
+                    write(180,'(A)')'Plane normal is ill-defined.'
+                endif
+            endif
         else
-            write(*,'(A)')'Spin fixed subspace: none'
-            write(180,'(A)')'Spin fixed subspace: none'
+            write(*,'(A)')'No invariant spin direction.'
+            write(180,'(A)')'No invariant spin direction.'
         endif
         
         call tb_setup_ssg(WK, &

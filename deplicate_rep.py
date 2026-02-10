@@ -2,7 +2,7 @@
 import re
 import sys
 
-# 分隔符：只包含星号的行
+# Separator: a line that contains only asterisks
 SEP_RE = re.compile(r'^\s*\*+\s*$')
 
 
@@ -11,26 +11,27 @@ def is_sep(line: str) -> bool:
 
 
 def extract_name_from_block(block_lines):
-    # 找到块内第一行非空行
+    # Find the first non-empty line within the block
     first = ''
     for ln in block_lines:
         if ln.strip():
             first = ln
             break
-    # 从 "kname = ... Fractional" 提取名字（不区分大小写）
+    # Extract name from "kname = ... Fractional" (case-insensitive)
     m = re.search(r'kname\s*=\s*(.*?)\s*Fractional', first, re.IGNORECASE)
     return (m.group(1).strip() if m else first.strip())
 
 
 def extract_frac_tokens_from_block(block_lines):
-    # 从块的首行（或首个包含 Fractional coordinate 的行）提取三分量字符串
+    # From the block header (or the first line containing "Fractional coordinate"),
+    # extract the three coordinate tokens
     line = ''
     for ln in block_lines:
         if 'Fractional coordinate' in ln:
             line = ln
             break
     if not line:
-        # 回退：尝试首个非空行
+        # Fallback: try the first non-empty line
         for ln in block_lines:
             if ln.strip():
                 line = ln
@@ -49,13 +50,13 @@ def extract_frac_tokens_from_block(block_lines):
 
 def _parse_number(tok):
     tok = tok.strip()
-    # 纯浮点
+    # Pure floating point number
     if re.fullmatch(r'[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?', tok):
         try:
             return float(tok)
         except Exception:
             return None
-    # 分数 a/b
+    # Fraction a/b
     if re.fullmatch(r'[+-]?\d+/\d+', tok):
         sgn = -1.0 if tok.startswith('-') else 1.0
         if tok[0] in '+-':
@@ -71,16 +72,17 @@ def _parse_number(tok):
 
 
 def _pure_var(tok):
-    # 仅字母（可含数字但首字符为字母），例如 x, u, k1 -> 归一化为大写
+    # Letters-only token (alphanumeric allowed but must start with a letter),
+    # e.g., x, u, k1 -> normalize to uppercase
     if re.fullmatch(r'[A-Za-z][A-Za-z0-9]*', tok.strip()):
         return tok.strip().upper()
     return None
 
 
 def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
-    # 线性判定：把表达式近似到两位小数并消元检查是否存在矛盾。
-    # 支持项：常数/分数、num*var、var*num、纯变量、以及这些项的加减组合：
-    # 例如 1-u, 1-2u, 1-2*u, 0.5-2*u, u+v 等。
+    # Linear check: round terms to 2 decimals and eliminate to test for inconsistency.
+    # Supported terms: constants/fractions, num*var, var*num, pure variables,
+    # and sums/differences of these (e.g., 1-u, 1-2u, 1-2*u, 0.5-2*u, u+v).
     if not prev_tokens or not curr_tokens or len(prev_tokens) != 3 or len(curr_tokens) != 3:
         return None
 
@@ -90,7 +92,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
     num_re = r'[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|[+-]?\d+/\d+'
 
     def parse_term(term: str):
-        # 返回 (const, {var: coef})，两位小数量化
+        # Return (const, {var: coef}) with values quantized to 2 decimals
         term = term.strip()
         if term == '':
             return 0.0, {}
@@ -109,12 +111,12 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
                 return 0.0, {avar: q(bval)}
             if aval is not None and bval is not None:
                 return q(aval * bval), {}
-            return None  # var*var 等不支持
-        # 纯数字
+            return None  # var*var not supported
+        # Pure numeric literal
         val = _parse_number(term)
         if val is not None:
             return q(val), {}
-        # 形如 2u 或 1/2u
+        # Forms like 2u or 1/2u
         m = re.fullmatch(rf'({num_re})?([A-Za-z][A-Za-z0-9]*)', term)
         if m:
             coef_s, var = m.group(1), m.group(2)
@@ -122,14 +124,15 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
             if coef is None:
                 return None
             return 0.0, {var.upper(): q(coef)}
-        # 纯变量
+        # Pure variable
         v = _pure_var(term)
         if v is not None:
             return 0.0, {v: 1.0}
         return None
 
     def parse_linear(expr: str):
-        # expr -> (const, dict[var]=coef). 两位小数量化，不支持括号/乘变量。
+        # expr -> (const, dict[var]=coef). Quantized to 2 decimals; no parentheses
+        # or var*var.
         if expr is None:
             return 0.0, {}, False
         s = expr.strip()
@@ -158,7 +161,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         coeffs = {k: q(v) for k, v in coeffs.items() if q(v) != 0.0}
         return const, coeffs, ok
 
-    # 构造 3 条等式：prev[i] - curr[i] = 0
+    # Build 3 equations: prev[i] - curr[i] = 0
     rows = []
     for i in range(3):
         c1, m1, _ = parse_linear(prev_tokens[i])
@@ -168,21 +171,21 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
             row[k] = row.get(k, 0.0) + v
         for k, v in m2.items():
             row[k] = row.get(k, 0.0) - v
-        # 清理接近 0
+        # Drop near-zero terms
         for k in [kk for kk in list(row.keys()) if kk != 'c']:
             if q(row[k]) == 0.0:
                 del row[k]
         row['c'] = q(row['c'])
         rows.append(row)
 
-    # 近似高斯消元
+    # Approximate Gaussian elimination
     def eliminate(rows):
         rows = [dict(r) for r in rows]
         used = set()
         while True:
             piv_idx = -1
             piv_var = None
-            # 选主元变量
+            # Choose pivot variable
             for i, r in enumerate(rows):
                 vars_in_r = [k for k in r.keys() if k != 'c']
                 if not vars_in_r:
@@ -197,11 +200,11 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
             if piv_idx == -1:
                 break
             used.add(piv_var)
-            # 规范化主元行
+            # Normalize pivot row
             piv_coef = rows[piv_idx][piv_var]
             for k in list(rows[piv_idx].keys()):
                 rows[piv_idx][k] = q(rows[piv_idx][k] / piv_coef)
-            # 消去其他行
+            # Eliminate other rows
             for j, rj in enumerate(rows):
                 if j == piv_idx:
                     continue
@@ -211,7 +214,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
                         rj[k] = q(rj.get(k, 0.0) - f * v)
                     if piv_var in rj:
                         del rj[piv_var]
-                # 清理接近 0
+                # Drop near-zero terms
                 for k in [kk for kk in list(rj.keys()) if kk != 'c']:
                     if q(rj[k]) == 0.0:
                         del rj[k]
@@ -219,7 +222,7 @@ def next_point_in_manifold(prev_tokens, curr_tokens, tol=0.005):
         return rows
 
     red = eliminate(rows)
-    # 若出现 0 = 非零，则矛盾
+    # If we get 0 = nonzero, it's inconsistent
     for r in red:
         if all(k == 'c' for k in r.keys()) or len([k for k in r.keys() if k != 'c']) == 0:
             if abs(r.get('c', 0.0)) >= tol:
@@ -231,7 +234,7 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
     with open(in_path, 'r', encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
-    # 解析为块：每两行星号之间为一块
+    # Parse into blocks: each pair of asterisk lines forms one block
     blocks = []  # [(start_sep, block_lines, end_sep)]
     start_sep = None
     cur_lines = None
@@ -242,23 +245,24 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
                 start_sep = line
                 cur_lines = []
             else:
-                # 结束当前块
+                # End current block
                 blocks.append((start_sep, cur_lines or [], line))
-                # 此星号作为下一块的起始分隔符
+                # This asterisk line starts the next block
                 start_sep = line
                 cur_lines = []
         else:
             if cur_lines is not None:
                 cur_lines.append(line)
             else:
-                # 在首个分隔符前的内容忽略
+                # Ignore content before the first separator
                 pass
 
-    # 若最后未以分隔符结束且有内容，则补上一块
+    # If the file doesn't end with a separator and has content, add the final block
     if start_sep is not None and cur_lines is not None and cur_lines:
         blocks.append((start_sep, cur_lines, ''))
 
-    # 去掉重复 kname 的块（全局去重，忽略大小写与多余空白），并记录顺序名称与坐标表达
+    # Drop duplicate kname blocks globally (case/whitespace-insensitive),
+    # and record order/names/coordinates
     def norm_block_name(s: str) -> str:
         return re.sub(r"\s+", "", s).upper()
 
@@ -276,7 +280,7 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         kept_names.append(name)
         kept_frac_tokens.append(extract_frac_tokens_from_block(blines))
 
-    # 解析 comprel.log，收集有向块元数据（left_base -> right_base）
+    # Parse comprel.log and collect directed block metadata (left_base -> right_base)
     cblocks_meta = []
     try:
         with open(comprel_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -288,7 +292,8 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         eq_re = re.compile(r'^\s*=+\s*$')
 
         def base_from_side(s: str) -> str:
-            # 提取侧字符串的首个字母串作为基名（忽略数字、+、* 等），如 "GM1"->"GM"，"SM1+SM2"->"SM"
+            # Extract first letter sequence as base name (ignore digits,+,*),
+            # e.g., "GM1"->"GM", "SM1+SM2"->"SM"
             m = re.search(r'[A-Za-z]+', s)
             return m.group(0).upper() if m else ''
 
@@ -299,17 +304,17 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
                 if cur is None:
                     cur = []
                 else:
-                    # 结束当前块
+                    # End current block
                     cblocks.append(cur)
                     cur = []
             else:
                 if cur is not None:
                     cur.append(ln)
-        # 若文件未以'='结尾且有内容，补最后一块
+        # If the file doesn't end with '=' and has content, add the last block
         if cur:
             cblocks.append(cur)
 
-        # 提取每个块首行的两个 k 点基名（有向）
+        # Extract two k-point base names (directed) from the first line of each block
         for b in cblocks:
             first_nonempty = ''
             for ln in b:
@@ -324,15 +329,17 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
             if lbase and rbase:
                 cblocks_meta.append({'left': lbase, 'right': rbase, 'lines': b})
 
-    # 判断“下一个 k 点是否在本块的集合上”，并把 comprel.log 中匹配的块追加到对应的 chart 块（k1 的块）
+    # Decide whether the next k-point lies on the current block's manifold,
+    # and append matching comprel.log blocks to the corresponding chart block (k1)
     def norm_name_for_chart(name: str) -> str:
-        # 与 comprel 的归一化对齐：忽略数字与空白，仅字母，大写
+        # Normalize aligned with comprel: drop digits/whitespace, letters only, uppercase
         s = re.sub(r'\d+', '', name)
         s = re.sub(r'\s+', '', s)
         s = re.sub(r'[^A-Za-z]', '', s)
         return s.upper()
 
-    # 计算每个块是否属于上一个块的集合（从第二块起）
+    # For each block starting from the second, decide if it belongs to the
+    # previous block's manifold
     belongs_prev = [None] * len(kept)
     for i in range(1, len(kept)):
         prev_tokens = kept_frac_tokens[i - 1]
@@ -340,19 +347,21 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
         verdict = next_point_in_manifold(prev_tokens, curr_tokens)
         belongs_prev[i] = verdict
 
-    # 收集末尾输出的相容性关系，按无序对分组并保持出现顺序
-    # 注意：{k1,k2} 与 {k2,k1} 视为同一组，键使用按字典序排序后的 (a,b)
+    # Collect compatibility relations for output, grouped by unordered pairs
+    # in appearance order. Note: {k1,k2} and {k2,k1} are the same group; key
+    # uses sorted (a,b).
     compat_groups = {}  # (a,b) -> list[list[str]]
     groups_order = []   # list of (a,b)
-    seen_blocks = set() # 去重
+    seen_blocks = set()  # Deduplicate
 
     for i in range(len(kept)):
         if i == 0:
-            continue  # 第一块无上一个 k 点
+            continue  # First block has no previous k-point
         k1 = norm_name_for_chart(kept_names[i])
         k2 = norm_name_for_chart(kept_names[i - 1])
         if belongs_prev[i] is True:
-            # 收集与无序对 {k2,k1} 匹配的 comprel 块（按无序对分组）
+            # Collect comprel blocks matching unordered pair {k2,k1}
+            # (grouped by unordered pair)
             for m in cblocks_meta:
                 if {m['left'], m['right']} == {k1, k2}:
                     key_pair = tuple(sorted((m['left'], m['right'])))
@@ -366,20 +375,21 @@ def dedup_fort154(in_path='fort.154', out_path='chart.dat', comprel_path='compre
                     seen_blocks.add(sig)
                     compat_groups[key_pair].append(b)
 
-    # 写出结果
+    # Write results
     with open(out_path, 'w', encoding='utf-8') as out:
         for i, (start, blines, end) in enumerate(kept):
-            # 不输出星号分隔行，只输出块内容
+            # Do not output separator lines; only block content
             out.writelines(blines)
-            # 块之间空两行（最后一块除外）
+            # Two blank lines between blocks (except after the last block)
             if i != len(kept) - 1:
                 out.write('\n\n')
-        # 文件末尾追加相容性关系，按组输出标题
+        # Append compatibility relations at the end, with group headers
         if groups_order:
             if kept:
                 out.write('\n\n')
             for src, dst in groups_order:
-                # 对该组内容逐行去重（忽略空行、忽略多余空白，保留首次出现）
+                # Deduplicate lines within the group (ignore blank lines,
+                # extra whitespace; keep first occurrence)
                 seen = set()
                 unique_lines = []
                 for b in compat_groups[(src, dst)]:
