@@ -1,5 +1,6 @@
 module get_ssg_mod
   use lib_params, only:dp, lattice
+  use iso_fortran_env, only: int32
   implicit none
   integer, parameter :: ssg_file_unit = 1245
   integer, parameter,public :: max_nsym = 2400
@@ -38,6 +39,8 @@ contains
     integer :: nsym_tmp2
     real(dp) :: spin_rotation_tmp2(3,3,max_nsym)
     integer :: iostat
+    character(len=4) :: file_tag
+    integer(int32) :: spg32
     
     spin_only_rotation = 0.0_dp
     spin_only_SU2 = 0
@@ -66,7 +69,18 @@ contains
     else
       open(unit=ssg_file_unit, file='ssg.data', form='unformatted', access='stream', status='old', action='read', iostat=ios)
     endif
-    read(ssg_file_unit) spg
+    read(ssg_file_unit) file_tag
+    if (file_tag == 'SSG ' .or. file_tag == 'MSG ') then
+      if (isSpinor .and. file_tag /= 'MSG ') then
+        write(*,'(A)')'WARNING: SOC flag expects msg.data, but file tag indicates SSG.'
+      else if (.not.isSpinor .and. file_tag /= 'SSG ') then
+        write(*,'(A)')'WARNING: SOC flag expects ssg.data, but file tag indicates MSG.'
+      endif
+      read(ssg_file_unit) spg
+    else
+      spg32 = transfer(file_tag, spg32)
+      spg = int(spg32, kind=kind(spg))
+    endif
     read(ssg_file_unit) nsym
     read(ssg_file_unit) ssg_label(1:nsym)
 

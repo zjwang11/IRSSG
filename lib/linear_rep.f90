@@ -711,7 +711,7 @@ end subroutine get_irreducible_rep
 
 
         if (is_msg) then
-            msg_prefix = 'M'
+            msg_prefix = 'm'
         else
             msg_prefix = ''
         endif

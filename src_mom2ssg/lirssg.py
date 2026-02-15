@@ -73,6 +73,7 @@ def generate_irssg_in(spg, ssgnum, msgnum, cell, mag, operations, msg_operations
     dim_mag = findDimension(cell,tolm=tolm)
     
     wbfile = open('ssg.data','wb')
+    wbfile.write(b'SSG ')
     # print(type(spg))
     np.array([spg],dtype=np.int32).tofile(wbfile)
     b   = ssgnum.encode('utf-8')
@@ -154,6 +155,7 @@ def generate_irssg_in(spg, ssgnum, msgnum, cell, mag, operations, msg_operations
     
     # for msg
     wbfile = open('msg.data','wb')
+    wbfile.write(b'MSG ')
     np.array([spg],dtype=np.int32).tofile(wbfile)
     if not msgnum:
         msgnum = "MSG: unknown"
