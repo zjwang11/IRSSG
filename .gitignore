@@ -2,6 +2,9 @@
 /irssg
 !/irssg/
 
+/tools/
+/deplicate_rep.py
+
 
 # Editors/OS
 .idea/
