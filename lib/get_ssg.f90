@@ -4,6 +4,7 @@ module get_ssg_mod
   implicit none
   integer, parameter :: ssg_file_unit = 1245
   integer, parameter,public :: max_nsym = 2400
+  logical, public :: ssg_file_is_msg = .false.
 contains
 
   subroutine get_ssg_op(spg, ssg_label, isSpinor, nsym, rotation, tau, spin_SU2, spin_rotation, time_reversal)
@@ -71,6 +72,7 @@ contains
     endif
     read(ssg_file_unit) file_tag
     if (file_tag == 'SSG ' .or. file_tag == 'MSG ') then
+      ssg_file_is_msg = (file_tag == 'MSG ')
       if (isSpinor .and. file_tag /= 'MSG ') then
         write(*,'(A)')'WARNING: SOC flag expects msg.data, but file tag indicates SSG.'
       else if (.not.isSpinor .and. file_tag /= 'SSG ') then
@@ -78,6 +80,7 @@ contains
       endif
       read(ssg_file_unit) spg
     else
+      ssg_file_is_msg = isSpinor
       spg32 = transfer(file_tag, spg32)
       spg = int(spg32, kind=kind(spg))
     endif

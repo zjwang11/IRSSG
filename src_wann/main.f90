@@ -160,7 +160,16 @@ end interface
     !
     call read_tbbox()
     !
-    call get_ssg_op(spg, ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
+        call get_ssg_op(spg, ssg_label, isSpinor, num_sym, rot, tau, SU2, spin_rot, time_reversal)
+        if (ssg_file_is_msg .and. .not.isSpinor) then
+            write(*,'(A)')'WARNING: Using MSG data; enabling SOC for symmetry analysis.'
+            write(180,'(A)')'WARNING: Using MSG data; enabling SOC for symmetry analysis.'
+            isSpinor = .true.
+        else if ((.not.ssg_file_is_msg) .and. isSpinor) then
+            write(*,'(A)')'WARNING: Using SSG data; disabling SOC for symmetry analysis.'
+            write(180,'(A)')'WARNING: Using SSG data; disabling SOC for symmetry analysis.'
+            isSpinor = .false.
+        endif
     !
     call load_bilbao(spg)
     !
@@ -313,8 +322,8 @@ end interface
                 nrm = sqrt(sum(normal**2))
                 if (nrm > 1.0e-10_dp) then
                     normal = normal / nrm
-                    write(*,'(A,3F12.6)')'Plane normal (unit): ', normal
-                    write(180,'(A,3F12.6)')'Plane normal (unit): ', normal
+                    write(*,'(A,3F12.6)')'Plane normal: ', normal
+                    write(180,'(A,3F12.6)')'Plane normal: ', normal
                 else
                     write(*,'(A)')'Plane normal is ill-defined.'
                     write(180,'(A)')'Plane normal is ill-defined.'
@@ -505,8 +514,8 @@ end interface
                 nrm = sqrt(sum(normal**2))
                 if (nrm > 1.0e-10_dp) then
                     normal = normal / nrm
-                    write(*,'(A,3F12.6)')'Plane normal (unit): ', normal
-                    write(180,'(A,3F12.6)')'Plane normal (unit): ', normal
+                    write(*,'(A,3F12.6)')'Plane normal: ', normal
+                    write(180,'(A,3F12.6)')'Plane normal: ', normal
                 else
                     write(*,'(A)')'Plane normal is ill-defined.'
                     write(180,'(A)')'Plane normal is ill-defined.'
