@@ -10,10 +10,7 @@ module comms
 
     integer,     public, parameter :: MAXKTYPE = 40
 
-
-    logical,     public            :: isComplexWF
     logical,     public            :: isSpinor
-    logical,     public            :: isInv
     logical,     public            :: isSpinPola
     logical,     public            :: isNoncollinear
 

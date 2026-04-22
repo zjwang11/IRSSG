@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import subprocess
 import shutil
@@ -113,6 +114,45 @@ def _activate_msg_mode(enabled: bool):
             os.remove(dst)
             _debug("Removed temporary ssg.data after MSG-mode run")
 
+
+def _read_outcar_spin_flags(path: str = "OUTCAR"):
+    if not os.path.exists(path):
+        return None, None
+    nspin = None
+    is_noncollinear = None
+    with open(path, encoding="utf-8", errors="ignore") as fh:
+        for line in fh:
+            if nspin is None and "ISPIN" in line:
+                match = re.search(r"\bISPIN\s*=\s*(\d+)", line)
+                if match:
+                    nspin = int(match.group(1))
+            if is_noncollinear is None and "LNONCOLLINEAR" in line:
+                match = re.search(r"\bLNONCOLLINEAR\s*=\s*([TF])", line)
+                if match:
+                    is_noncollinear = (match.group(1) == "T")
+            if nspin is not None and is_noncollinear is not None:
+                break
+    return nspin, is_noncollinear
+
+
+def _validate_pw_so_mode(force_msg: bool) -> int:
+    if not force_msg:
+        return 0
+    nspin, is_noncollinear = _read_outcar_spin_flags()
+    _debug(f"OUTCAR ISPIN={nspin} LNONCOLLINEAR={is_noncollinear}")
+    if nspin is None:
+        sys.stderr.write("ERROR: Failed to determine ISPIN from OUTCAR for -so validation.\n")
+        return 1
+    if is_noncollinear is None:
+        sys.stderr.write("ERROR: Failed to determine LNONCOLLINEAR from OUTCAR for -so validation.\n")
+        return 1
+    if nspin == 2 and not is_noncollinear:
+        sys.stderr.write(
+            "ERROR: -so cannot be used with collinear ISPIN=2 calculations.\n"
+        )
+        return 2
+    return 0
+
 def main() -> int:
     # Resolve packaged data path and binary
     _, data_dir, bin_path = _base_paths()
@@ -219,6 +259,9 @@ def main() -> int:
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        rc = _validate_pw_so_mode(force_msg)
+        if rc != 0:
+            return rc
         with _activate_msg_mode(force_msg):
             _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
             rc = _run_pw(bin_path, modes["pw"])
@@ -248,6 +291,9 @@ def main() -> int:
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        rc = _validate_pw_so_mode(force_msg)
+        if rc != 0:
+            return rc
         with _activate_msg_mode(force_msg):
             _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
             rc = _run_pw(bin_path, modes["pw"])
@@ -283,6 +329,9 @@ def main() -> int:
         if not _has_pw_inputs():
             sys.stderr.write("PW mode requires WAVECAR and OUTCAR in current directory.\n")
             return 1
+        rc = _validate_pw_so_mode(force_msg)
+        if rc != 0:
+            return rc
         with _activate_msg_mode(force_msg):
             _debug(f"run pw: {bin_path} {' '.join(modes['pw'])}")
             rc = _run_pw(bin_path, modes["pw"])

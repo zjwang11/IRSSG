@@ -49,36 +49,14 @@ subroutine read_outcar
     character(len=15)  :: chtp15
     character(len=35)  :: chtp35
     character(len=43)  :: chtp43
-    character(len=21)  :: chtp21
     character(len=10)  :: title 
 
-    integer            :: itmp
-    real(dp)           :: rtmp(8)
-
-    integer            :: i, j, i1, i2, irot 
-
-    integer            :: ierr 
+    integer            :: i, j, i1, i2
 
     integer, parameter :: outcar = 1001
 
 
     open(unit=outcar, file='OUTCAR', form='formatted', status='old')
-
-    ! read symmetry opeartions
-    isInv = .false.
-
-    do 
-        read(outcar, "(A90)") chaps
-        chtp5 = chaps(1:5)
-        if (chtp5 == 'Space') exit 
-    enddo
-    read(outcar, *)
-    do irot = 1, MAXSYM
-        read(outcar, *, iostat=ierr) itmp, rtmp
-        if (ierr /= 0) exit 
-        ! num_sym = irot 
-        if (abs(rtmp(1)+1.d0+rtmp(2)) < 1.d-5) isInv = .true.
-    enddo 
 
     ! read number of kpoints, number of energy bands
     do 
@@ -122,8 +100,6 @@ subroutine read_outcar
 
     isSpinPola = .false.
     if (nspin == 2) isSpinPola = .true. 
-    isComplexWF = .true. 
-    if (.not.isSpinor .and. isInv) isComplexWF = .false. 
 
     ! read lattice information, convert SO3 to rot
     do 
@@ -160,13 +136,6 @@ subroutine read_outcar
     close(outcar)
 
     write(6, 529) title 
-
-
-    if (     isInv) write(6,'(A24)') ' with inversion symmetry'
-    if (.not.isInv) write(6,'(A27)') ' without inversion symmetry'
-
-    if (     isComplexWF) write(6, '(A23)') ' Complex eigenfunctions'
-    if (.not.isComplexWF) write(6, '(A20)') ' Real eigenfunctions'
 
     if (     isSpinor) write(6, '(A)') 'Spin-orbit eigenfunctions'
     if (.not.isSpinor) write(6, '(A)') 'No spin-orbit eigenfunctions'
