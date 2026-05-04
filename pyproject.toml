@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pos2ssg"
+version = "1.0.1"
+description = "Convert POSCAR to Spin Space Group (SSG) with magnetic moments"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { file = "LICENSE" }
+authors = [
+    {name = "Ziyin Song", email = "songziyin@iphy.ac.cn"},
+    {name = "Sheng Zhang", email = "zhangsheng221@mails.ucas.ac.cn"}
+]
+maintainers = [
+    {name = "Ziyin Song", email = "songziyin@iphy.ac.cn"},
+    {name = "Sheng Zhang", email = "zhangsheng221@mails.ucas.ac.cn"}
+]
+keywords = ["crystallography", "magnetism", "spin space group"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+dependencies = [
+    "numpy>=1.20.1",     
+    "scipy>=1.5.4",     
+    "pymatgen>=2021.2.8", 
+    "spglib>=1.15.0",   
+    "irssg>=1.0.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+]
+
+[project.scripts]
+POS2SSG = "POS2SSG.POS2SSG:main"
+pos2ssg = "POS2SSG.POS2SSG:main"
+
+[project.urls]
+Homepage = "https://github.com/mom2ssg/pos2ssg"
+Documentation = "https://pos2ssg.readthedocs.io"
+Repository = "https://github.com/mom2ssg/pos2ssg.git"
+Issues = "https://github.com/mom2ssg/pos2ssg/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["POS2SSG*"]
+
+[tool.setuptools.package-data]
+POS2SSG = ["*.py"]
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

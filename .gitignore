@@ -1,0 +1,82 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Packaging outputs
+*.whl
+*.tar
+*.tar.gz
+*.zip
+
+# Test/coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+
+# Linters/type checkers
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Editors/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled extensions / objects
+*.so
+*.dylib
+*.dll
+*.o
+*.obj
+
+# VASP outputs and large computational files
+**/OUTCAR
+**/CONTCAR
+**/POSCAR
+**/POTCAR
+**/WAVECAR
+**/CHG
+**/CHGCAR
+**/DOSCAR
+**/EIGENVAL
+**/PROCAR
+**/OSZICAR
+**/KPOINTS
+**/INCAR
+**/PCDAT
+**/REPORT
+**/IBZKPT
+
+# Examples directory (exclude bulky example data)
+example/
+examples/
