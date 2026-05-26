@@ -1,8 +1,10 @@
 # IRSSG
 
-`IRSSG` is a command-line program for spin-space-group workflows in magnetic materials without spin-orbit coupling (SOC). It identifies spin space group (SSG) operations from magnetic structures, generates the `ssg.data` file used by later steps, and assigns band coirreps from either VASP plane-wave results or Wannier tight-binding Hamiltonians.
+<p align="right">
+  English | <a href="README.zh-CN.md">中文</a>
+</p>
 
-中文说明见 [README_zh.md](README_zh.md).
+`IRSSG` is a command-line program for spin-space-group workflows in magnetic materials without spin-orbit coupling (SOC). It identifies spin space group (SSG) operations from magnetic structures, generates the `ssg.data` file used by later steps, and assigns band coirreps from either VASP plane-wave results or Wannier tight-binding Hamiltonians.
 
 For a complete tutorial and detailed examples, please read the user manual first:
 

@@ -1,8 +1,10 @@
 # IRSSG
 
-`IRSSG` 是一个用于无自旋轨道耦合（SOC）磁性材料自旋空间群（spin space group, SSG）工作流的命令行程序。它可以从磁结构中识别 SSG 操作，生成后续能带表示分析所需的 `ssg.data` 文件，并基于 VASP 平面波结果或 Wannier 紧束缚哈密顿量给出能带共表示标记。
+<p align="right">
+  <a href="README.md">English</a> | 中文
+</p>
 
-English README: [README.md](README.md)
+`IRSSG` 是一个用于无自旋轨道耦合（SOC）磁性材料自旋空间群（spin space group, SSG）工作流的命令行程序。它可以从磁结构中识别 SSG 操作，生成后续能带表示分析所需的 `ssg.data` 文件，并基于 VASP 平面波结果或 Wannier 紧束缚哈密顿量给出能带共表示标记。
 
 建议使用前先阅读用户手册，手册中包含更完整的输入格式和示例：
 
