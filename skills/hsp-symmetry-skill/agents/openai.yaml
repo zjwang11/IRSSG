@@ -1,0 +1,4 @@
+interface:
+  display_name: "HSP Symmetry Skill"
+  short_description: "Identify SG/MSG/SSG and fetch HSP records"
+  default_prompt: "Use $hsp-symmetry-skill to determine SG/MSG/SSG information from this mPOSCAR or mcif file, then fetch the related HSP API records."

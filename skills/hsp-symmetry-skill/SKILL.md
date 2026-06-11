@@ -1,5 +1,5 @@
 ---
-name: irssg-hsp-symmetry
+name: hsp-symmetry-skill
 description: Determine material space, magnetic, and spin space group information from magnetic POSCAR-like mPOSCAR files or magnetic CIF/mcif files using IRSSG, then fetch full related HSP web/API records for the identified SG, MSG, and SSG. Use when Codex needs to run or guide IRSSG-based symmetry identification, extract SG/MSG/SSG numbers and symbols, output complete symmetry operations, Wyckoff positions, high-symmetry k-vectors, generated ssg.data/msg.data artifacts, or prepare downstream spin-group workflows from mPOSCAR or mcif input.
 ---
 
@@ -33,7 +33,7 @@ Confirm that magnetic moments are present and nonzero. If IRSSG reports only a n
 3. Run the wrapper from the skill directory:
 
 ```bash
-python skills/irssg-hsp-symmetry/scripts/run_irssg_ssg.py INPUT_FILE --output-dir ssg-analysis --overwrite
+python skills/hsp-symmetry-skill/scripts/run_irssg_ssg.py INPUT_FILE --output-dir ssg-analysis --overwrite
 ```
 
 4. Inspect `ssg-analysis/ssg_summary.json` first, then `ssg-analysis/hsp_group_info.json`, then `ssg-analysis/ssg.out` for debugging or full IRSSG operation tables.
