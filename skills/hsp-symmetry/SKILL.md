@@ -1,5 +1,5 @@
 ---
-name: hsp-symmetry-skill
+name: hsp-symmetry
 description: Determine material space, magnetic, and spin space group information from magnetic POSCAR-like mPOSCAR files or magnetic CIF/mcif files using IRSSG, then fetch full related HSP web/API records for the identified SG, MSG, and SSG. Use when Codex needs to run or guide IRSSG-based symmetry identification, extract SG/MSG/SSG numbers and symbols, output complete symmetry operations, Wyckoff positions, high-symmetry k-vectors, generated ssg.data/msg.data artifacts, or prepare downstream spin-group workflows from mPOSCAR or mcif input.
 ---
 
@@ -33,7 +33,7 @@ Confirm that magnetic moments are present and nonzero. If IRSSG reports only a n
 3. Run the wrapper from the skill directory:
 
 ```bash
-python skills/hsp-symmetry-skill/scripts/run_irssg_ssg.py INPUT_FILE --output-dir ssg-analysis --overwrite
+python skills/hsp-symmetry/scripts/run_irssg_ssg.py INPUT_FILE --output-dir ssg-analysis --overwrite
 ```
 
 4. Inspect `ssg-analysis/ssg_summary.json` first, then `ssg-analysis/hsp_group_info.json`, then `ssg-analysis/ssg.out` for debugging or full IRSSG operation tables.
@@ -47,6 +47,11 @@ Use `--require-hsp-api` when missing HSP records should make the wrapper fail. U
 
 ## Output Contract
 
+Strictly follow this output contract in the final answer. Do not replace requested
+tables with a file path, summary, count, or "see attached/generated file" response.
+Generated files may be cited only as provenance or as an additional artifact after
+the requested data has been printed directly in the final answer.
+
 - `ssg_summary.json`: parsed IRSSG identifiers, symbols, operation counts, generated files, attempted commands, and HSP API status.
 - `hsp_group_info.json`: complete fetched HSP records plus request metadata and frontend links.
 - `ssg.out` and `ssg.err`: raw IRSSG stdout/stderr for provenance and triage.
@@ -55,7 +60,23 @@ Use `--require-hsp-api` when missing HSP records should make the wrapper fail. U
 
 Prefer citing identifiers and run status from `ssg_summary.json`, and detailed group data from `hsp_group_info.json`. If parsing misses a field but `ssg.out` contains it, cite the relevant line and mark the JSON field as unavailable instead of guessing.
 
-For high-symmetry k-points, report `multiplicity`, `little_cogroup`, and coordinate lists exactly as HSP returns them. Do not compare `multiplicity` against the number of primitive coordinate strings as a validity check.
+When the user asks to output, list, report, summarize, or return identifiers, group data, operations, Wyckoff positions, or k-points, present the requested structured data as Markdown tables directly in the final answer. High-symmetry k-point output must be tabular, including every coordinate string from the relevant HSP `k_points` record. When a k-point has multiple coordinate strings, use one table row per coordinate and add a coordinate index column, instead of combining coordinates in one cell. Never answer a k-point coordinate request with only labels, counts, a summary, or a path to a generated file.
+
+Wyckoff-position output must include coordinates by default. For `space_group.wyckoff_positions`, `magnetic_group.wyckoff_positions`, and `spin_group.wyckoff_positions`, report `label`, `multiplicity`, `site_symmetry` when present, coordinate index, and each coordinate string from HSP. When a Wyckoff position has multiple coordinate strings, use one table row per coordinate and add a coordinate index column, instead of combining coordinates in one cell. Do not answer a Wyckoff-position request with only a summary of labels, multiplicities, or site symmetries unless the user explicitly asks for a summary-only response.
+
+For space-group and magnetic-group high-symmetry k-point tables, do not output HSP's internal `letter` field as a user-visible column. Use the HSP `label` field as the k-point name, then report `multiplicity`, `little_cogroup` when present, coordinate index, and coordinates. Apply the same omission to spin-group output unless the user explicitly asks for the internal letter field.
+
+Do not put HTML tags or renderer-specific markup such as `<br>` in final output. Render coordinate values in the user-visible `(k | spin)` or `(position | spin)` form, including outer parentheses; if HSP returns a coordinate string without outer parentheses, add them for display without changing the internal values. In pipe-delimited Markdown tables, encode only the coordinate separator as `&#124;` in the Markdown source so it renders visibly as `|` without splitting the table. Do not show backslash-escaped pipes such as `\|`. Do not use inline code to hide this problem. The rendered coordinate must look exactly like `(1/2, 1/2, w | 0, 0, 0)`.
+
+For all user-visible coordinate strings, including Wyckoff-position coordinates and high-symmetry k-point coordinates, render standard numeric coefficients in exact symbolic form even when the coefficient is attached to a variable or magnetic moment. Do not display `0.866025m1`, `-0.866025mx`, `0.5x`, or `-0.5my`; display them as `(sqrt(3)/2)m1`, `-(sqrt(3)/2)mx`, `(1/2)x`, and `-(1/2)my`. Apply the same rule to standalone entries and algebraic expressions while otherwise preserving the HSP coordinate expression.
+
+Before producing the final answer, omit any displayed column whose values would all be `null`, `None`, empty, or unavailable for the displayed rows. Never print a `null` column or the literal `null` in final user-facing output. If a field is absent only for some rows, omit that field for those rows instead of printing `null`.
+
+For symmetry operation tables, preserve the HSP operation data but render user-visible numeric matrix and vector entries in exact symbolic form whenever they correspond to standard crystallographic values. Do not display rounded decimal approximations such as `0.5`, `-0.5`, `0.866025`, `-0.866025`, `0.8660254037844388`, or small floating-point noise like `6.123233995736766e-17`; display them as `1/2`, `-1/2`, `sqrt(3)/2`, `-sqrt(3)/2`, and `0` respectively. Apply this to space, spin, parent, translation, axis, SU(2), coordinate strings, and any other operation matrices/vectors shown to the user. If a value cannot be confidently mapped to an exact standard value, keep the HSP value and state that it is shown as returned by the API.
+
+When reporting symmetry operations for a material run, output the complete operation set for each requested group. For SSG operations, use the IRSSG `Spin space group operations` table in `ssg.out` and include every operation up to `ssg_operation_count` / the table `# Number` value. For MSG operations, include every operation up to `msg_operation_count` / the MSG table `# Number` value. Treat `Indices of MSG operations within the list of SSG operations` only as a cross-reference between MSG and SSG rows; do not use it to filter or truncate the SSG table unless the user explicitly asks for only that subset. If `hsp_group_info.json` contains more spin-group operation rows than the IRSSG material SSG operation count, explain the distinction and prefer the IRSSG material operation table for the user's POSCAR-specific operation output.
+
+For high-symmetry k-points, report `multiplicity`, `little_cogroup` when present, and coordinate lists from HSP without changing the coordinate values except for display-only exact-symbol rendering and outer-parenthesis normalization as described above. Do not compare `multiplicity` against the number of primitive coordinate strings as a validity check.
 
 ## HSP API
 

@@ -50,7 +50,7 @@ export PATH="$HOME/.local/bin:$PATH"
 To force the wrapper to use a local package source:
 
 ```bash
-python skills/hsp-symmetry-skill/scripts/run_irssg_ssg.py INPUT_FILE \
+python skills/hsp-symmetry/scripts/run_irssg_ssg.py INPUT_FILE \
   --irssg-install-source /path/to/irssg/publish \
   --output-dir ssg-analysis --overwrite
 ```
